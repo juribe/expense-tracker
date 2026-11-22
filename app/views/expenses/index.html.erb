@@ -45,6 +45,7 @@
         <% { q: t("expenses.search_label"), category_id: t("common.category"), money_source_id: t("expenses.source_label"), start_date: t("expenses.from"), end_date: t("expenses.to"), min_amount: t("expenses.min_amount_label"), max_amount: t("expenses.max_amount_label") }.each do |key, label| %>
           <% value = params[key] %>
           <% next if value.blank? %>
+          <% next if key == :money_source_id && money_tracking_simple? %>
           <% chip_label = key == :category_id ? @categories.find { |c| c.id.to_s == value.to_s }&.name : key == :money_source_id ? @money_sources.find { |s| s.id.to_s == value.to_s }&.name : value %>
           <%= link_to expenses_path(sort_params.except(key)), class: "chip expenses-chip text-decoration-none", data: { testid: "chip-#{key}" }, aria: { label: t("expenses.remove_filter", label: label) } do %>
             <%= label %>: <%= chip_label %>
@@ -65,12 +66,14 @@
                               value: params[:category_id],
                               testid: "expense-filter-category-picker" %>
         </div>
-        <div class="col-md-4 expenses-field">
-          <%= f.label :money_source_id, t("expenses.source_label"), class: "form-label" %>
-          <div class="expenses-control">
-            <%= f.collection_select :money_source_id, @money_sources, :id, :display_name, { include_blank: t("expenses.all_sources"), selected: params[:money_source_id] } %>
+        <% if money_tracking_detailed? %>
+          <div class="col-md-4 expenses-field">
+            <%= f.label :money_source_id, t("expenses.source_label"), class: "form-label" %>
+            <div class="expenses-control">
+              <%= f.collection_select :money_source_id, @money_sources, :id, :display_name, { include_blank: t("expenses.all_sources"), selected: params[:money_source_id] } %>
+            </div>
           </div>
-        </div>
+        <% end %>
         <div class="col-md-4 expenses-field">
           <%= f.label :q, t("expenses.search_label"), class: "form-label" %>
           <div class="expenses-control">
@@ -165,9 +168,11 @@
     <button type="button" class="btn btn-sm btn-outline-primary" id="bulkCategory" data-testid="bulk-category" disabled>
       <i class="ti ti-tags me-1"></i><%= t("expenses.bulk_category_button") %>
     </button>
-    <button type="button" class="btn btn-sm btn-outline-primary" id="bulkSource" data-testid="bulk-source" disabled>
-      <i class="ti ti-wallet me-1"></i><%= t("expenses.bulk_source_button") %>
-    </button>
+    <% if money_tracking_detailed? %>
+      <button type="button" class="btn btn-sm btn-outline-primary" id="bulkSource" data-testid="bulk-source" disabled>
+        <i class="ti ti-wallet me-1"></i><%= t("expenses.bulk_source_button") %>
+      </button>
+    <% end %>
     <button type="button" class="btn btn-sm btn-outline-secondary" id="clearSel" disabled><%= t("common.clear") %></button>
     <button type="button" class="btn btn-sm btn-danger ms-auto" id="bulkDelete" disabled><i class="ti ti-trash me-1"></i><%= t("expenses.delete_selected") %></button>
   </div>
@@ -203,7 +208,9 @@
                 <%= sortable_column_header(t("common.date"), "date", current_sort: @sort, current_dir: @dir) %>
                 <%= sortable_column_header(t("common.description"), "description", current_sort: @sort, current_dir: @dir) %>
                 <%= sortable_column_header(t("common.category"), "category", current_sort: @sort, current_dir: @dir) %>
-                <th scope="col"><%= t("expenses.source") %></th>
+                <% if money_tracking_detailed? %>
+                  <th scope="col"><%= t("expenses.source") %></th>
+                <% end %>
                 <%= sortable_column_header(t("common.amount"), "amount", current_sort: @sort, current_dir: @dir) %>
                 <th scope="col" class="text-end"><span class="visually-hidden"><%= t("common.actions") %></span></th>
               </tr>
@@ -233,7 +240,9 @@
                     <% end %>
                   </td>
                   <td class="row-category"><%= category_badge(expense.category) %></td>
-                  <td><%= money_source_badge(expense.money_source) %></td>
+                  <% if money_tracking_detailed? %>
+                    <td><%= money_source_badge(expense.money_source) %></td>
+                  <% end %>
                   <td class="text-end amount"><%= number_to_currency(expense.amount) %></td>
                   <td class="text-end text-nowrap" data-stop="1">
                     <button type="button" class="btn btn-sm btn-outline-secondary" data-open-drawer
@@ -279,7 +288,12 @@
               <input type="checkbox" class="form-check-input row-check mt-2"
                      aria-label="<%= t('expenses.select_expense', date: l(expense.date, format: :short), description: decorated.lowercase_description) %>">
               <div class="mobile-item-body">
-                <div class="small text-muted"><%= l(expense.date, format: :short) %> · <span class="row-category"><%= category_badge(expense.category) %></span> · <%= money_source_badge(expense.money_source) %></div>
+                <div class="small text-muted">
+                  <%= l(expense.date, format: :short) %> · <span class="row-category"><%= category_badge(expense.category) %></span>
+                  <% if money_tracking_detailed? %>
+                    · <%= money_source_badge(expense.money_source) %>
+                  <% end %>
+                </div>
                 <div class="mt-1">
                   <% if expense.description.present? %>
                     <%= expense.description %>
@@ -389,16 +403,18 @@
                                 testid: "bulk-category-picker" %>
             <div class="invalid-feedback" id="bulkCategoryFeedback">Elige una categoría y/o una fuente de dinero para actualizar.</div>
           </div>
-          <div class="mb-3">
-            <label for="bulkSourceSelect" class="form-label">Nueva Fuente de Dinero</label>
-            <select id="bulkSourceSelect" name="money_source_id" class="form-select" data-testid="bulk-source-select">
-              <option value="">Sin cambios</option>
-              <% @money_sources.each do |source| %>
-                <option value="<%= source.id %>"><%= source.display_name %></option>
-              <% end %>
-            </select>
-            <div class="invalid-feedback" id="bulkSourceFeedback">Elige una categoría y/o una fuente de dinero para actualizar.</div>
-          </div>
+          <% if money_tracking_detailed? %>
+            <div class="mb-3">
+              <label for="bulkSourceSelect" class="form-label">Nueva Fuente de Dinero</label>
+              <select id="bulkSourceSelect" name="money_source_id" class="form-select" data-testid="bulk-source-select">
+                <option value="">Sin cambios</option>
+                <% @money_sources.each do |source| %>
+                  <option value="<%= source.id %>"><%= source.display_name %></option>
+                <% end %>
+              </select>
+              <div class="invalid-feedback" id="bulkSourceFeedback">Elige una categoría y/o una fuente de dinero para actualizar.</div>
+            </div>
+          <% end %>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>

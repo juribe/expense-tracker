@@ -520,6 +520,7 @@ es:
     wallet: "Monedero"
     pocket: "Bolsillo"
     loan: "Préstamo"
+    general: "General"
 
   kinds_sub:
     revolving: "Crédito rotativo"
@@ -914,6 +915,7 @@ es:
     gmail: "Integración Gmail"
     whatsapp: "WhatsApp"
     source_recognition: "Reconocimiento de fuentes"
+    money_tracking: "Seguimiento de dinero"
     entities: "Entidades bancarias"
     playground: "Playground"
     users: "Usuarios"
@@ -1009,6 +1011,14 @@ es:
     previous: "Anterior"
     next: "Siguiente"
     results: "Resultados"
+
+  money_tracking:
+    select_before_continue: "Elige cómo quieres controlar tu dinero para continuar."
+    advanced_only: "Esta función pertenece al seguimiento avanzado. Actívalo en Seguimiento de dinero."
+    invalid_mode: "La modalidad seleccionada no es válida."
+    updated: "Tu modalidad de seguimiento quedó actualizada."
+    invalid_default_source: "La fuente predeterminada seleccionada no es válida."
+    default_source_updated: "Tu fuente predeterminada quedó actualizada."
 
   money_sources:
     negative_balance_warning: "Saldo negativo — pendiente de conciliación"

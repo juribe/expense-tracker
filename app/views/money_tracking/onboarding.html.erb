@@ -1,0 +1,21 @@
+<% content_for :title, "¿Cómo quieres controlar tu dinero?" %>
+
+<div class="container py-4" data-testid="money-tracking-onboarding">
+  <div class="mx-auto et-maxw-960">
+    <div class="mb-4">
+      <span class="badge bg-primary-subtle text-primary mb-2">Configuración inicial</span>
+      <h1 class="h3 mb-2">¿Cómo quieres controlar tu dinero?</h1>
+      <p class="text-muted mb-0">
+        Configura Yogasto según tu manera de administrar tus finanzas. Puedes cambiar esta opción cuando quieras.
+      </p>
+    </div>
+
+    <%= form_with url: money_tracking_path, method: :patch, local: true do |form| %>
+      <%= render "money_tracking/mode_options", selected_mode: @selected_mode %>
+
+      <div class="d-flex justify-content-end mt-4">
+        <%= form.submit "Continuar", class: "btn btn-primary", data: { testid: "money-tracking-submit" } %>
+      </div>
+    <% end %>
+  </div>
+</div>

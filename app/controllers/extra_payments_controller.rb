@@ -7,6 +7,7 @@
 # /money_sources/:money_source_id/extra_payments.
 class ExtraPaymentsController < ApplicationController
   before_action :authenticate_user!
+  before_action :require_detailed_money_tracking
   before_action :set_money_source
   before_action :set_extra_payment, only: [ :destroy ]
 

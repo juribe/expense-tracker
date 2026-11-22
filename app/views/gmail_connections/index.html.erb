@@ -89,7 +89,7 @@
           </div>
         </div>
 
-        <% if @connection&.active? && @connection.setup_suggestions.present? && !@connection.search_configured? && !@connection.sync_running? %>
+        <% if money_tracking_detailed? && @connection&.active? && @connection.setup_suggestions.present? && !@connection.search_configured? && !@connection.sync_running? %>
           <div class="card gmail-card border-primary" data-testid="setup-suggestions-card">
             <div class="card-body">
               <div class="gmail-card-title">

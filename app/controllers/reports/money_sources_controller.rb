@@ -4,6 +4,7 @@
 # GET /reports/money_sources — where spending originates.
 # Delegates all aggregation to Reports::MoneySources; keeps the controller fat-free.
 class Reports::MoneySourcesController < Reports::BaseController
+  before_action :require_detailed_money_tracking
   # Chartkick injects inline chart markup and styles; every other style is
   # served from the reports stylesheet.
   content_security_policy do |policy|

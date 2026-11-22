@@ -87,7 +87,11 @@ module Reports::PerspectivesHelper
     when "goals"
       goals_path
     when "money_sources"
-      reports_money_sources_path(base)
+      if money_tracking_detailed?
+        reports_money_sources_path(base)
+      else
+        reports_transactions_path(base.except(:money_source_id))
+      end
     when "transactions"
       reports_transactions_path(base)
     else

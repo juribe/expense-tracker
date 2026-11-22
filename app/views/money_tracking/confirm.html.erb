@@ -1,0 +1,33 @@
+<% content_for :title, "Volver al seguimiento simple" %>
+
+<div class="container py-4" data-testid="money-tracking-confirm">
+  <div class="mx-auto et-maxw-720">
+    <section class="card">
+      <div class="card-body">
+        <span class="icon-chip icon-chip-amber mb-3" aria-hidden="true"><i class="ti ti-alert-triangle"></i></span>
+        <h1 class="h4 mb-2">Volver al seguimiento simple</h1>
+        <p class="text-muted">
+          Antes de continuar, revisa qué cambia. No se eliminará ninguna información.
+        </p>
+
+        <ul class="mb-4">
+          <li class="mb-2">Las cuentas y tarjetas dejarán de mostrarse en tu navegación.</li>
+          <li class="mb-2">Los movimientos no serán eliminados.</li>
+          <li class="mb-2">Las fuentes individuales permanecerán almacenadas.</li>
+          <li class="mb-2">General volverá a ser la fuente utilizada para nuevos movimientos.</li>
+          <li>Las funcionalidades avanzadas quedarán ocultas y podrás activarlas de nuevo cuando quieras.</li>
+        </ul>
+
+        <div class="d-flex flex-column flex-sm-row gap-2">
+          <%= button_to "Sí, volver a simple",
+                        money_tracking_path,
+                        method: :patch,
+                        params: { money_tracking_mode: "simple", confirmed: "1" },
+                        class: "btn btn-primary",
+                        data: { testid: "money-tracking-confirm-submit" } %>
+          <%= link_to "Cancelar", money_tracking_path, class: "btn btn-outline-secondary" %>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

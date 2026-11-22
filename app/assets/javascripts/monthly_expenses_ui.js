@@ -122,10 +122,12 @@
       // the user must pick where the money comes from).
       var sourceSelect = $("#processMoneySource");
       var templateSource = row.dataset.moneySourceId || "";
-      sourceSelect.value = Array.prototype.slice.call(sourceSelect.options)
-                                           .some(function (o) { return o.value === templateSource; })
-        ? templateSource
-        : "";
+      if (sourceSelect) {
+        sourceSelect.value = Array.prototype.slice.call(sourceSelect.options)
+                                             .some(function (o) { return o.value === templateSource; })
+          ? templateSource
+          : "";
+      }
 
       var form = $("#processForm");
       form.action = row.dataset.processUrl;

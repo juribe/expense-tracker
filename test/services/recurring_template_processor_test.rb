@@ -20,6 +20,25 @@ class RecurringTemplateProcessorTest < ActiveSupport::TestCase
     assert_equal @savings.id, result.transaction.money_source_id
   end
 
+  test "simple mode processes a template without a source using General" do
+    simple = User.create!(name: "RTP Simple", email: "rtp_simple_#{SecureRandom.hex(4)}@example.com",
+                          password: "password123")
+    simple.update!(money_tracking_mode: "simple", money_tracking_mode_selected_at: Time.current)
+    general = simple.ensure_general_money_source!
+    category = Category.create!(name: "RTP Simple Cat", is_default: false,
+                                category_type: "expense", user: simple)
+    template = simple.recurring_templates.create!(
+      category: category, kind: "expense", amount: 30_000, frequency: "monthly",
+      source: "manual", description: "Seguro"
+    )
+
+    result = RecurringTemplateProcessor.call(recurring_template: template, amount: 30_000,
+                                             date: Date.current)
+
+    assert result.success?
+    assert_equal general.id, result.transaction.money_source_id
+  end
+
   test "uses the explicitly given money source over the template's" do
     wallet = @user.money_sources.create!(name: "Nequi", kind: "wallet")
     result = RecurringTemplateProcessor.call(

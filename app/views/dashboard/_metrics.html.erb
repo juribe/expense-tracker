@@ -14,14 +14,16 @@
     end
 %>
 <section class="dash-metrics-grid" data-testid="dashboard-metrics">
-  <%= render "dashboard/metric_card",
-        label: t("dashboard.money_in_accounts", default: "Dinero en cuentas"),
-        value: number_to_currency(@position[:accounts_balance]),
-        description: t("dashboard.money_in_accounts_desc",
-                       default: "Saldo disponible en cuentas, tarjetas débito, efectivo y billeteras."),
-        badge: t("dashboard.available", default: "Disponible"),
-        icon: "wallet", variant: "accounts",
-        href: money_sources_cash_path, testid: "dashboard-kpi-accounts" %>
+  <% if money_tracking_detailed? %>
+    <%= render "dashboard/metric_card",
+          label: t("dashboard.money_in_accounts", default: "Dinero en cuentas"),
+          value: number_to_currency(@position[:accounts_balance]),
+          description: t("dashboard.money_in_accounts_desc",
+                         default: "Saldo disponible en cuentas, tarjetas débito, efectivo y billeteras."),
+          badge: t("dashboard.available", default: "Disponible"),
+          icon: "wallet", variant: "accounts",
+          href: money_sources_cash_path, testid: "dashboard-kpi-accounts" %>
+  <% end %>
 
   <%= render "dashboard/metric_card",
         label: t("dashboard.incomes_cycle", default: "Ingresos del ciclo"),

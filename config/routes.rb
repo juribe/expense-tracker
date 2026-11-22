@@ -272,6 +272,12 @@ Rails.application.routes.draw do
   get "settings/pay", to: "pay_settings#show", as: :pay_settings
   patch "settings/pay", to: "pay_settings#update"
 
+  # Settings → Tracking mode (simple / detailed) and first-run onboarding.
+  get "settings/money_tracking", to: "money_tracking#show", as: :money_tracking
+  patch "settings/money_tracking", to: "money_tracking#update"
+  patch "settings/money_tracking/default_source", to: "money_tracking#update_default_source",
+                                                  as: :money_tracking_default_source
+
   # Admin user management
   namespace :admin do
     resources :users, only: [ :index, :destroy ] do

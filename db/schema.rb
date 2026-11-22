@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_20_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_22_180000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -756,11 +756,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_20_130000) do
     t.uuid "institution_id"
     t.string "institution_cached_name"
     t.boolean "gmf_exempt", default: false, null: false
+    t.boolean "general", default: false, null: false
     t.index ["institution_type", "institution_id"], name: "index_money_sources_on_institution"
     t.index ["kind", "sub_kind"], name: "index_money_sources_on_kind_and_sub_kind"
     t.index ["parent_id"], name: "index_money_sources_on_parent_id"
     t.index ["user_id", "identifier"], name: "index_money_sources_on_user_id_and_identifier", unique: true
     t.index ["user_id", "kind"], name: "index_money_sources_on_user_id_and_kind"
+    t.index ["user_id"], name: "index_money_sources_general_per_user", unique: true, where: "(general = true)"
     t.index ["user_id"], name: "index_money_sources_gmf_exempt_per_user", unique: true, where: "(gmf_exempt = true)"
     t.index ["user_id"], name: "index_money_sources_on_user_id"
   end
@@ -1382,11 +1384,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_20_130000) do
     t.string "inbound_email_token"
     t.boolean "admin", default: false, null: false
     t.string "webauthn_id"
+    t.string "money_tracking_mode", default: "detailed", null: false
+    t.datetime "money_tracking_mode_selected_at"
+    t.uuid "default_money_source_id"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
+    t.index ["default_money_source_id"], name: "index_users_on_default_money_source_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["inbound_email_token"], name: "index_users_on_inbound_email_token", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["webauthn_id"], name: "index_users_on_webauthn_id", unique: true
+    t.check_constraint "money_tracking_mode::text = ANY (ARRAY['simple'::character varying, 'detailed'::character varying]::text[])", name: "users_money_tracking_mode_check"
   end
 
   create_table "webauthn_credentials", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -1536,6 +1543,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_20_130000) do
   add_foreign_key "transfers", "money_sources", column: "to_source_id"
   add_foreign_key "transfers", "users"
   add_foreign_key "user_consents", "users"
+  add_foreign_key "users", "money_sources", column: "default_money_source_id", on_delete: :nullify
   add_foreign_key "webauthn_credentials", "users"
   add_foreign_key "whatsapp_connections", "users"
   add_foreign_key "whatsapp_connections", "whatsapp_identities"

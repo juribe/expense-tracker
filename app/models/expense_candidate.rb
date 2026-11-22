@@ -99,6 +99,7 @@ class ExpenseCandidate < ApplicationRecord
   end
 
   before_validation :set_defaults, on: :create
+  before_validation :assign_default_money_source, on: :create
   after_validation :set_initial_status, on: :create
   after_save :sync_missing_fields, if: -> { saved_changes.keys.intersect?(%w[category_id money_source_id category_suggestion]) }
 
@@ -221,6 +222,16 @@ class ExpenseCandidate < ApplicationRecord
     self.source ||= "text"
     self.missing_fields ||= []
     self.metadata ||= {}
+  end
+
+  # Candidates from WhatsApp, AI, Gmail and imports follow the same source
+  # rule as final transactions. In simple mode General completes the row so
+  # the user is never asked about an account or card.
+  def assign_default_money_source
+    return if user.nil?
+
+    resolved = MoneySources::DefaultSourceResolver.new(user: user, explicit: money_source_id).resolve
+    self.money_source = resolved if resolved.present?
   end
 
   def set_initial_status

@@ -50,8 +50,12 @@ class RecurringTemplatesController < ApplicationController
 
   # Receive (income) / Pay (expense): creates the real one-time transaction.
   def process_transaction
-    money_source = current_user.money_sources.active.payment_sources.find_by(id: params[:money_source_id].presence)
-    if params[:money_source_id].present? && money_source.nil?
+    money_source = if money_tracking_simple?
+      nil
+    else
+      current_user.money_sources.active.payment_sources.find_by(id: params[:money_source_id].presence)
+    end
+    if !money_tracking_simple? && params[:money_source_id].present? && money_source.nil?
       redirect_to recurring_templates_path(kind: @recurring_template.kind),
                   alert: t("recurring.invalid_payment_source"),
                   status: :see_other
@@ -60,7 +64,8 @@ class RecurringTemplatesController < ApplicationController
 
     # The template itself is a reminder without an owning source; the real
     # transaction this action creates always needs one (Pay or Receive).
-    if money_source.nil? && params[:money_source_id].blank? && @recurring_template.money_source.nil?
+    # In simple mode General supplies it automatically.
+    if !money_tracking_simple? && money_source.nil? && params[:money_source_id].blank? && @recurring_template.money_source.nil?
       redirect_to recurring_templates_path(kind: @recurring_template.kind),
                   alert: t("recurring.missing_money_source"),
                   status: :see_other
@@ -115,6 +120,11 @@ class RecurringTemplatesController < ApplicationController
   end
 
   def set_money_sources
+    if money_tracking_simple?
+      @money_sources = []
+      return
+    end
+
     # The index shows one template kind at a time. Income templates receive
     # money into an account/wallet/cash — loans never take an income.
     # Expense templates keep every source: a normal expense points at a
@@ -174,14 +184,16 @@ class RecurringTemplatesController < ApplicationController
   end
 
   def recurring_template_params
-    params.require(:recurring_template)
-          .permit(:category_id, :kind, :amount, :description, :payment_day, :active, :money_source_id)
+    permitted = [ :category_id, :kind, :amount, :description, :payment_day, :active ]
+    permitted << :money_source_id if money_tracking_detailed?
+    params.require(:recurring_template).permit(*permitted)
   end
 
   # The transaction type is immutable after creation so historical
   # occurrences stay consistent.
   def update_params
-    params.require(:recurring_template)
-          .permit(:category_id, :amount, :description, :payment_day, :active, :money_source_id)
+    permitted = [ :category_id, :amount, :description, :payment_day, :active ]
+    permitted << :money_source_id if money_tracking_detailed?
+    params.require(:recurring_template).permit(*permitted)
   end
 end

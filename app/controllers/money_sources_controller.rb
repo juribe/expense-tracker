@@ -3,6 +3,8 @@
 class MoneySourcesController < ApplicationController
   include MoneySourceShowContext
 
+  before_action :require_detailed_money_tracking
+
   # Source recognition belongs to the premium Automatización section, but the
   # rest of this controller serves the free money and debt pages.
   require_premium only: [ :recognition, :update_recognition, :destroy_recognition ]
@@ -12,7 +14,7 @@ class MoneySourcesController < ApplicationController
   rescue_from ActiveRecord::RecordNotFound, with: :not_found
 
   FILTERS = {
-    "cash" => %w[cash wallet account debit_card],
+    "cash" => %w[cash wallet account debit_card general],
     "pockets" => %w[pocket],
     "credit_cards" => %w[credit_card],
     "loans" => %w[loan]

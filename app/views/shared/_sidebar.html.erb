@@ -50,20 +50,22 @@
                 <% end %>
               <% end %>
             </li>
-            <li class="sidebar-item">
-              <%= link_to reconciliation_path, class: "sidebar-link #{active_class('reconciliations')}" do %>
-                <span class="aside-icon p-2 bg-warning-subtle rounded-1"><i class="ti ti-circle-check fs-5"></i></span>
-                <span class="hide-menu"><%= t("nav.reconciliation", default: "Día de Balance") %></span>
-              <% end %>
-            </li>
-
-            <% unless financial_setup_completed? %>
+            <% if money_tracking_detailed? %>
               <li class="sidebar-item">
-                <%= link_to financial_setup_path, class: "sidebar-link #{active_class('financial_setups')}" do %>
-                  <span class="aside-icon p-2 bg-info-subtle rounded-1"><i class="ti ti-stars fs-5"></i></span>
-                  <span class="hide-menu"><%= t("nav.setup_wizard") %></span>
+                <%= link_to reconciliation_path, class: "sidebar-link #{active_class('reconciliations')}" do %>
+                  <span class="aside-icon p-2 bg-warning-subtle rounded-1"><i class="ti ti-circle-check fs-5"></i></span>
+                  <span class="hide-menu"><%= t("nav.reconciliation", default: "Día de Balance") %></span>
                 <% end %>
               </li>
+
+              <% unless financial_setup_completed? %>
+                <li class="sidebar-item">
+                  <%= link_to financial_setup_path, class: "sidebar-link #{active_class('financial_setups')}" do %>
+                    <span class="aside-icon p-2 bg-info-subtle rounded-1"><i class="ti ti-stars fs-5"></i></span>
+                    <span class="hide-menu"><%= t("nav.setup_wizard") %></span>
+                  <% end %>
+                </li>
+              <% end %>
             <% end %>
           </ul>
         </li>
@@ -92,15 +94,18 @@
                 <span class="hide-menu"><%= t("nav.incomes") %></span>
               <% end %>
             </li>
-            <li class="sidebar-item">
-              <%= link_to transfers_path, class: "sidebar-link #{exact_active_class('reports/transfers')}" do %>
-                <span class="aside-icon p-2 bg-secondary-subtle rounded-1"><i class="ti ti-arrows-left-right fs-5"></i></span>
-                <span class="hide-menu"><%= t("nav.transfers", default: "Transferencias") %></span>
-              <% end %>
-            </li>
+            <% if money_tracking_detailed? %>
+              <li class="sidebar-item">
+                <%= link_to transfers_path, class: "sidebar-link #{exact_active_class('reports/transfers')}" do %>
+                  <span class="aside-icon p-2 bg-secondary-subtle rounded-1"><i class="ti ti-arrows-left-right fs-5"></i></span>
+                  <span class="hide-menu"><%= t("nav.transfers", default: "Transferencias") %></span>
+                <% end %>
+              </li>
+            <% end %>
           </ul>
         </li>
 
+        <% if money_tracking_detailed? %>
         <%# Dinero %>
         <li class="nav-small-cap">
           <a class="nav-section-toggle" data-bs-toggle="collapse" href="#sidebarSectionMoney" role="button" aria-expanded="<%= sidebar_section_active?(:money) %>" aria-controls="sidebarSectionMoney">
@@ -154,6 +159,7 @@
             </li>
           </ul>
         </li>
+        <% end %>
 
         <%# Planificación %>
         <li class="nav-small-cap">
@@ -242,12 +248,14 @@
                 <span class="hide-menu"><%= t("reports.nav.budgets") %></span>
               <% end %>
             </li>
-            <li class="sidebar-item">
-              <%= link_to reports_money_sources_path, class: "sidebar-link #{exact_active_class('reports/money_sources')}" do %>
-                <span class="aside-icon p-2 bg-warning-subtle rounded-1"><i class="ti ti-wallet fs-5"></i></span>
-                <span class="hide-menu"><%= t("reports.nav.money_sources") %></span>
-              <% end %>
-            </li>
+            <% if money_tracking_detailed? %>
+              <li class="sidebar-item">
+                <%= link_to reports_money_sources_path, class: "sidebar-link #{exact_active_class('reports/money_sources')}" do %>
+                  <span class="aside-icon p-2 bg-warning-subtle rounded-1"><i class="ti ti-wallet fs-5"></i></span>
+                  <span class="hide-menu"><%= t("reports.nav.money_sources") %></span>
+                <% end %>
+              </li>
+            <% end %>
             <li class="sidebar-item">
               <%= link_to reports_insights_path, class: "sidebar-link #{exact_active_class('reports/insights')}" do %>
                 <span class="aside-icon p-2 bg-warning-subtle rounded-1"><i class="ti ti-bulb fs-5"></i></span>
@@ -328,12 +336,14 @@
                 <span class="hide-menu"><%= t("nav.rules") %></span>
               <% end %>
             </li>
-            <li class="sidebar-item">
-              <%= link_to money_sources_recognition_path, class: "sidebar-link #{'active' if controller_name == 'money_sources' && action_name == 'recognition'}" do %>
-                <span class="aside-icon p-2 bg-secondary-subtle rounded-1"><i class="ti ti-scan fs-5"></i></span>
-                <span class="hide-menu"><%= t("nav.source_recognition") %></span>
-              <% end %>
-            </li>
+            <% if money_tracking_detailed? %>
+              <li class="sidebar-item">
+                <%= link_to money_sources_recognition_path, class: "sidebar-link #{'active' if controller_name == 'money_sources' && action_name == 'recognition'}" do %>
+                  <span class="aside-icon p-2 bg-secondary-subtle rounded-1"><i class="ti ti-scan fs-5"></i></span>
+                  <span class="hide-menu"><%= t("nav.source_recognition") %></span>
+                <% end %>
+              </li>
+            <% end %>
             <li class="sidebar-item">
               <%= link_to gmail_connection_path, class: "sidebar-link #{active_class('gmail_connections')}" do %>
                 <span class="aside-icon p-2 bg-secondary-subtle rounded-1"><i class="ti ti-mail fs-5"></i></span>
@@ -380,17 +390,25 @@
               <% end %>
             </li>
             <li class="sidebar-item">
+              <%= link_to money_tracking_path, class: "sidebar-link #{active_class('money_tracking')}" do %>
+                <span class="aside-icon p-2 bg-secondary-subtle rounded-1"><i class="ti ti-adjustments fs-5"></i></span>
+                <span class="hide-menu"><%= t("nav.money_tracking", default: "Seguimiento de dinero") %></span>
+              <% end %>
+            </li>
+            <li class="sidebar-item">
               <%= link_to alert_settings_path, class: "sidebar-link #{active_class('alert_settings')}" do %>
                 <span class="aside-icon p-2 bg-secondary-subtle rounded-1"><i class="ti ti-bell fs-5"></i></span>
                 <span class="hide-menu"><%= t("nav.configure_alerts", default: "Configurar alertas") %></span>
               <% end %>
             </li>
-            <li class="sidebar-item">
-              <%= link_to financial_institutions_path, class: "sidebar-link #{'active' if %w[financial_institutions custom_financial_institutions].include?(controller_name)}" do %>
-                <span class="aside-icon p-2 bg-secondary-subtle rounded-1"><i class="ti ti-building-bank fs-5"></i></span>
-                <span class="hide-menu"><%= t("nav.entities", default: "Entidades bancarias") %></span>
-              <% end %>
-            </li>
+            <% if money_tracking_detailed? %>
+              <li class="sidebar-item">
+                <%= link_to financial_institutions_path, class: "sidebar-link #{'active' if %w[financial_institutions custom_financial_institutions].include?(controller_name)}" do %>
+                  <span class="aside-icon p-2 bg-secondary-subtle rounded-1"><i class="ti ti-building-bank fs-5"></i></span>
+                  <span class="hide-menu"><%= t("nav.entities", default: "Entidades bancarias") %></span>
+                <% end %>
+              </li>
+            <% end %>
           </ul>
         </li>
 

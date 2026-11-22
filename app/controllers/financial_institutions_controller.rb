@@ -9,6 +9,7 @@
 # lists catalog entities); users never edit global data here.
 class FinancialInstitutionsController < ApplicationController
   before_action :authenticate_user!
+  before_action :require_detailed_money_tracking
 
   def index
     # Sorted purchases browse; the type grouping happens in the view over

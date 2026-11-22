@@ -23,9 +23,15 @@ class Dashboard::Onboarding
   end
 
   def call
-    @steps ||= STEPS.index_with do |key|
+    @steps ||= visible_steps.index_with do |key|
       Step.new(key: key, completed: completed?(key), skipped: progress.skipped?(key))
     end
+  end
+
+  # The account/card setup step only belongs to the advanced flow. Simple
+  # accounts still get the Gmail and WhatsApp connection steps.
+  def visible_steps
+    @user.money_tracking_simple? ? STEPS - [ "initial" ] : STEPS
   end
 
   def pending_steps

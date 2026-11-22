@@ -131,7 +131,8 @@ class GmailConnectionsController < ApplicationController
     return sync_already_running if @connection.sync_running?
 
     GmailSetupSyncJob.perform_later(connection_id: @connection.id)
-    redirect_to money_sources_recognition_path, notice: t("gmail_messages.setup_sync_started")
+    destination = money_tracking_simple? ? gmail_connection_path : money_sources_recognition_path
+    redirect_to destination, notice: t("gmail_messages.setup_sync_started")
   end
 
   # Approves a low-confidence transaction extracted from an email.

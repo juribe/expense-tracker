@@ -11,7 +11,7 @@
 # Example: Dashboard::PositionSnapshot.call(user: user)[:credit_debt]
 class Dashboard::PositionSnapshot
   # Kinds that hold spendable money: the card's "Dinero en cuentas" total.
-  LIQUID_KINDS = %w[account debit_card cash wallet].freeze
+  LIQUID_KINDS = %w[account debit_card cash wallet general].freeze
 
   def self.call(user:)
     new(user: user).call

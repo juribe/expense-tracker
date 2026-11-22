@@ -54,12 +54,14 @@
                                     include_blank: t("common.none"),
                                     testid: "income-category-picker" %>
               </div>
-              <div class="col-md-6 mb-3">
-                <%= f.label :money_source_id, t("incomes.form.money_source_label"), class: "form-label" %>
-                <%= f.collection_select :money_source_id, @money_sources, :id, :display_name,
-                                        { include_blank: t("incomes.form.money_source_placeholder", default: "¿A dónde entra?") },
-                                        { required: true, class: "form-select" } %>
-              </div>
+              <% if money_tracking_detailed? %>
+                <div class="col-md-6 mb-3">
+                  <%= f.label :money_source_id, t("incomes.form.money_source_label"), class: "form-label" %>
+                  <%= f.collection_select :money_source_id, @money_sources, :id, :display_name,
+                                          { include_blank: t("incomes.form.money_source_placeholder", default: "¿A dónde entra?") },
+                                          { required: true, class: "form-select" } %>
+                </div>
+              <% end %>
             </div>
           </div>
 

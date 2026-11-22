@@ -5,6 +5,7 @@
 # balances verified against reality. Reads the persisted state, never
 # recomputes per request (Reconciliation::State).
 class ReconciliationsController < ApplicationController
+  before_action :require_detailed_money_tracking
   before_action :set_period
   before_action :set_template, only: [ :assign_payment ]
   before_action :set_source, only: [ :set_actual_balance, :leave_pending, :search_movements ]

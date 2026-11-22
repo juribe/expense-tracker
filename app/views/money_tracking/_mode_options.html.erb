@@ -1,0 +1,63 @@
+<div class="row g-3">
+  <div class="col-12 col-lg-6">
+    <label class="card h-100 mb-0 position-relative" data-testid="money-tracking-option-simple">
+      <div class="card-body">
+        <div class="d-flex align-items-start gap-3">
+          <span class="icon-chip icon-chip-blue" aria-hidden="true"><i class="ti ti-receipt"></i></span>
+          <div class="flex-grow-1">
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <h2 class="h5 mb-0">Quiero controlar mis gastos</h2>
+              <span class="badge bg-success-subtle text-success">Recomendado</span>
+            </div>
+            <p class="text-muted mb-3">
+              Lo importante para mí es saber cuánto gasto, en qué categorías y cómo organizar mi presupuesto.
+            </p>
+            <ul class="list-unstyled small mb-0">
+              <li class="mb-1"><i class="ti ti-check text-success me-1" aria-hidden="true"></i>Registrar ingresos y gastos</li>
+              <li class="mb-1"><i class="ti ti-check text-success me-1" aria-hidden="true"></i>Categorías</li>
+              <li class="mb-1"><i class="ti ti-check text-success me-1" aria-hidden="true"></i>Presupuestos</li>
+              <li class="mb-1"><i class="ti ti-check text-success me-1" aria-hidden="true"></i>Gastos mensuales</li>
+              <li class="mb-1"><i class="ti ti-check text-success me-1" aria-hidden="true"></i>Reportes</li>
+              <li class="mb-1"><i class="ti ti-check text-success me-1" aria-hidden="true"></i>Análisis de gastos</li>
+              <li><i class="ti ti-check text-success me-1" aria-hidden="true"></i>Automatizaciones e IA según el plan contratado</li>
+            </ul>
+          </div>
+          <div class="form-check">
+            <%= radio_button_tag :money_tracking_mode, "simple", selected_mode == "simple",
+                                 class: "form-check-input", id: "money_tracking_mode_simple" %>
+          </div>
+        </div>
+      </div>
+    </label>
+  </div>
+
+  <div class="col-12 col-lg-6">
+    <label class="card h-100 mb-0 position-relative" data-testid="money-tracking-option-detailed">
+      <div class="card-body">
+        <div class="d-flex align-items-start gap-3">
+          <span class="icon-chip icon-chip-green" aria-hidden="true"><i class="ti ti-building-bank"></i></span>
+          <div class="flex-grow-1">
+            <h2 class="h5 mb-1">Quiero administrar todas mis cuentas</h2>
+            <p class="text-muted mb-3">
+              Quiero saber cuánto tengo en cada cuenta, cuánto debo en mis tarjetas y cómo se mueve mi dinero.
+            </p>
+            <ul class="list-unstyled small mb-0">
+              <li class="mb-1"><i class="ti ti-check text-success me-1" aria-hidden="true"></i>Todo lo incluido en seguimiento simple</li>
+              <li class="mb-1"><i class="ti ti-check text-success me-1" aria-hidden="true"></i>Cuentas bancarias</li>
+              <li class="mb-1"><i class="ti ti-check text-success me-1" aria-hidden="true"></i>Tarjetas de crédito</li>
+              <li class="mb-1"><i class="ti ti-check text-success me-1" aria-hidden="true"></i>Efectivo y billeteras</li>
+              <li class="mb-1"><i class="ti ti-check text-success me-1" aria-hidden="true"></i>Préstamos</li>
+              <li class="mb-1"><i class="ti ti-check text-success me-1" aria-hidden="true"></i>Transferencias</li>
+              <li class="mb-1"><i class="ti ti-check text-success me-1" aria-hidden="true"></i>Saldos individuales</li>
+              <li><i class="ti ti-check text-success me-1" aria-hidden="true"></i>Conciliación y cuadre de saldos</li>
+            </ul>
+          </div>
+          <div class="form-check">
+            <%= radio_button_tag :money_tracking_mode, "detailed", selected_mode == "detailed",
+                                 class: "form-check-input", id: "money_tracking_mode_detailed" %>
+          </div>
+        </div>
+      </div>
+    </label>
+  </div>
+</div>

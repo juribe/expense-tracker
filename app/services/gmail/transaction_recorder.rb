@@ -32,6 +32,10 @@ module Gmail
       transaction = transaction.to_h.symbolize_keys
       category = prefill ? prefill.category : resolve_category(transaction)
       suggestion = prefill&.suggestion
+      money_source = MoneySources::DefaultSourceResolver.new(
+        user: @user,
+        explicit: money_source
+      ).resolve
       # A real expense without a funding source would breach the money-source
       # rule; the candidate pipeline collects these for review instead.
       if money_source.blank? || category.nil?

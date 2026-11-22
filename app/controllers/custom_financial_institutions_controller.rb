@@ -7,6 +7,7 @@
 # still backs money sources is blocked so no reference dangles.
 class CustomFinancialInstitutionsController < ApplicationController
   before_action :authenticate_user!
+  before_action :require_detailed_money_tracking
   before_action :set_custom_institution, only: %i[edit update destroy]
 
   # Same convention as money_sources_controller: foreign records are a

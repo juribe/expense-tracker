@@ -37,6 +37,7 @@ module Expenses
 
     def call
       raise_if_gmail_duplicate!
+      @resolved_money_source = resolve_money_source
       raise_if_money_source_blank!
 
       Expense.new(
@@ -47,18 +48,22 @@ module Expenses
         date: parse_date!,
         source: normalize_source!,
         gmail_message_id: @gmail_message_id.presence,
-        money_source: @money_source,
+        money_source: @resolved_money_source,
         idempotency_key: @idempotency_key
       ).tap(&:save!)
     end
 
     private
 
+    def resolve_money_source
+      MoneySources::DefaultSourceResolver.new(user: @user, explicit: @money_source).resolve
+    end
+
     # Expenses always leave from a known source. One exception: an active
     # rule may fill the money source at create time (rule actions set one),
     # so extraction paths holding only a text/grid input still resolve.
     def raise_if_money_source_blank!
-      return if @money_source.is_a?(MoneySource)
+      return if @resolved_money_source.is_a?(MoneySource)
       return if a_matching_rule_sets_the_money_source?
 
       raise Invalid, "money source is required"

@@ -2,6 +2,7 @@
 
 class TransfersController < ApplicationController
   before_action :authenticate_user!
+  before_action :require_detailed_money_tracking
   before_action :set_transfer, only: [ :destroy ]
 
   # Quick-action forms (money sources): the origin is fixed by the card that

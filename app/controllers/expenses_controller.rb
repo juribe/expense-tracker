@@ -91,11 +91,11 @@ class ExpensesController < ApplicationController
   # This is only the template association: no Payment is created and no
   # credit balance changes (apply payments from the credit/loan page).
   def assign_recurring
-    completed = if params.key?(:completed)
-                  params[:completed].to_s == "1" || params[:completed].to_s == "true"
-                else
-                  true
-                end
+    completed = true
+    if params.key?(:completed)
+      completed = params[:completed].to_s == "1" || params[:completed].to_s == "true"
+    end
+
 
     result = Expenses::RecurringAssignment.assign(
       user: current_user,
@@ -224,7 +224,7 @@ class ExpensesController < ApplicationController
   end
 
   def set_money_sources
-    @money_sources = MoneySource.payment_origins(current_user)
+    @money_sources = money_tracking_detailed? ? MoneySource.payment_origins(current_user) : []
   end
 
   # The table renders MoneySource#display_name, which reads credit_account
@@ -292,7 +292,9 @@ class ExpensesController < ApplicationController
   end
 
   def expense_params
-    params.require(:expense).permit(:amount, :description, :date, :category_id, :money_source_id)
+    permitted = [ :amount, :description, :date, :category_id ]
+    permitted << :money_source_id if money_tracking_detailed?
+    params.require(:expense).permit(*permitted)
   end
 
   # Optional prefill for the standard new-expense form, used when it is opened
@@ -306,7 +308,7 @@ class ExpensesController < ApplicationController
     @expense.description = prefill[:description] if prefill[:description].present?
     @expense.date = prefill[:date] if prefill[:date].present?
 
-    return if prefill[:money_source_id].blank?
+    return if prefill[:money_source_id].blank? || !money_tracking_detailed?
 
     source = current_user.money_sources.find_by(id: prefill[:money_source_id])
     @expense.money_source = source if source

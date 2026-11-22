@@ -19,7 +19,9 @@
               <th scope="col"><%= t("common.date") %></th>
               <th scope="col"><%= t("common.category") %></th>
               <th scope="col"><%= t("common.description") %></th>
-              <th scope="col"><%= t("dashboard.money_source", default: "Fuente de dinero") %></th>
+              <% if money_tracking_detailed? %>
+                <th scope="col"><%= t("dashboard.money_source", default: "Fuente de dinero") %></th>
+              <% end %>
               <th scope="col" class="text-end"><%= t("common.amount") %></th>
             </tr>
           </thead>
@@ -34,7 +36,9 @@
                 <td class="dash-movement-date"><%= l(expense.date, format: :long) %></td>
                 <td><%= category_badge(expense.category) %></td>
                 <td class="dash-movement-name"><%= expense.description.presence || t("expenses.no_description") %></td>
-                <td><%= dashboard_money_source_badge(expense.money_source) %></td>
+                <% if money_tracking_detailed? %>
+                  <td><%= dashboard_money_source_badge(expense.money_source) %></td>
+                <% end %>
                 <td class="text-end dash-movement-amount"><%= number_to_currency(expense.amount.abs) %></td>
               </tr>
             <% end %>
@@ -57,7 +61,9 @@
               <%= l(expense.date, format: :short) %> · <%= category_badge(expense.category) %>
             </div>
             <div class="mt-1 dash-movement-name"><%= expense.description.presence || t("expenses.no_description") %></div>
-            <div class="mt-1"><%= dashboard_money_source_badge(expense.money_source) %></div>
+            <% if money_tracking_detailed? %>
+              <div class="mt-1"><%= dashboard_money_source_badge(expense.money_source) %></div>
+            <% end %>
           </div>
           <div class="text-end dash-movement-amount"><%= number_to_currency(expense.amount.abs) %></div>
         </div>

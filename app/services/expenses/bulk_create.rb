@@ -87,7 +87,10 @@ module Expenses
 
       date = parse_confirmed_date(input[:transaction_date].presence || input[:date])
 
-      money_source = input[:money_source_id].present? ? user.money_sources.find(input[:money_source_id]) : nil
+      money_source = MoneySources::DefaultSourceResolver.new(
+        user: user,
+        explicit: input[:money_source_id].presence
+      ).resolve
 
       expense = Expense.new(
         user: user,

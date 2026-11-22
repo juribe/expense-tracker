@@ -7,6 +7,7 @@
 # the comparison + amortization table. Never mutates the credit itself.
 class CreditsController < ApplicationController
   before_action :authenticate_user!
+  before_action :require_detailed_money_tracking
   before_action :set_loan
 
   rescue_from ActiveRecord::RecordNotFound, with: :not_found

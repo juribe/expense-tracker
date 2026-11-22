@@ -62,6 +62,8 @@ class IncomesController < ApplicationController
   # An income lands in a source you can hold/spend from (account, wallet,
   # cash, debito card). Loans never receive an income.
   def money_in_sources
+    return [] if money_tracking_simple?
+
     # credit_account is eager loaded: display_name renders the card's last
     # four for credit cards (same pattern as MoneySource.payment_origins).
     current_user.money_sources.active.payment_sources.includes(:credit_account).order(:kind, :name)
@@ -93,7 +95,9 @@ class IncomesController < ApplicationController
   end
 
   def income_params
-    params.require(:income).permit(:amount, :description, :date, :category_id, :money_source_id)
+    permitted = [ :amount, :description, :date, :category_id ]
+    permitted << :money_source_id if money_tracking_detailed?
+    params.require(:income).permit(*permitted)
   end
 
   # Optional prefill for the standard new-income form, used when it is opened
@@ -107,7 +111,7 @@ class IncomesController < ApplicationController
     @income.description = prefill[:description] if prefill[:description].present?
     @income.date = prefill[:date] if prefill[:date].present?
 
-    return if prefill[:money_source_id].blank?
+    return if prefill[:money_source_id].blank? || !money_tracking_detailed?
 
     source = current_user.money_sources.find_by(id: prefill[:money_source_id])
     @income.money_source = source if source

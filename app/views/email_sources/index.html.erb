@@ -156,7 +156,7 @@
     </aside>
   </div>
 
-  <% if @active_redirect_count.positive? %>
+  <% if @active_redirect_count.positive? && money_tracking_detailed? %>
     <section class="es-card es-next-step <%= "es-next-step-complete" if @recognition_configured %>"
              data-testid="recognition-next-step" aria-labelledby="nextStepTitle">
       <div class="es-next-step-head">

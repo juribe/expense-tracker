@@ -33,8 +33,12 @@ class Transaction < ApplicationRecord
   # expense is never blocked, and the resulting temporary negative balance is
   # warned about instead. Debt sources (credit cards, loans) are never
   # guarded: their negative balance IS the debt.
+  #
+  # The simple tracking mode treats General as a bookkeeping record, not a bank
+  # account, so the availability check is skipped entirely; every other
+  # integrity validation still applies.
   validate :ensure_sufficient_balance_for_manual_expense, on: :create,
-           if: -> { expense? && money_source_id? && source == "manual" }
+           if: -> { expense? && money_source_id? && source == "manual" && !user&.money_tracking_simple? }
 
   scope :for_user, ->(user) { where(user_id: user.id) }
   scope :in_month, ->(date) { where(date: date.beginning_of_month..date.end_of_month) }
@@ -47,6 +51,7 @@ class Transaction < ApplicationRecord
   before_validation :normalize_amount
   before_validation :normalize_signed_amount
   before_validation :apply_automatic_rules, on: :create
+  before_validation :apply_default_money_source, on: :create
 
   # Spending alerts fire only for expenses, after the write commits, so the
   # engine sees a stable spend value and re-evaluates on every write path
@@ -114,6 +119,16 @@ class Transaction < ApplicationRecord
 
   private
 
+  # Central rule for every movement channel. Simple mode always normalizes the
+  # source to General; advanced mode keeps an explicit source or fills the
+  # user's configured default.
+  def apply_default_money_source
+    return if user.nil?
+
+    resolved = MoneySources::DefaultSourceResolver.new(user: user, explicit: money_source || money_source_id).resolve
+    self.money_source = resolved if resolved.present?
+  end
+
   def category_type_matches_kind
     return if category.nil? || category.category_type.blank?
     return if category.category_type == kind
@@ -157,6 +172,7 @@ class Transaction < ApplicationRecord
   def ensure_sufficient_balance_for_manual_expense
     owner = money_source.balance_guard_source
     return if owner.debt?
+    return unless owner.balance_guarded?
 
     missing = amount.to_d.abs - owner.balance
     add_insufficient_balance_error(owner, missing) if missing.positive?

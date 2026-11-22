@@ -30,10 +30,12 @@
       <div class="drawer-value"><%= category_badge(@expense.category) %></div>
     </div>
 
-    <div class="drawer-detail full">
-      <div class="drawer-label"><%= t("expenses.source") %></div>
-      <div class="drawer-value"><%= money_source_badge(@expense.money_source) %></div>
-    </div>
+    <% if money_tracking_detailed? %>
+      <div class="drawer-detail full">
+        <div class="drawer-label"><%= t("expenses.source") %></div>
+        <div class="drawer-value"><%= money_source_badge(@expense.money_source) %></div>
+      </div>
+    <% end %>
 
     <div class="drawer-detail full">
       <div class="drawer-label"><%= t("expenses.recurring_link.title") %></div>

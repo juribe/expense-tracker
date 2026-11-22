@@ -105,7 +105,9 @@
             <th scope="col"><%= t("incomes.index.columns.date") %></th>
             <th scope="col"><%= t("incomes.index.columns.category") %></th>
             <th scope="col"><%= t("incomes.index.columns.description") %></th>
-            <th scope="col" class="d-none d-md-table-cell"><%= t("incomes.index.columns.money_source") %></th>
+            <% if money_tracking_detailed? %>
+              <th scope="col" class="d-none d-md-table-cell"><%= t("incomes.index.columns.money_source") %></th>
+            <% end %>
             <th scope="col" class="text-end"><%= t("incomes.index.columns.amount") %></th>
             <th scope="col" class="text-end"><%= t("common.actions") %></th>
           </tr>
@@ -122,9 +124,11 @@
                   <span class="text-muted"><%= t("incomes.index.no_description") %></span>
                 <% end %>
               </td>
-              <td class="d-none d-md-table-cell">
-                <span data-testid="money-source"><%= money_source_badge(income.money_source) %></span>
-              </td>
+              <% if money_tracking_detailed? %>
+                <td class="d-none d-md-table-cell">
+                  <span data-testid="money-source"><%= money_source_badge(income.money_source) %></span>
+                </td>
+              <% end %>
               <td class="text-end cell-amount amt-pos"><%= number_to_currency(income.amount) %></td>
               <td class="text-end text-nowrap">
                 <%= link_to edit_income_path(income), class: "btn btn-sm btn-outline-primary me-1" do %>
@@ -150,9 +154,9 @@
             <div class="small text-muted">
               <%= l(income.date, format: :short) %>
               · <%= category_badge(income.category) %>
-              <%# Same as the expenses ledger: the money-source badge always
-                  sits on its own line under the date/category row. %>
-              <div class="mt-1"><%= money_source_badge(income.money_source) %></div>
+              <% if money_tracking_detailed? %>
+                <div class="mt-1"><%= money_source_badge(income.money_source) %></div>
+              <% end %>
             </div>
             <div class="mt-1">
               <% if income.description.present? %>

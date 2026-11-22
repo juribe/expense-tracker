@@ -47,14 +47,15 @@
 
   function updateBulkEdit() {
     var n = ($("#bulkExpenseIds").value || "").split(",").filter(Boolean).length;
-    var hasValue = !!$("#bulkCategorySelect").value || !!$("#bulkSourceSelect").value;
+    var sourceSelect = $("#bulkSourceSelect");
+    var hasValue = !!$("#bulkCategorySelect").value || !!(sourceSelect && sourceSelect.value);
     var btn = $("#confirmBulkEdit");
     btn.disabled = !hasValue;
     var word = n === 1 ? "gasto" : "gastos";
     btn.innerHTML = '<i class="ti ti-check me-1"></i>Actualizar ' + n + " " + word;
     if (hasValue) {
       CategoryPicker.setInvalid($("#bulkCategorySelect"), false);
-      $("#bulkSourceSelect").classList.remove("is-invalid");
+      if (sourceSelect) sourceSelect.classList.remove("is-invalid");
     }
   }
 
@@ -63,6 +64,7 @@
   function openBulkEdit(field) {
     var ids = selectedIds();
     if (!ids.length) return;
+    if (field === "source" && !$("#bulkSourceSelect")) return;
     var n = ids.length;
     var word = n === 1 ? "gasto" : "gastos";
     bulkEditFocus = field;
@@ -78,9 +80,10 @@
         "Estás a punto de cambiar la fuente de dinero de <strong>" + n + "</strong> " + word + " seleccionados.";
     }
     CategoryPicker.setValue($("#bulkCategorySelect"), "");
-    $("#bulkSourceSelect").value = "";
+    var sourceSelect = $("#bulkSourceSelect");
+    if (sourceSelect) sourceSelect.value = "";
     CategoryPicker.setInvalid($("#bulkCategorySelect"), false);
-    $("#bulkSourceSelect").classList.remove("is-invalid");
+    if (sourceSelect) sourceSelect.classList.remove("is-invalid");
     updateBulkEdit();
     bootstrap.Modal.getOrCreateInstance("#bulkEditModal").show();
   }
@@ -299,10 +302,11 @@
   });
 
   $("#bulkEditForm").addEventListener("submit", function (e) {
-    if (!$("#bulkCategorySelect").value && !$("#bulkSourceSelect").value) {
+    var sourceSelect = $("#bulkSourceSelect");
+    if (!$("#bulkCategorySelect").value && !(sourceSelect && sourceSelect.value)) {
       e.preventDefault();
       CategoryPicker.setInvalid($("#bulkCategorySelect"), true);
-      $("#bulkSourceSelect").classList.add("is-invalid");
+      if (sourceSelect) sourceSelect.classList.add("is-invalid");
       return;
     }
     var btn = $("#confirmBulkEdit");
@@ -311,8 +315,9 @@
   });
 
   $("#bulkEditModal").addEventListener("shown.bs.modal", function () {
-    if (bulkEditFocus === "source") {
-      $("#bulkSourceSelect").focus();
+    var sourceSelect = $("#bulkSourceSelect");
+    if (bulkEditFocus === "source" && sourceSelect) {
+      sourceSelect.focus();
     } else {
       CategoryPicker.focus($("#bulkCategorySelect"));
     }

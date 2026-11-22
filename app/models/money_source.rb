@@ -15,7 +15,7 @@
 #
 # Example: source.used_credit
 class MoneySource < ApplicationRecord
-  KINDS = %w[account debit_card credit_card cash wallet pocket loan].freeze
+  KINDS = %w[account debit_card credit_card cash wallet pocket loan general].freeze
 
   include Reconciliation::Invalidatable
   # Flavor within a kind, set by the wizard's loan step / statement import.
@@ -26,7 +26,7 @@ class MoneySource < ApplicationRecord
   # debt payments (two independent roles). Pockets are deliberately excluded:
   # their money is assigned, so it must be moved back to a real account
   # before it can be spent.
-  PAYMENT_KINDS = %w[cash account debit_card wallet credit_card].freeze
+  PAYMENT_KINDS = %w[cash account debit_card wallet credit_card general].freeze
 
   # Kinds whose MANUAL operations must not leave a negative balance
   # (gasto/retiro/transferencia de formularios web). Automatic imports
@@ -73,7 +73,9 @@ class MoneySource < ApplicationRecord
   validates :kind, presence: true, inclusion: { in: KINDS }
   validates :sub_kind, inclusion: { in: SUB_KINDS }, allow_blank: true
   validates :starting_balance, numericality: true
-  validates :gmf_exempt, inclusion: { in: [true, false] }
+  validates :gmf_exempt, inclusion: { in: [ true, false ] }
+  validates :general, inclusion: { in: [ true, false ] }
+  validates :general, uniqueness: { scope: :user_id }, if: :general?
   validate :institution_belongs_to_owner, if: :institution?
   validate :parent_belongs_to_user
   validate :parent_must_not_be_self
@@ -149,6 +151,21 @@ class MoneySource < ApplicationRecord
 
   def pocket?
     kind == "pocket"
+  end
+
+  def general?
+    general.present?
+  end
+
+  # A converted General account may return to the basic kind only when it has
+  # not acquired structures that depend on being an account (children, credit
+  # data, pockets). Otherwise the account is preserved and a fresh General is
+  # created for the simple flow.
+  def convertible_to_general?
+    return false if debt? || pocket?
+    return false if parent_id.present? || credit_account.present?
+
+    children.none? && goals.none?
   end
 
   # Money currently reserved for goals inside this pocket. Only meaningful

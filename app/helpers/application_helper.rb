@@ -321,6 +321,7 @@ module ApplicationHelper
     when "wallet" then "wallet"
     when "pocket" then "pig-money"
     when "loan" then "coin"
+    when "general" then "wallet"
     else "circle"
     end
   end
@@ -525,7 +526,7 @@ module ApplicationHelper
   end
 
   def source_kind_options
-    MoneySource::KINDS.map do |kind|
+    MoneySource::KINDS.excluding("general").map do |kind|
       [ source_kind_label(kind), kind,
         { "data-name-placeholder" => money_source_name_placeholder_for_kind(kind) } ]
     end

@@ -58,7 +58,8 @@ module RecurringTemplateActions
 
     # The template is a reminder without an owning source; the real
     # transaction this action creates (Pay or Receive) always needs one.
-    if money_source.nil? && @recurring_template.money_source.nil?
+    # In simple mode General supplies it automatically.
+    if !money_tracking_simple? && money_source.nil? && @recurring_template.money_source.nil?
       redirect_to index_path,
                   alert: t("recurring.missing_money_source"),
                   status: :see_other
@@ -188,6 +189,7 @@ module RecurringTemplateActions
   # The money source chosen in the process modal. :invalid signals the
   # submitted id does not belong to the user or is not a payment source.
   def payment_money_source(raw_id)
+    return nil if money_tracking_simple?
     return nil if raw_id.blank?
 
     current_user.money_sources.active.payment_sources.find_by(id: raw_id) || :invalid

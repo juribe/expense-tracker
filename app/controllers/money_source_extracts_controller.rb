@@ -4,6 +4,7 @@ class MoneySourceExtractsController < ApplicationController
   include MoneySourceShowContext
 
   before_action :authenticate_user!
+  before_action :require_detailed_money_tracking
   before_action :set_money_source
 
   rescue_from ActiveRecord::RecordNotFound, with: :not_found

@@ -1,0 +1,69 @@
+<% content_for :title, "Seguimiento de dinero" %>
+
+<div class="container py-4" data-testid="money-tracking-settings">
+  <div class="mx-auto et-maxw-960">
+    <%= render "shared/page_header",
+               title: "Seguimiento de dinero",
+               subtitle: "Elige cómo quieres administrar tus finanzas. Esta opción es independiente de tu plan." %>
+
+    <section class="card mb-4">
+      <div class="card-body d-flex flex-column flex-sm-row align-items-sm-center gap-3">
+        <span class="icon-chip icon-chip-blue" aria-hidden="true"><i class="ti ti-adjustments"></i></span>
+        <div class="flex-grow-1">
+          <div class="text-muted small mb-1">Modalidad actual</div>
+          <div class="h5 mb-0" data-testid="money-tracking-current-mode">
+            <%= current_user.money_tracking_detailed? ? "Avanzado" : "Simple" %>
+          </div>
+        </div>
+        <span class="badge bg-primary-subtle text-primary">
+          <%= current_user.money_tracking_detailed? ? "Cuentas, tarjetas y transferencias" : "Ingresos, gastos y presupuestos" %>
+        </span>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-body">
+        <h2 class="h5 mb-1">Cambiar modalidad</h2>
+        <p class="text-muted mb-4">
+          Puedes cambiar cuando quieras. Tus movimientos, categorías y presupuestos se conservan.
+        </p>
+
+        <%= form_with url: money_tracking_path, method: :patch, local: true do |form| %>
+          <%= render "money_tracking/mode_options", selected_mode: @selected_mode %>
+
+          <div class="d-flex justify-content-end mt-4">
+            <%= form.submit "Actualizar modalidad", class: "btn btn-primary", data: { testid: "money-tracking-submit" } %>
+          </div>
+        <% end %>
+      </div>
+    </section>
+
+    <% if money_tracking_detailed? %>
+      <section class="card mt-4" data-testid="money-tracking-default-source">
+        <div class="card-body">
+          <h2 class="h5 mb-1">Fuente predeterminada</h2>
+          <p class="text-muted mb-3">
+            Se usa cuando registras un movimiento sin indicar una cuenta o tarjeta. Si no eliges una,
+            las importaciones sin fuente identificada quedarán para revisión.
+          </p>
+
+          <%= form_with url: money_tracking_default_source_path, method: :patch, local: true do |form| %>
+            <div class="row g-3 align-items-end">
+              <div class="col-12 col-md-8">
+                <%= form.label :default_money_source_id, "Fuente predeterminada", class: "form-label" %>
+                <%= form.select :default_money_source_id,
+                                options_from_collection_for_select(@default_source_options, :id, :display_name,
+                                                                  current_user.default_money_source_id),
+                                { include_blank: "Ninguna" },
+                                class: "form-select" %>
+              </div>
+              <div class="col-12 col-md-4">
+                <%= form.submit "Guardar fuente", class: "btn btn-outline-primary w-100" %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </section>
+    <% end %>
+  </div>
+</div>

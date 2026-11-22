@@ -8,6 +8,7 @@ class PaymentsController < ApplicationController
   include ActionView::Helpers::NumberHelper
 
   before_action :authenticate_user!
+  before_action :require_detailed_money_tracking
   before_action :set_money_source
   before_action :set_payment, only: [ :edit, :update, :destroy ]
   before_action :set_expense, only: [ :new, :create ]

@@ -6,6 +6,7 @@
 # final review, and completion. Persists progress so users can resume later.
 class FinancialSetupsController < ApplicationController
   before_action :authenticate_user!
+  before_action :require_detailed_money_tracking
   before_action :set_setup
 
   # GET /financial_setup — entry screen or resume into the workflow.

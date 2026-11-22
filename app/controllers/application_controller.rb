@@ -15,6 +15,7 @@ class ApplicationController < ActionController::Base
   before_action :authenticate_user!, unless: :maglev_request?
   before_action :authorize_maglev_preview!
   before_action :require_membership_selection, if: -> { user_signed_in? }
+  before_action :require_money_tracking_selection, if: -> { user_signed_in? }
   before_action :set_page_title, if: -> { request.get? }
   # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
   allow_browser versions: :modern
@@ -57,6 +58,16 @@ class ApplicationController < ActionController::Base
   end
   helper_method :user_access
 
+  def money_tracking_simple?
+    user_signed_in? && current_user.money_tracking_simple?
+  end
+  helper_method :money_tracking_simple?
+
+  def money_tracking_detailed?
+    user_signed_in? && current_user.money_tracking_detailed?
+  end
+  helper_method :money_tracking_detailed?
+
   # The dashboard renewal hero: the user had a membership and currently has
   # no PRO access. Free users without membership history are not prompted.
   def membership_renewal_prompt?
@@ -96,6 +107,28 @@ class ApplicationController < ActionController::Base
     ]) ||
       (controller_name == "payment_engine" && action_name == "create") ||
       maglev_request?
+  end
+
+  # New users must choose how they follow their money before entering the
+  # dashboard. Existing accounts are backfilled as already selected.
+  def require_money_tracking_selection
+    return if current_user.money_tracking_mode_selected?
+    return if allowed_without_money_tracking?
+
+    redirect_to money_tracking_path, alert: t("money_tracking.select_before_continue")
+  end
+
+  def allowed_without_money_tracking?
+    controller_name == "money_tracking" || allowed_without_membership?
+  end
+
+  # Advanced money management (sources, cards, loans, transfers, reconciliation
+  # and account setup) is hidden and blocked in the simple flow. Routes and
+  # records stay intact.
+  def require_detailed_money_tracking
+    return if money_tracking_detailed?
+
+    redirect_to dashboard_path, alert: t("money_tracking.advanced_only")
   end
 
   # Requests handled by the Maglev engine (editor, published pages, sitemap,

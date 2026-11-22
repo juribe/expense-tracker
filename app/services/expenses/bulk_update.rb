@@ -21,7 +21,9 @@ module Expenses
       @user = user
       @ids = ids
       @category_id = UuidParams.normalize(category_id)
-      @money_source_id = UuidParams.normalize(money_source_id)
+      # Simple accounts never manage sources: the bulk tool keeps working for
+      # categories but ignores any source reassignment payload.
+      @money_source_id = user.money_tracking_simple? ? nil : UuidParams.normalize(money_source_id)
       @updated_count = 0
       @error_key = nil
     end

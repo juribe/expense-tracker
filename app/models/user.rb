@@ -8,6 +8,7 @@ class User < ApplicationRecord
   attr_accessor :terms_accepted, :privacy_accepted, :marketing_consent, :registration_form
 
   NAME_MAX_LENGTH = 255
+  MONEY_TRACKING_MODES = %w[simple detailed].freeze
 
   # Associations destroyed with an account. Eager-loaded when deleting users
   # so the cascade does not issue an N+1 per account.
@@ -29,15 +30,19 @@ class User < ApplicationRecord
   validates :financial_cycle_start_day,
             numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 28 }
   validates :inbound_email_token, uniqueness: true, allow_nil: true
+  validates :money_tracking_mode, inclusion: { in: MONEY_TRACKING_MODES }
 
   before_create :generate_inbound_email_token
+  before_create :initialize_money_tracking_mode
   before_destroy :capture_premium_identities, prepend: true
   after_create :record_registration_consents, if: :registration_form?, prepend: true
+  after_create :ensure_general_money_source, if: :registration_form?
   after_update :record_premium_account_email_identity, if: :saved_change_to_email?
 
   validates :debt_capacity_target_percentage, :debt_capacity_alert_percentage,
             numericality: { greater_than: 0, less_than_or_equal_to: 100 }
   validate :debt_capacity_thresholds_are_ordered
+  validate :default_money_source_belongs_to_user
   validate :registration_consents_accepted, on: :create, if: :registration_form?
   validate :account_email_not_claimed_by_another_premium_account, if: :email_identity_changing?
 
@@ -45,6 +50,31 @@ class User < ApplicationRecord
   # pay-cycle grouping everywhere (reports, budgets, dashboard, cuadre).
   def financial_cycles_enabled?
     financial_cycle_start_day.to_i != 1
+  end
+
+  def money_tracking_simple?
+    money_tracking_mode == "simple"
+  end
+
+  def money_tracking_detailed?
+    money_tracking_mode == "detailed"
+  end
+
+  def money_tracking_mode_selected?
+    money_tracking_mode_selected_at.present?
+  end
+
+  # The single General source used by the simple flow. Reading it creates the
+  # source on demand for legacy or directly-created accounts, so every
+  # movement channel can rely on it without a separate setup step.
+  def general_money_source
+    return nil unless persisted?
+
+    money_sources.find_by(general: true) || MoneySources::General.ensure_for(self)
+  end
+
+  def ensure_general_money_source!
+    MoneySources::General.ensure_for(self)
   end
 
   has_many :incomes, dependent: :destroy
@@ -68,6 +98,7 @@ class User < ApplicationRecord
   has_many :categories, dependent: :destroy
   has_many :goals, dependent: :destroy
   has_many :money_sources, dependent: :destroy
+  belongs_to :default_money_source, class_name: "MoneySource", optional: true
   has_many :gmf_monthly_accumulators, dependent: :destroy
   has_many :transfers, dependent: :destroy
   has_many :financial_setups, dependent: :destroy
@@ -179,6 +210,30 @@ class User < ApplicationRecord
   end
 
   private
+
+  # Sign-up users start in the simple flow and must confirm the mode before
+  # their first dashboard. Direct records (fixtures, admin scripts, legacy
+  # tests) keep the advanced behavior they already had.
+  def initialize_money_tracking_mode
+    if registration_form?
+      self.money_tracking_mode = "simple"
+      self.money_tracking_mode_selected_at = nil
+    else
+      self.money_tracking_mode = "detailed" if money_tracking_mode.blank?
+      self.money_tracking_mode_selected_at ||= Time.current
+    end
+  end
+
+  def ensure_general_money_source
+    MoneySources::General.ensure_for(self)
+  end
+
+  def default_money_source_belongs_to_user
+    return if default_money_source_id.blank? || id.blank?
+    return if default_money_source&.user_id == id
+
+    errors.add(:default_money_source, :other_user)
+  end
 
   def account_email_not_claimed_by_another_premium_account
     return unless persisted?
