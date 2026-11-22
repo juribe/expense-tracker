@@ -28,6 +28,12 @@ async function signUp(page, overrides = {}) {
   if (overrides.admin) {
     await promoteAdmin(page, email);
   }
+
+  // E2E specs exercise the full account/card experience. New sign-ups start
+  // in the simple flow by product design, so tests explicitly switch to the
+  // advanced tracking mode before their first authenticated navigation.
+  await setMoneyTrackingMode(page, email, overrides.moneyTrackingMode || 'detailed');
+
   await signIn(page, email, password);
 
   // Grant a free trial so membership gating does not block navigation in E2E specs.
@@ -54,6 +60,15 @@ async function promoteAdmin(page, email) {
   });
   if (!response.ok()) {
     throw new Error(`Could not promote ${email} to admin: ${response.status()}`);
+  }
+}
+
+async function setMoneyTrackingMode(page, email, mode) {
+  const response = await page.request.post('/test_support/money_tracking', {
+    form: { email, mode }
+  });
+  if (!response.ok()) {
+    throw new Error(`Could not set money tracking mode for ${email}: ${response.status()}`);
   }
 }
 

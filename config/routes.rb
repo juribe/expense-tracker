@@ -31,6 +31,7 @@ Rails.application.routes.draw do
     post "test_support/confirm_user", to: "test_support/confirmations#create"
     post "test_support/promote_admin", to: "test_support/admins#create"
     post "test_support/grant_trial", to: "test_support/memberships#create"
+    post "test_support/money_tracking", to: "test_support/tracking_modes#create"
   end
 
   # MCP token management (Settings → AI agents)
