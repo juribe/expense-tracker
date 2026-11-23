@@ -9,6 +9,20 @@ class PaymentEngineCommercialTest < ActionDispatch::IntegrationTest
     get "/payment_engine/admin/settings/commercial"
     assert_response :success
   end
+  test "commercial form includes the admin password field" do
+    get "/payment_engine/admin/settings/commercial"
+
+    assert_response :success
+    assert_select "input[name='admin_password'][type='password'][required]", count: 1
+  end
+  test "update duration requires a valid admin password" do
+    patch "/payment_engine/admin/settings/commercial",
+          params: { setting: { free_trial_duration_days: 45 } }
+
+    assert_response :redirect
+    assert_equal 60, PaymentEngine::Setting.current.free_trial_duration_days
+    assert_equal "Confirma tu contraseña para continuar.", flash[:alert]
+  end
   test "update duration" do
     patch "/payment_engine/admin/settings/commercial",
           params: { setting: { free_trial_duration_days: 30 }, admin_password: "password123" }

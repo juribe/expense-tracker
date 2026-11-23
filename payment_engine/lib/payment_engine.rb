@@ -70,7 +70,14 @@ module PaymentEngine
         record = PaymentEngine::Provider.where(Arel.sql("lower(code) = ?"), key.to_s.downcase).first
         return {} unless record
 
-        (record.credentials || {}).to_h.merge((record.settings || {}).to_h).symbolize_keys
+        # `environment` is a first-class provider attribute edited from the
+        # admin UI, not part of the free-form settings JSON. Adapters read it
+        # from settings to choose sandbox vs production (e.g. ePayco's
+        # checkout `test` flag), so expose the persisted value here.
+        record_settings = (record.settings || {}).to_h
+        record_settings["environment"] = record.environment if record.environment.present?
+
+        (record.credentials || {}).to_h.merge(record_settings).symbolize_keys
       rescue StandardError
         {}
       end

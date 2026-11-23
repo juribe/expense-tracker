@@ -17,6 +17,7 @@
     <h3>Después de finalizar la prueba</h3>
     <p>Las funcionalidades premium se desactivan. No se realiza ningún cobro. No se crea una suscripción. Los datos financieros se conservan. El usuario puede consultar la facturación y contratar un plan.</p>
   </div>
+  <div class="pe-form-group"><label>Contraseña</label><input type="password" name="admin_password" class="pe-input" required autocomplete="current-password"></div>
   <%= f.submit "Guardar configuración", class: "pe-btn pe-btn-primary" %>
   <%= link_to "Cancelar", admin_commercial_settings_path, class: "pe-btn" %>
 <% end %>
