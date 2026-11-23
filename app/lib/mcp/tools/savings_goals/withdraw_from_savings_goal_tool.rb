@@ -4,11 +4,12 @@ module Mcp
   module Tools
     module SavingsGoals
       # WithdrawFromSavingsGoalTool
-      # Releases a goal reservation with a negative GoalAllocation. The money
-      # stays in the pocket; withdrawing real cash is a pocket withdrawal.
+      # Releases goal savings with a negative GoalAllocation. Pocket-backed
+      # goals return the money to their pocket; virtual goals simply reduce
+      # their virtual balance.
       class WithdrawFromSavingsGoalTool < Mcp::ApplicationTool
         tool_name "withdraw_from_savings_goal"
-        description "Release money reserved for a goal. The money stays in its pocket."
+        description "Release money saved for a goal without creating an expense or income."
         requires_scope :write
 
         arguments do

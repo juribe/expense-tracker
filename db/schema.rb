@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_22_180000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_22_200000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -491,12 +491,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_22_180000) do
 
   create_table "goal_allocations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "financial_goal_id", null: false
-    t.uuid "pocket_id", null: false
+    t.uuid "pocket_id"
     t.decimal "amount", precision: 14, scale: 2, null: false
     t.date "date", null: false
     t.string "note"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.uuid "idempotency_key"
+    t.index ["financial_goal_id", "idempotency_key"], name: "index_goal_allocations_on_goal_and_idempotency", unique: true, where: "(idempotency_key IS NOT NULL)"
     t.index ["financial_goal_id"], name: "index_goal_allocations_on_financial_goal_id"
     t.index ["pocket_id", "date"], name: "index_goal_allocations_on_pocket_id_and_date"
     t.index ["pocket_id"], name: "index_goal_allocations_on_pocket_id"

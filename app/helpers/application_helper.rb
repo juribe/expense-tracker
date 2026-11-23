@@ -571,7 +571,7 @@ module ApplicationHelper
 
   # Health badge for a goal card: derived state, colored per health.
   def goal_health_badge(goal)
-    if goal.archived?
+    if goal.archived? && !goal.completed?
       return tag.span(t("goals.statuses.archived", default: "Archivada"), class: "badge bg-secondary-subtle text-secondary")
     end
 
@@ -586,7 +586,7 @@ module ApplicationHelper
   end
 
   def goal_health_progress_class(goal)
-    return "bg-secondary" if goal.archived?
+    return "bg-secondary" if goal.archived? && !goal.completed?
 
     { completed: "bg-success", on_track: "bg-success", at_risk: "bg-warning", behind: "bg-danger" }[goal.health]
   end

@@ -100,10 +100,16 @@
   </div>
 <% end %>
 
-<%# Assign-to-goal modal: reserves pocket money for one goal. It is not a
-    money movement — the amount stays inside the pocket, only its purpose
-    changes. Fed by the per-card buttons. %>
-<div class="modal fade" id="assign-to-goal-modal" tabindex="-1" aria-labelledby="assign-to-goal-modal-title" aria-hidden="true"
+<% if @goals.any?(&:virtual?) %>
+  <%= render "goals/contribution_modal" %>
+  <%= javascript_include_tag "goal_contributions", defer: true %>
+<% end %>
+
+<% if money_tracking_detailed? %>
+  <%# Assign-to-goal modal: reserves pocket money for one goal. It is not a
+      money movement — the amount stays inside the pocket, only its purpose
+      changes. Fed by the per-card buttons. %>
+  <div class="modal fade" id="assign-to-goal-modal" tabindex="-1" aria-labelledby="assign-to-goal-modal-title" aria-hidden="true"
      data-unallocated-label="<%= t("goals.unallocated_label", default: "No asignado") %>">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
@@ -150,6 +156,7 @@
       <% end %>
     </div>
   </div>
-</div>
+  </div>
+<% end %>
 
-<%= javascript_include_tag "goal_assignments", defer: true %>
+<%= javascript_include_tag "goal_assignments", defer: true if money_tracking_detailed? %>

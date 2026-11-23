@@ -16,6 +16,7 @@ module Mcp
         {
           id: goal.id,
           name: goal.name,
+          funding: goal.virtual? ? "virtual" : "pocket",
           pocket: goal.pocket && { id: goal.pocket.id, name: goal.pocket.name },
           target_amount: money(goal.target_amount),
           saved_amount: money(goal.saved_amount),

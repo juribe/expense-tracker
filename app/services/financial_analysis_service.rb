@@ -285,7 +285,7 @@ class FinancialAnalysisService
   def goal_line(goal)
     category = goal_category_label(goal)
     priority = goal_priority_label(goal)
-    pocket = goal.pocket&.name || "sin bolsillo"
+    pocket = goal.pocket&.name || "ahorro virtual"
     target_date = goal.target_date ? I18n.l(goal.target_date, format: :long) : "sin fecha"
     months = goal.months_remaining
     contribution = goal.required_monthly_contribution

@@ -23,6 +23,7 @@ module GoalAllocations
     def call
       return failure(:missing_goals) if @goal_from.nil? || @goal_to.nil?
       return failure(:same_goal) if @goal_from.id == @goal_to.id
+      return failure(:virtual_goals) unless @goal_from.pocket_id && @goal_to.pocket_id
       return failure(:different_pockets) unless same_pocket?
       return failure(:not_owner) unless owned_by_user?
 

@@ -123,7 +123,12 @@ Rails.application.routes.draw do
   resources :category_insights, only: [:index, :show]
   resources :budgets
   resources :gmf_uvt_years, only: [ :index, :create, :update, :destroy ]
-  resources :goals
+  resources :goals do
+    member do
+      patch :complete
+      patch :link_to_pocket
+    end
+  end
   resources :goal_allocations, only: [ :create, :destroy ] do
     collection do
       post :reallocate

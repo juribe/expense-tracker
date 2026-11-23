@@ -96,6 +96,19 @@ class DashboardMoneyTrackingTest < ActionDispatch::IntegrationTest
     assert_select "[data-testid=onboarding-card-initial]", count: 0
   end
 
+  test "simple dashboard shows virtual goals without exposing pockets" do
+    user = simple_user
+    goal = Goal.create!(user: user, name: "Vacaciones dashboard", target_amount: 1_000_000)
+    goal.goal_allocations.create!(amount: 250_000, date: Date.current)
+    sign_in user
+
+    get dashboard_path
+
+    assert_response :success
+    assert_select "body", text: /Vacaciones dashboard/
+    assert_select "a", text: /Bolsillo/, count: 0
+  end
+
   private
 
   def simple_user

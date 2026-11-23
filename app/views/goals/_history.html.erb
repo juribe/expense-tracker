@@ -1,0 +1,37 @@
+<% allocations = goal.goal_allocations
+                      .select { |allocation| allocation.pocket_id == goal.pocket_id }
+                      .sort_by { |allocation| [ allocation.date, allocation.created_at ] }
+                      .reverse %>
+<details class="goal-history mt-3" data-testid="goal-history">
+  <summary class="fw-semibold text-body">
+    <i class="ti ti-history me-1" aria-hidden="true"></i><%= t("goals.history.title", default: "Historial") %>
+  </summary>
+
+  <% if allocations.any? %>
+    <ul class="list-unstyled small mt-2 mb-0">
+      <% allocations.each do |allocation| %>
+        <li class="d-flex justify-content-between gap-3 border-bottom py-2">
+          <div>
+            <div class="fw-semibold">
+              <%= allocation.contribution? ? t("goals.history.contribution", default: "Aporte") :
+                                             t("goals.history.withdrawal", default: "Retiro") %>
+            </div>
+            <div class="text-secondary">
+              <%= l(allocation.date, format: :short) %>
+              <% if allocation.note.present? %>
+                · <%= allocation.note %>
+              <% end %>
+            </div>
+          </div>
+          <span class="fw-bold text-nowrap <%= allocation.contribution? ? "amt-pos" : "amt-debt" %>">
+            <%= allocation.contribution? ? "+" : "−" %><%= number_to_currency(allocation.amount.abs) %>
+          </span>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="text-secondary small mt-2 mb-0">
+      <%= t("goals.history.empty", default: "Aún no hay aportes ni retiros.") %>
+    </p>
+  <% end %>
+</details>

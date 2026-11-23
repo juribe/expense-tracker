@@ -26,6 +26,12 @@ module Mcp
           occurred_on = required_date!(date)
           source = source_id.present? ? find_money_source!(source_id) : nil
           ensure_contribution_source!(source) if source
+
+          if goal.virtual? && source
+            raise Mcp::Error.new("INVALID_MONEY_SOURCE",
+                                 "Virtual goals do not use a money source; omit source_id.")
+          end
+
           key = idempotency_key!(idempotency_key)
 
           data = Mcp::Idempotency.run(

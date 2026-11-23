@@ -6,9 +6,15 @@
           <span class="goal-card-emoji" aria-hidden="true"><%= goal_category_emoji(goal.category) %></span>
           <div class="min-w-0">
             <h5 class="goal-card-name" title="<%= goal.name %>" data-testid="goal-card-name"><%= goal.name %></h5>
-            <% meta = [ goal.category.present? ? goal_category_label(goal.category) : nil, goal.pocket&.name ].compact %>
+            <% meta = [ goal.category.present? ? goal_category_label(goal.category) : nil,
+                        money_tracking_detailed? ? goal.pocket&.name : nil ].compact %>
             <% if meta.any? %>
               <div class="goal-card-meta"><%= meta.join(" · ") %></div>
+            <% end %>
+            <% if goal.virtual? && money_tracking_detailed? %>
+              <span class="badge bg-info-subtle text-info-emphasis mt-1" data-testid="goal-virtual-badge">
+                <%= t("goals.virtual_badge", default: "Ahorro virtual") %>
+              </span>
             <% end %>
           </div>
         </div>
@@ -60,19 +66,44 @@
             <% end %>
           </dd>
         </div>
-        <div class="goal-card-detail">
-          <dt><%= t("goals.pocket", default: "Bolsillo") %></dt>
-          <dd data-testid="goal-card-pocket">
-            <% if goal.pocket %>
-              <i class="ti ti-pig-money me-1" aria-hidden="true"></i><%= goal.pocket.name %>
-            <% else %>
-              <span class="text-secondary"><%= t("goals.not_available", default: "—") %></span>
-            <% end %>
-          </dd>
-        </div>
+        <% if money_tracking_detailed? %>
+          <div class="goal-card-detail">
+            <dt><%= t("goals.pocket", default: "Bolsillo") %></dt>
+            <dd data-testid="goal-card-pocket">
+              <% if goal.pocket %>
+                <i class="ti ti-pig-money me-1" aria-hidden="true"></i><%= goal.pocket.name %>
+              <% else %>
+                <span class="text-secondary"><%= t("goals.not_available", default: "—") %></span>
+              <% end %>
+            </dd>
+          </div>
+        <% end %>
       </dl>
 
-      <% if goal.pocket&.persisted? %>
+      <% if goal.virtual? %>
+        <div class="goal-card-actions d-print-none">
+          <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#goal-contribution-modal"
+                  data-contribution-goal-id="<%= goal.id %>"
+                  data-contribution-goal-name="<%= goal.name %>"
+                  data-contribution-goal-saved="<%= number_to_currency(goal.saved_amount) %>"
+                  data-contribution-action="deposit"
+                  data-contribution-title="<%= t("goals.contribution.title_add", default: "Agregar dinero a mi meta") %>"
+                  data-contribution-label="<%= t("goals.contribution.amount_add", default: "¿Cuánto quieres agregar?") %>"
+                  data-testid="goal-add-money">
+            <i class="ti ti-plus me-1" aria-hidden="true"></i><%= t("goals.add_money", default: "Agregar dinero") %>
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#goal-contribution-modal"
+                  data-contribution-goal-id="<%= goal.id %>"
+                  data-contribution-goal-name="<%= goal.name %>"
+                  data-contribution-goal-saved="<%= number_to_currency(goal.saved_amount) %>"
+                  data-contribution-action="withdraw"
+                  data-contribution-title="<%= t("goals.contribution.title_withdraw", default: "Retirar dinero de mi meta") %>"
+                  data-contribution-label="<%= t("goals.contribution.amount_withdraw", default: "¿Cuánto quieres retirar?") %>"
+                  data-testid="goal-withdraw-money">
+            <i class="ti ti-minus me-1" aria-hidden="true"></i><%= t("goals.withdraw_money", default: "Retirar dinero") %>
+          </button>
+        </div>
+      <% elsif money_tracking_detailed? && goal.pocket&.persisted? %>
         <div class="goal-card-actions d-print-none">
           <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#assign-to-goal-modal"
                   data-assign-goal="<%= goal.id %>"
@@ -86,10 +117,39 @@
           <% end %>
         </div>
       <% end %>
+
+      <% if money_tracking_simple? && goal.pocket_backed? %>
+        <div class="alert alert-info small mt-3 mb-0" data-testid="goal-advanced-only-note">
+          <%= t("goals.advanced_only_note",
+                default: "Esta meta usa un bolsillo del seguimiento avanzado. Actívalo para modificarla; tu ahorro y su historial se conservan.") %>
+        </div>
+      <% end %>
+
+      <% if goal.virtual? && money_tracking_detailed? && @pockets&.any? %>
+        <%= form_with url: link_to_pocket_goal_path(goal), method: :patch, local: true, class: "mt-3" do |form| %>
+          <div class="input-group input-group-sm">
+            <%= form.select :pocket_id, options_from_collection_for_select(@pockets, :id, :name),
+                            { prompt: t("goals.link_pocket_prompt", default: "Elegir bolsillo") },
+                            class: "form-select", id: "goal_#{goal.id}_pocket_id" %>
+            <%= form.submit t("goals.link_pocket", default: "Vincular a bolsillo"),
+                            class: "btn btn-outline-primary" %>
+          </div>
+        <% end %>
+      <% end %>
+
+      <% if goal.virtual? || money_tracking_simple? %>
+        <%= render "goals/history", goal: goal %>
+      <% end %>
     </div>
 
     <div class="card-footer d-flex justify-content-end align-items-center d-print-none">
       <div class="d-inline-flex align-items-center gap-2">
+        <% if money_tracking_simple? && goal.completed? && !goal.archived? %>
+          <%= button_to t("goals.mark_completed", default: "Marcar completada"),
+                        complete_goal_path(goal), method: :patch,
+                        class: "btn btn-sm btn-success",
+                        data: { testid: "goal-mark-completed" } %>
+        <% end %>
         <%= link_to edit_goal_path(goal), class: "btn btn-sm btn-outline-primary",
                     title: t("goals.edit", default: "Editar meta"), aria: { label: t("goals.edit", default: "Editar meta") } do %>
           <i class="ti ti-pencil"></i>

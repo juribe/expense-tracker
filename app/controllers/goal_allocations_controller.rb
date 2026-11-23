@@ -12,14 +12,36 @@ class GoalAllocationsController < ApplicationController
   # POST /goal_allocations
   def create
     goal = user_goals.find(allocation_goal_id)
-    allocation = goal.goal_allocations.build(allocation_params)
+    key = allocation_params[:idempotency_key].presence
+
+    if key && (existing = goal.goal_allocations.find_by(idempotency_key: key))
+      redirect_back fallback_location: goals_path,
+                    notice: t("goals.flashes.contribution_already_recorded")
+      return
+    end
+
+    amount = signed_amount
+    allocation = goal.goal_allocations.build(
+      amount: amount,
+      date: allocation_params[:date],
+      note: allocation_params[:note],
+      idempotency_key: key
+    )
 
     if allocation.save
-      flash_key = allocation.amount.to_d.positive? ? "goals.flashes.allocated" : "goals.flashes.released"
+      flash_key = "goals.flashes.released"
+      if allocation.amount.to_d.positive?
+        flash_key = "goals.flashes.allocated"
+      elsif allocation.virtual?
+        flash_key = "goals.flashes.virtual_released"
+      end
       redirect_back fallback_location: goals_path, notice: t(flash_key)
     else
       redirect_back fallback_location: goals_path, alert: allocation.errors.full_messages.first
     end
+  rescue ActiveRecord::RecordNotUnique
+    redirect_back fallback_location: goals_path,
+                  notice: t("goals.flashes.contribution_already_recorded")
   end
 
   # DELETE /goal_allocations/:id — removes one reservation record; the
@@ -62,6 +84,23 @@ class GoalAllocationsController < ApplicationController
   end
 
   def allocation_params
-    allocation_payload.permit(:financial_goal_id, :amount, :date, :note)
+    allocation_payload.permit(:financial_goal_id, :amount, :date, :note, :direction, :idempotency_key)
+  end
+
+  # The simple contribution modal sends a positive amount plus a direction
+  # button. Advanced pocket forms keep sending the already-signed amount.
+  def signed_amount
+    parsed = MoneyFormat.normalize(allocation_params[:amount])
+    return nil if parsed.blank?
+
+    value = parsed.to_d
+    direction = allocation_params[:direction].presence || params[:direction]
+    case direction.to_s
+    when "withdraw" then -value.abs
+    when "deposit" then value.abs
+    else value
+    end
+  rescue ArgumentError, TypeError
+    nil
   end
 end
