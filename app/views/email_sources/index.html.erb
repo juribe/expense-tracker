@@ -143,37 +143,39 @@
       <p class="es-small-note">Los estados de detección y confirmación se actualizan automáticamente.</p>
     </section>
 
-    <aside class="es-card es-howto">
-      <h2>¿Necesitas ayuda?</h2>
-      <p class="es-muted">Solo necesitas configurar el reenvío una vez por cada dirección de correo.</p>
-      <p class="es-muted">En Gmail, abre Configuración → Reenvío y correo POP/IMAP. Si usas otro proveedor, busca una opción equivalente.</p>
-      <p class="es-muted">Gmail enviará un correo de verificación. Si llega a tu bandeja de entrada, ábrelo y completa la confirmación.</p>
+    <div class="es-side">
+      <% if money_tracking_simple? %>
+        <section class="es-card" data-testid="forwarding-rule-card">
+          <div class="es-card-head">
+            <span class="es-eyebrow">Reenvío selectivo</span>
+            <h2>Reenvía solo los correos que te sirven</h2>
+            <p class="es-muted">
+              Crea una regla en Gmail con los remitentes y asuntos de tus bancos. Así llegará a Yogasto
+              solo lo que quieres convertir en movimientos.
+            </p>
+          </div>
+          <div class="es-actions">
+            <button type="button" class="es-btn es-btn-primary" data-bs-toggle="modal"
+                    data-bs-target="#forwarding-rule-wizard" data-testid="open-forwarding-rule-wizard">
+              <i class="ti ti-mail-forward" aria-hidden="true"></i> Configurar reenvío
+            </button>
+          </div>
+        </section>
+      <% end %>
 
-      <a class="es-help-link" href="https://support.google.com/mail/answer/10957" target="_blank" rel="noopener">
-        <i class="ti ti-info-circle" aria-hidden="true"></i> Ayuda oficial de Gmail
-        <i class="ti ti-external-link" aria-hidden="true"></i>
-      </a>
-    </aside>
+      <aside class="es-card es-howto">
+        <h2>¿Necesitas ayuda?</h2>
+        <p class="es-muted">Solo necesitas configurar el reenvío una vez por cada dirección de correo.</p>
+        <p class="es-muted">En Gmail, abre Configuración → Reenvío y correo POP/IMAP. Si usas otro proveedor, busca una opción equivalente.</p>
+        <p class="es-muted">Gmail enviará un correo de verificación. Si llega a tu bandeja de entrada, ábrelo y completa la confirmación.</p>
+
+        <a class="es-help-link" href="https://support.google.com/mail/answer/10957" target="_blank" rel="noopener">
+          <i class="ti ti-info-circle" aria-hidden="true"></i> Ayuda oficial de Gmail
+          <i class="ti ti-external-link" aria-hidden="true"></i>
+        </a>
+      </aside>
+    </div>
   </div>
-
-  <% if money_tracking_simple? %>
-    <section class="es-card" data-testid="forwarding-rule-card">
-      <div class="es-card-head">
-        <span class="es-eyebrow">Reenvío selectivo</span>
-        <h2>Reenvía solo los correos que te sirven</h2>
-        <p class="es-muted">
-          Crea una regla en Gmail con los remitentes y asuntos de tus bancos. Así llegará a Yogasto
-          solo lo que quieres convertir en movimientos.
-        </p>
-      </div>
-      <div class="es-actions">
-        <button type="button" class="es-btn es-btn-primary" data-bs-toggle="modal"
-                data-bs-target="#forwarding-rule-wizard" data-testid="open-forwarding-rule-wizard">
-          <i class="ti ti-mail-forward" aria-hidden="true"></i> Configurar reenvío
-        </button>
-      </div>
-    </section>
-  <% end %>
 
   <% if @active_redirect_count.positive? && money_tracking_detailed? %>
     <section class="es-card es-next-step <%= "es-next-step-complete" if @recognition_configured %>"

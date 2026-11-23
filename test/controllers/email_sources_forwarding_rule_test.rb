@@ -18,12 +18,19 @@ class EmailSourcesForwardingRuleTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "[data-testid=forwarding-rule-card]"
+    assert_select ".es-layout [data-testid=forwarding-rule-card]"
+    assert_select ".es-layout .es-side [data-testid=forwarding-rule-card]"
+    assert_select ".es-side [data-testid=forwarding-rule-card] + .es-howto"
     assert_select "[data-testid=open-forwarding-rule-wizard][data-bs-target='#forwarding-rule-wizard']"
     assert_select "[data-testid=forwarding-rule-wizard]"
     assert_select "[data-testid=forwarding-wizard-nav-explain]"
-    assert_select "[data-testid=forwarding-wizard-nav-rule]"
+    assert_select "[data-testid=forwarding-wizard-nav-rule]", text: /Configura el reenvío/
+    assert_select "[data-testid=forwarding-wizard-nav-rule] .bank-wizard-nav-num", text: "2"
+    assert_select "[data-testid=forwarding-wizard-nav-rule].bank-wizard-nav-item-important", count: 0
     assert_select "[data-testid=forwarding-wizard-explain-step]", text: /regla de reenvío/
     assert_select "[data-testid=forwarding-wizard-rule-step][hidden]"
+    assert_select "[data-testid=forwarding-wizard-rule-step] .bank-wizard-bank-title", text: "Configura el reenvío"
+    assert_select "#forwarding_rule_senders[rows='2']"
     assert_select "#forwarding_rule_provider option[value=gmail]"
     assert_select "#forwarding_rule_provider option[value=outlook]"
     assert_select "#forwarding_rule_provider option[value=yahoo]"

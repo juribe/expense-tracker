@@ -19,6 +19,7 @@
 .email-sources-page .es-title { font-size: clamp(27px, 3vw, 38px); letter-spacing: -1.3px; margin: 0 0 8px; font-weight: 800; }
 .email-sources-page .es-subtitle { color: var(--es-muted); font-size: 16px; line-height: 1.55; margin: 0; }
 .email-sources-page .es-layout { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(270px, .9fr); gap: 18px; align-items: start; }
+.email-sources-page .es-side { display: grid; gap: 18px; align-content: start; }
 .email-sources-page .es-topline { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
 
 /* Steps */
