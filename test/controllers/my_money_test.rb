@@ -237,7 +237,7 @@ class MyMoneyTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "a", text: /Transferir|Depositar|Retirar|Conciliar|Editar/, count: 0
-    assert_select "body", text: /Identificador|Número de cuenta|Últimos cuatro|Fecha de corte|Fecha de pago|Exenta 4x1.000/, count: 0
+    assert_select "body", text: /Entidad financiera|Identificador|Número de cuenta|Últimos cuatro|Fecha de corte|Fecha de pago|Exenta 4x1.000/, count: 0
     assert_select "[data-testid=negative-balance-warning]", count: 0
   end
 

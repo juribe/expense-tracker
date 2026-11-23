@@ -329,9 +329,11 @@
                 </div>
               <% end %>
             </div>
-            <div class="col-lg-5">
-              <%= render "money_sources/details" %>
-            </div>
+            <% unless simple_money_view %>
+              <div class="col-lg-5">
+                <%= render "money_sources/details" %>
+              </div>
+            <% end %>
           <% end %>
         </div>
       </div>
