@@ -1,16 +1,18 @@
 # frozen_string_literal: true
 
 # Bullet detects N+1 queries, unused eager loading and missing counter caches.
-# Available in development; raises on detection so problems surface while
-# browsing. In test it stays off: with parallel workers it raised spurious
-# AVOID notifications depending on what ran alongside, and the flaky aborts
-# outweighed the signal. Run the suite with BULLET=1 to turn it back on.
+# In development it logs and shows alerts but never raises, so a detection
+# does not break the page being browsed. Tests enable raising explicitly (see
+# test_helper) and the suite keeps Bullet off by default: with parallel workers
+# it raised spurious AVOID notifications depending on what ran alongside, and
+# the flaky aborts outweighed the signal. Run the suite with BULLET=1 to turn
+# it back on.
 if defined?(Bullet)
   Rails.application.config.after_initialize do
     next if Rails.env.test? && !ENV.key?("BULLET")
 
     Bullet.enable = true
-    Bullet.raise = true
+    Bullet.raise = false
     Bullet.alert = true
     Bullet.bullet_logger = true
     Bullet.rails_logger = true
