@@ -20,7 +20,8 @@ if defined?(Bullet)
     # Expense and Income lists preload money_source even when the simple
     # tracking mode hides the source column. The eager load is intentional:
     # keeping it avoids per-row queries when the mode is detailed. N+1
-    # detection stays enabled.
+    # detection stays enabled. (The dashboard opts out of the preload in
+    # simple mode; see Expense.dashboard_summary.)
     %w[Expense Income].each do |class_name|
       Bullet.add_safelist type: :unused_eager_loading,
                           class_name: class_name,
