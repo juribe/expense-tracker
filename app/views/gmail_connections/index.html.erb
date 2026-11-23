@@ -2,10 +2,18 @@
   <%= render "shared/page_header",
         title: safe_join([ tag.i(class: "ti ti-mail"), t("gmail.title") ], " "),
         subtitle: t("gmail.subtitle") do %>
-    <% if @connection&.active? %>
-      <% syncing = @connection.sync_running? %>
-      <% configured = @connection.search_configured? %>
+    <% if @connection %>
+      <% syncing = @connection.active? && @connection.sync_running? %>
+      <% configured = @connection.active? && @connection.search_configured? %>
+      <% show_actions = money_tracking_simple? || configured || syncing %>
+      <% if show_actions %>
       <div class="d-flex gap-2 align-items-center" <%= tag.attributes(data: { sync_in_progress: true }) if syncing %>>
+        <% if money_tracking_simple? %>
+          <%= link_to gmail_connection_path(filters: "1"), class: "btn btn-outline-primary",
+                      data: { testid: "open-gmail-filter-wizard-header" } do %>
+            <i class="ti ti-adjustments me-1"></i><%= t("gmail.configure_bank_emails", default: "Configurar correos de bancos") %>
+          <% end %>
+        <% end %>
         <% if configured %>
           <%= button_to sync_gmail_connection_path, method: :post, class: "btn btn-primary",
                 disabled: syncing,
@@ -21,6 +29,7 @@
           </span>
         <% end %>
       </div>
+      <% end %>
     <% end %>
   <% end %>
 
@@ -138,9 +147,17 @@
                 <span class="icon-chip icon-chip-blue icon-chip-sm" aria-hidden="true"><i class="ti ti-bulb"></i></span>
                 <h2 class="card-title"><%= t("gmail.setup.review_title") %></h2>
               </div>
-              <p class="gmail-card-desc"><%= t("gmail.setup.review_help") %></p>
+              <% if money_tracking_simple? %>
+                <p class="gmail-card-desc"><%= t("gmail.setup.simple_review_help") %></p>
+                <%= link_to gmail_connection_path(filters: "1"), class: "btn btn-primary btn-sm",
+                            data: { testid: "open-gmail-filter-wizard" } do %>
+                  <i class="ti ti-adjustments me-1"></i><%= t("gmail.setup.simple_review_cta") %>
+                <% end %>
+              <% else %>
+                <p class="gmail-card-desc"><%= t("gmail.setup.review_help") %></p>
+              <% end %>
               <% if @connection.setup_suggestions.values_at("senders", "domains", "subject_keywords", "subject_templates").flatten.blank? %>
-                <div class="alert alert-warning py-2 small mb-0"><%= t("gmail.empty_discovery") %></div>
+                <div class="alert alert-warning py-2 mt-2 mb-0"><%= t("gmail.empty_discovery") %></div>
               <% end %>
             </div>
           </div>
@@ -158,7 +175,7 @@
           </div>
         <% end %>
 
-        <% if @connection && (@connection.setup_completed? || @connection.search_configured?) %>
+        <% if @connection %>
           <div class="card gmail-card">
             <div class="card-body">
               <div class="gmail-card-title">
@@ -331,5 +348,16 @@
     </div>
   </div>
 </div>
+
+<% if @filter_wizard.present? %>
+  <%= render "money_sources/bank_setup_wizard",
+             wizard: @filter_wizard,
+             title: t("gmail.filter_wizard.title"),
+             subtitle: t("gmail.filter_wizard.subtitle"),
+             finish_url: gmail_connection_path,
+             form_url: update_gmail_filters_path,
+             show_filters_step: false,
+             auto_open: params[:filters].present? || (@connection.setup_completed? && !@connection.search_configured?) %>
+<% end %>
 
 <%= render "shared/expense_drawer" %>

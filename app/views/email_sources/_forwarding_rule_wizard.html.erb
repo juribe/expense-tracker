@@ -1,0 +1,238 @@
+<%#
+  Two-step forwarding helper reused by the simple tracking redirect flow.
+  Step 1 explains why a forwarding rule is needed; step 2 builds the rule for
+  the provider the user picks. Nothing is persisted: the provider performs the
+  filtering and Yogasto only receives what it forwards.
+%>
+<div class="modal fade bank-wizard-modal" id="forwarding-rule-wizard" tabindex="-1"
+     role="dialog" aria-labelledby="forwarding-rule-wizard-title" aria-hidden="true"
+     data-forwarding-wizard
+     data-label-explain-cta="<%= t("email_sources.forwarding_rule.wizard.explain_cta", default: "Crear mi regla") %>"
+     data-label-done="<%= t("email_sources.forwarding_rule.wizard.done", default: "Listo") %>"
+     data-empty-query="<%= t("email_sources.forwarding_rule.empty_query", default: "Escribe al menos un remitente o asunto.") %>"
+     data-copied="<%= t("email_sources.forwarding_rule.copied", default: "Copiado") %>"
+     data-any-subject="<%= t("email_sources.forwarding_rule.any_subject", default: "cualquier asunto") %>"
+     data-label-senders="<%= t("email_sources.forwarding_rule.senders_label", default: "Remitentes") %>"
+     data-label-subjects="<%= t("email_sources.forwarding_rule.subjects_label", default: "Asuntos") %>"
+     data-testid="forwarding-rule-wizard">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content bank-wizard-shell">
+      <header class="bank-wizard-head">
+        <div class="bank-wizard-head-main">
+          <span class="bank-wizard-head-icon" aria-hidden="true"><i class="ti ti-mail-forward"></i></span>
+          <div class="min-w-0">
+            <h2 class="bank-wizard-title" id="forwarding-rule-wizard-title">
+              <%= t("email_sources.forwarding_rule.wizard.title", default: "Configura tu reenvío") %>
+            </h2>
+            <p class="bank-wizard-subtitle">
+              <%= t("email_sources.forwarding_rule.wizard.subtitle", default: "Te explicamos cómo reenviar solo los correos de tus bancos a tu cuenta de Yogasto.") %>
+            </p>
+          </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                aria-label="<%= t("common.close") %>" data-testid="forwarding-rule-close"></button>
+      </header>
+
+      <div class="bank-wizard-body">
+        <nav class="bank-wizard-nav" aria-label="<%= t("email_sources.forwarding_rule.wizard.nav_label", default: "Pasos del reenvío") %>">
+          <p class="bank-wizard-nav-title"><%= t("email_sources.forwarding_rule.wizard.nav_title", default: "Pasos") %></p>
+
+          <button type="button" class="bank-wizard-nav-item is-active"
+                  data-forwarding-go="explain" data-forwarding-nav-item
+                  data-testid="forwarding-wizard-nav-explain">
+            <span class="bank-wizard-nav-num">1</span>
+            <span class="bank-wizard-nav-copy">
+              <span class="bank-wizard-nav-label"><%= t("email_sources.forwarding_rule.wizard.nav_explain", default: "Cómo funciona el reenvío") %></span>
+              <span class="bank-wizard-nav-state"><%= t("email_sources.forwarding_rule.wizard.nav_explain_state", default: "Explicación") %></span>
+            </span>
+          </button>
+
+          <button type="button" class="bank-wizard-nav-item bank-wizard-nav-item-important"
+                  data-forwarding-go="rule" data-forwarding-nav-item
+                  data-testid="forwarding-wizard-nav-rule">
+            <span class="bank-wizard-nav-num" aria-hidden="true"><i class="ti ti-flag"></i></span>
+            <span class="bank-wizard-nav-copy">
+              <span class="bank-wizard-nav-label"><%= t("email_sources.forwarding_rule.wizard.nav_rule", default: "Crea tu regla") %></span>
+              <span class="bank-wizard-nav-state"><%= t("email_sources.forwarding_rule.wizard.nav_rule_state", default: "Paso importante") %></span>
+            </span>
+          </button>
+        </nav>
+
+        <div class="bank-wizard-content">
+          <section class="bank-wizard-panel bank-wizard-filter-panel is-active"
+                   data-forwarding-panel="explain"
+                   data-testid="forwarding-wizard-explain-step">
+            <header class="bank-wizard-bank-head">
+              <div class="bank-wizard-bank-identity">
+                <span class="bank-wizard-bank-logo is-important" aria-hidden="true"><i class="ti ti-mail-forward"></i></span>
+                <div class="min-w-0">
+                  <h3 class="bank-wizard-bank-title"><%= t("email_sources.forwarding_rule.wizard.explain_title", default: "Reenvía solo los correos que te sirven") %></h3>
+                  <p class="bank-wizard-bank-desc"><%= t("email_sources.forwarding_rule.wizard.explain_subtitle", default: "Tu proveedor de correo hace el trabajo: a Yogasto solo llega lo que decidas reenviar.") %></p>
+                </div>
+              </div>
+            </header>
+
+            <div class="bank-wizard-filter-card">
+              <strong class="bank-wizard-filter-heading"><%= t("email_sources.forwarding_rule.wizard.explain_heading", default: "¿Por qué necesitas una regla de reenvío?") %></strong>
+              <p><%= t("email_sources.forwarding_rule.wizard.explain_body", default: "Tu bandeja recibe promociones, mensajes personales y notificaciones que no son movimientos. Si activas un reenvío general, todo eso llegaría a Yogasto. Con una regla reenvías únicamente las notificaciones de tus bancos.") %></p>
+
+              <h4><%= t("email_sources.forwarding_rule.wizard.how_title", default: "¿Cómo funciona?") %></h4>
+              <div class="bank-wizard-filter-steps">
+                <% (1..3).each do |step| %>
+                  <div class="bank-wizard-filter-step">
+                    <span class="bank-wizard-filter-step-num" aria-hidden="true"><%= step %></span>
+                    <div>
+                      <strong><%= t("email_sources.forwarding_rule.wizard.step#{step}_title") %></strong>
+                      <p><%= t("email_sources.forwarding_rule.wizard.step#{step}_body") %></p>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+
+              <div class="bank-wizard-filter-note" data-testid="forwarding-wizard-note">
+                <i class="ti ti-info-circle" aria-hidden="true"></i>
+                <span><%= t("email_sources.forwarding_rule.wizard.explain_note", default: "Yogasto no puede leer tu bandeja completa ni comprobar la regla: solo recibe los correos que tu proveedor reenvíe.") %></span>
+              </div>
+
+              <div class="bank-wizard-filter-actions">
+                <button type="button" class="btn btn-outline-primary btn-sm" data-forwarding-go="rule"
+                        data-testid="forwarding-wizard-explain-cta">
+                  <i class="ti ti-arrow-right" aria-hidden="true"></i><%= t("email_sources.forwarding_rule.wizard.explain_cta", default: "Crear mi regla") %>
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <section class="bank-wizard-panel" data-forwarding-panel="rule"
+                   data-testid="forwarding-wizard-rule-step" hidden>
+            <header class="bank-wizard-bank-head">
+              <div class="bank-wizard-bank-identity">
+                <span class="bank-wizard-bank-logo is-important" aria-hidden="true"><i class="ti ti-filter"></i></span>
+                <div class="min-w-0">
+                  <h3 class="bank-wizard-bank-title"><%= t("email_sources.forwarding_rule.wizard.rule_title", default: "Crea tu regla de reenvío") %></h3>
+                  <p class="bank-wizard-bank-desc"><%= t("email_sources.forwarding_rule.wizard.rule_subtitle", default: "Elige tu proveedor y copia la regla en su configuración.") %></p>
+                </div>
+              </div>
+              <span class="bank-wizard-counter"><%= t("email_sources.forwarding_rule.wizard.nav_rule_state", default: "Paso importante") %></span>
+            </header>
+
+            <div class="bank-wizard-filter-card">
+              <div class="mb-3">
+                <label for="forwarding_rule_provider" class="form-label">
+                  <%= t("email_sources.forwarding_rule.provider", default: "Proveedor de correo") %>
+                </label>
+                <select id="forwarding_rule_provider" class="form-select">
+                  <option value="gmail"><%= t("email_sources.forwarding_rule.providers.gmail", default: "Gmail") %></option>
+                  <option value="outlook"><%= t("email_sources.forwarding_rule.providers.outlook", default: "Outlook / Hotmail") %></option>
+                  <option value="yahoo"><%= t("email_sources.forwarding_rule.providers.yahoo", default: "Yahoo") %></option>
+                  <option value="other"><%= t("email_sources.forwarding_rule.providers.other", default: "Otro proveedor") %></option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <div class="form-label"><%= t("email_sources.forwarding_rule.address", default: "Reenviar a") %></div>
+                <div class="input-group">
+                  <input type="text" class="form-control" id="forwarding_rule_address"
+                         value="<%= forwarding_address %>" readonly>
+                  <button type="button" class="btn btn-outline-secondary" data-copy-target="#forwarding_rule_address">
+                    <i class="ti ti-copy me-1" aria-hidden="true"></i><%= t("email_sources.forwarding_rule.copy", default: "Copiar") %>
+                  </button>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="forwarding_rule_senders" class="form-label">
+                  <%= t("email_sources.forwarding_rule.senders", default: "Remitentes o dominios de bancos") %>
+                </label>
+                <textarea id="forwarding_rule_senders" class="form-control" rows="3"
+                          placeholder="notifications@bank.com, bank.com"></textarea>
+                <div class="form-text">
+                  <%= t("email_sources.forwarding_rule.senders_help", default: "Uno por línea o separados por coma.") %>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="forwarding_rule_subjects" class="form-label">
+                  <%= t("email_sources.forwarding_rule.subjects", default: "Asuntos que quieres reenviar") %>
+                </label>
+                <textarea id="forwarding_rule_subjects" class="form-control" rows="2"
+                          placeholder="compra, pago, transacción"></textarea>
+                <div class="form-text">
+                  <%= t("email_sources.forwarding_rule.subjects_help", default: "Opcional. Déjalo vacío para reenviar cualquier asunto de esos remitentes.") %>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <div class="form-label"><%= t("email_sources.forwarding_rule.summary", default: "Regla de reenvío") %></div>
+                <div class="border rounded p-3 small bg-body-tertiary" id="forwarding_rule_summary" aria-live="polite"></div>
+              </div>
+
+              <div data-provider-panel="gmail">
+                <div class="mb-2">
+                  <div class="form-label"><%= t("email_sources.forwarding_rule.query", default: "Búsqueda para Gmail") %></div>
+                  <pre class="bg-body-tertiary border rounded p-3 mb-2"><code id="forwarding_rule_query"></code></pre>
+                  <button type="button" class="btn btn-sm btn-outline-primary" data-copy-target="#forwarding_rule_query">
+                    <i class="ti ti-copy me-1" aria-hidden="true"></i><%= t("email_sources.forwarding_rule.copy_query", default: "Copiar búsqueda") %>
+                  </button>
+                </div>
+                <div class="alert alert-info small mb-0">
+                  <i class="ti ti-info-circle me-1" aria-hidden="true"></i>
+                  <%= t("email_sources.forwarding_rule.instructions_gmail",
+                        default: "En Gmail, crea un filtro con esta búsqueda y elige reenviar a la dirección de arriba. Todo lo que reenvíes se registrará en Mi dinero.") %>
+                  <%= link_to t("email_sources.forwarding_rule.provider_help", default: "Ver ayuda"),
+                              "https://support.google.com/mail/answer/6579?hl=es",
+                              target: "_blank", rel: "noopener", class: "fw-semibold" %>
+                </div>
+              </div>
+
+              <div data-provider-panel="outlook" hidden>
+                <div class="alert alert-info small mb-0">
+                  <i class="ti ti-info-circle me-1" aria-hidden="true"></i>
+                  <%= t("email_sources.forwarding_rule.instructions_outlook",
+                        default: "En Outlook, abre Configuración → Correo → Reglas y crea una regla con estas condiciones. Elige reenviar a la dirección de arriba.") %>
+                  <%= link_to t("email_sources.forwarding_rule.provider_help", default: "Ver ayuda"),
+                              "https://support.microsoft.com/es-es/outlook",
+                              target: "_blank", rel: "noopener", class: "fw-semibold" %>
+                </div>
+              </div>
+
+              <div data-provider-panel="yahoo" hidden>
+                <div class="alert alert-info small mb-0">
+                  <i class="ti ti-info-circle me-1" aria-hidden="true"></i>
+                  <%= t("email_sources.forwarding_rule.instructions_yahoo",
+                        default: "En Yahoo, abre Configuración → Filtros y reenvío y crea un filtro con estas condiciones. Elige reenviar a la dirección de arriba.") %>
+                  <%= link_to t("email_sources.forwarding_rule.provider_help", default: "Ver ayuda"),
+                              "https://help.yahoo.com/kb/SLN4075.html",
+                              target: "_blank", rel: "noopener", class: "fw-semibold" %>
+                </div>
+              </div>
+
+              <div data-provider-panel="other" hidden>
+                <div class="alert alert-info small mb-0">
+                  <i class="ti ti-info-circle me-1" aria-hidden="true"></i>
+                  <%= t("email_sources.forwarding_rule.instructions_other",
+                        default: "En tu proveedor de correo, crea una regla de reenvío con estas condiciones y usa la dirección de arriba como destino.") %>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <footer class="bank-wizard-foot">
+        <button type="button" class="btn btn-link bank-wizard-skip" data-forwarding-back hidden
+                data-testid="forwarding-wizard-back">
+          <i class="ti ti-arrow-left" aria-hidden="true"></i><%= t("email_sources.forwarding_rule.wizard.back", default: "Volver a la explicación") %>
+        </button>
+        <div class="bank-wizard-foot-actions">
+          <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">
+            <%= t("common.close") %>
+          </button>
+          <button type="button" class="btn btn-primary" data-forwarding-next data-testid="forwarding-wizard-next">
+            <span data-forwarding-next-label><%= t("email_sources.forwarding_rule.wizard.explain_cta", default: "Crear mi regla") %></span>
+          </button>
+        </div>
+      </footer>
+    </div>
+  </div>
+</div>

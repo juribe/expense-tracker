@@ -9,12 +9,19 @@
 %>
 <% wizard_steps = wizard.steps %>
 <% initial_key = wizard_steps.first&.key || "empty" %>
+<% wizard_title = local_assigns.fetch(:title, t("money_sources.recognition.wizard.title")) %>
+<% wizard_subtitle = local_assigns.fetch(:subtitle, t("money_sources.recognition.wizard.subtitle")) %>
+<% wizard_finish_url = local_assigns.fetch(:finish_url, money_sources_recognition_path) %>
+<% wizard_form_url = local_assigns[:form_url] %>
+<% wizard_auto_open = local_assigns.fetch(:auto_open, true) %>
+<% wizard_show_filters_step = local_assigns.fetch(:show_filters_step, true) %>
 <div class="modal fade bank-wizard-modal" id="bank-setup-wizard" tabindex="-1"
      role="dialog" aria-labelledby="bank-wizard-title" aria-hidden="true"
      data-bank-wizard
-     data-auto-open="true"
+     data-auto-open="<%= wizard_auto_open %>"
+     data-has-filters-step="<%= wizard_show_filters_step %>"
      data-user-id="<%= current_user.id %>"
-     data-finish-url="<%= money_sources_recognition_path %>"
+     data-finish-url="<%= wizard_finish_url %>"
      data-initial-key="<%= initial_key %>"
      data-state-in-progress="<%= t("money_sources.recognition.wizard.state_in_progress") %>"
      data-state-pending="<%= t("money_sources.recognition.wizard.state_pending") %>"
@@ -39,8 +46,8 @@
         <div class="bank-wizard-head-main">
           <span class="bank-wizard-head-icon" aria-hidden="true"><i class="ti ti-building-bank"></i></span>
           <div class="min-w-0">
-            <h2 class="bank-wizard-title" id="bank-wizard-title"><%= t("money_sources.recognition.wizard.title") %></h2>
-            <p class="bank-wizard-subtitle"><%= t("money_sources.recognition.wizard.subtitle") %></p>
+            <h2 class="bank-wizard-title" id="bank-wizard-title"><%= wizard_title %></h2>
+            <p class="bank-wizard-subtitle"><%= wizard_subtitle %></p>
           </div>
         </div>
         <button type="button" class="btn-close" data-bs-dismiss="modal"
@@ -67,15 +74,17 @@
               </span>
             </button>
           <% end %>
-          <button type="button" class="bank-wizard-nav-item bank-wizard-nav-item-important"
-                  data-bank-wizard-go="filters"
-                  data-testid="bank-wizard-filter-nav">
-            <span class="bank-wizard-nav-num" aria-hidden="true"><i class="ti ti-flag"></i></span>
-            <span class="bank-wizard-nav-copy">
-              <span class="bank-wizard-nav-label"><%= t("money_sources.recognition.wizard.filters_nav") %></span>
-              <span class="bank-wizard-nav-state"><%= t("money_sources.recognition.wizard.filters_nav_state") %></span>
-            </span>
-          </button>
+          <% if wizard_show_filters_step %>
+            <button type="button" class="bank-wizard-nav-item bank-wizard-nav-item-important"
+                    data-bank-wizard-go="filters"
+                    data-testid="bank-wizard-filter-nav">
+              <span class="bank-wizard-nav-num" aria-hidden="true"><i class="ti ti-flag"></i></span>
+              <span class="bank-wizard-nav-copy">
+                <span class="bank-wizard-nav-label"><%= t("money_sources.recognition.wizard.filters_nav") %></span>
+                <span class="bank-wizard-nav-state"><%= t("money_sources.recognition.wizard.filters_nav_state") %></span>
+              </span>
+            </button>
+          <% end %>
         </nav>
 
         <div class="bank-wizard-content">
@@ -133,8 +142,9 @@
                 </div>
               </header>
 
-              <%= form_with url: money_source_recognition_path(bank.source_id), method: :patch,
-                            local: true, class: "bank-wizard-form", data: { bank_wizard_form: true } do %>
+              <%= form_with url: (wizard_form_url || money_source_recognition_path(bank.source_id)),
+                            method: :patch, local: true, class: "bank-wizard-form",
+                            data: { bank_wizard_form: true } do %>
                 <%# Always present, even when every chip was removed, so the
                     existing endpoint receives the section and can clear it. %>
                 <input type="hidden" name="senders[]" value="">
@@ -183,7 +193,7 @@
                         </span>
                       <% end %>
                     </div>
-                    <%= render "recognition_suggested", section: "senders", suggestions: bank.suggestions[:senders] %>
+                    <%= render "money_sources/recognition_suggested", section: "senders", suggestions: bank.suggestions[:senders] %>
                     <p class="bank-wizard-field-example"><%= t("money_sources.recognition.wizard.sender_placeholder") %></p>
                   </section>
 
@@ -229,27 +239,30 @@
                         </span>
                       <% end %>
                     </div>
-                    <%= render "recognition_suggested", section: "subjects", suggestions: bank.suggestions[:subjects] %>
+                    <%= render "money_sources/recognition_suggested", section: "subjects", suggestions: bank.suggestions[:subjects] %>
                     <p class="bank-wizard-field-example"><%= t("money_sources.recognition.wizard.subject_placeholder") %></p>
                   </section>
                 </div>
 
-                <div class="bank-wizard-callout" role="note">
-                  <span class="bank-wizard-callout-icon" aria-hidden="true"><i class="ti ti-alert-triangle"></i></span>
-                  <div class="bank-wizard-callout-copy">
-                    <strong><%= t("money_sources.recognition.wizard.filter_callout_title") %></strong>
-                    <p><%= t("money_sources.recognition.wizard.filter_callout_body") %></p>
+                <% if wizard_show_filters_step %>
+                  <div class="bank-wizard-callout" role="note">
+                    <span class="bank-wizard-callout-icon" aria-hidden="true"><i class="ti ti-alert-triangle"></i></span>
+                    <div class="bank-wizard-callout-copy">
+                      <strong><%= t("money_sources.recognition.wizard.filter_callout_title") %></strong>
+                      <p><%= t("money_sources.recognition.wizard.filter_callout_body") %></p>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bank-wizard-go="filters">
+                      <i class="ti ti-external-link" aria-hidden="true"></i><%= t("money_sources.recognition.wizard.filter_callout_link") %>
+                    </button>
                   </div>
-                  <button type="button" class="btn btn-sm btn-outline-secondary" data-bank-wizard-go="filters">
-                    <i class="ti ti-external-link" aria-hidden="true"></i><%= t("money_sources.recognition.wizard.filter_callout_link") %>
-                  </button>
-                </div>
+                <% end %>
               <% end %>
 
               <div class="bank-wizard-error" data-bank-wizard-error role="alert" hidden></div>
             </section>
           <% end %>
 
+          <% if wizard_show_filters_step %>
           <section class="bank-wizard-panel bank-wizard-filter-panel" data-bank-wizard-panel="filters"
                    data-testid="bank-wizard-filter-step" hidden>
             <header class="bank-wizard-bank-head">
@@ -301,6 +314,7 @@
               </div>
             </div>
           </section>
+          <% end %>
         </div>
       </div>
 

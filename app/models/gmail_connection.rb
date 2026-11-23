@@ -171,9 +171,7 @@ class GmailConnection < ApplicationRecord
   def saved_search_config?
     return false unless search_config.is_a?(Hash)
 
-    search_config.key?("senders") || search_config.key?(:senders) ||
-      search_config.key?("domains") || search_config.key?(:domains) ||
-      search_config.key?("subject_keywords") || search_config.key?(:subject_keywords)
+    search_config_hash.values.any?(&:present?)
   end
 
   def joined_for(saved_values, suggestion_entries)

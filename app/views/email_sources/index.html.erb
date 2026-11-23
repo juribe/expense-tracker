@@ -156,6 +156,25 @@
     </aside>
   </div>
 
+  <% if money_tracking_simple? %>
+    <section class="es-card" data-testid="forwarding-rule-card">
+      <div class="es-card-head">
+        <span class="es-eyebrow">Reenvío selectivo</span>
+        <h2>Reenvía solo los correos que te sirven</h2>
+        <p class="es-muted">
+          Crea una regla en Gmail con los remitentes y asuntos de tus bancos. Así llegará a Yogasto
+          solo lo que quieres convertir en movimientos.
+        </p>
+      </div>
+      <div class="es-actions">
+        <button type="button" class="es-btn es-btn-primary" data-bs-toggle="modal"
+                data-bs-target="#forwarding-rule-wizard" data-testid="open-forwarding-rule-wizard">
+          <i class="ti ti-mail-forward" aria-hidden="true"></i> Configurar reenvío
+        </button>
+      </div>
+    </section>
+  <% end %>
+
   <% if @active_redirect_count.positive? && money_tracking_detailed? %>
     <section class="es-card es-next-step <%= "es-next-step-complete" if @recognition_configured %>"
              data-testid="recognition-next-step" aria-labelledby="nextStepTitle">
@@ -184,6 +203,10 @@
       <div class="es-next-step-actions">
         <%= link_to money_sources_recognition_path, class: "es-btn es-btn-primary", data: { testid: "configure-recognition" } do %>
           <i class="ti ti-settings" aria-hidden="true"></i> Configurar reconocimiento de fuentes
+        <% end %>
+        <%= link_to money_sources_recognition_path(wizard: 1), class: "es-btn es-btn-secondary",
+                    data: { testid: "open-bank-wizard" } do %>
+          <i class="ti ti-building-bank" aria-hidden="true"></i> Abrir wizard de bancos
         <% end %>
       </div>
       <p class="es-address-help">Puedes continuar más tarde desde el menú Automatización → Reconocimiento de fuentes.</p>
@@ -255,6 +278,12 @@
       <% end %>
     </div>
   </section>
+
+  <% if money_tracking_simple? %>
+    <%= render "email_sources/forwarding_rule_wizard",
+               forwarding_address: @forwarding_address %>
+    <%= javascript_include_tag "forwarding_rule", defer: true %>
+  <% end %>
 
   <div class="es-toast" id="toast" role="status" aria-live="polite"></div>
 </div>

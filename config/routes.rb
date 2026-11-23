@@ -261,6 +261,7 @@ Rails.application.routes.draw do
   post "settings/gmail/sync", to: "gmail_connections#sync", as: :sync_gmail_connection
   get "settings/gmail/sync_status", to: "gmail_connections#sync_status", as: :gmail_sync_status
   post "settings/gmail/setup_sync", to: "gmail_connections#setup_sync", as: :setup_sync_gmail_connection
+  patch "settings/gmail/filters", to: "gmail_connections#update_filters", as: :update_gmail_filters
   match "settings/gmail/auth/start", to: "gmail_connections#start_auth", via: [:get, :post], as: :start_gmail_auth
   get "auth/google/callback", to: "gmail_connections#callback", as: :google_callback
   scope "gmail/reviews" do

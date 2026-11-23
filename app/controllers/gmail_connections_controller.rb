@@ -9,7 +9,7 @@ class GmailConnectionsController < ApplicationController
   rate_limit to: 5, within: 1.minute, only: [ :sync, :setup_sync ], store: RateLimitProxy.new,
              by: -> { current_user&.id || request.remote_ip }
 
-  before_action :set_connection, only: %i[update destroy sync sync_status setup_sync]
+  before_action :set_connection, only: %i[update destroy sync sync_status setup_sync update_filters]
 
   rescue_from ActiveRecord::RecordNotFound do
     head :not_found
@@ -28,6 +28,11 @@ class GmailConnectionsController < ApplicationController
     @configured = Gmail::OauthClient.configured?
     @pending_reviews = current_user.processed_emails.gmail.needs_review.order(created_at: :desc)
     @recent_imports = current_user.expenses.where(source: "gmail").order(date: :desc).limit(10)
+    # Simple tracking keeps a single bank-email step that stays editable even
+    # while the connection is paused; filters are only read when a sync runs.
+    if money_tracking_simple? && @connection
+      @filter_wizard = Gmail::FilterWizard.new(connection: @connection)
+    end
   end
 
   # Kicks off the Google OAuth authorization-code flow.
@@ -85,11 +90,50 @@ class GmailConnectionsController < ApplicationController
   end
 
   def update
+    unless valid_search_criteria?(search_config_params)
+      redirect_to gmail_connection_path, alert: t("gmail.criteria_required")
+      return
+    end
+
     @connection.update!(search_config: search_config_params)
     if params[:next] == "recognition"
       redirect_to money_sources_recognition_path, notice: t("gmail_messages.criteria_updated")
     else
       redirect_to gmail_connection_path, notice: t("gmail_messages.criteria_updated")
+    end
+  end
+
+  # PATCH /settings/gmail/filters
+  # The shared bank wizard uses senders[]/subjects[] in simple mode. Persist
+  # them directly into the connection's Gmail query criteria.
+  def update_filters
+    from_values = split_values(Array(params[:senders]).join(","))
+    senders, domains = from_values.partition { |value| value.include?("@") }
+    filters = {
+      senders: senders,
+      domains: domains,
+      subject_keywords: split_values(Array(params[:subjects]).join(","))
+    }
+
+    unless valid_search_criteria?(filters)
+      respond_to do |format|
+        format.json { render json: { errors: [ t("gmail.criteria_required") ] }, status: :unprocessable_entity }
+        format.html { redirect_to gmail_connection_path, alert: t("gmail.criteria_required") }
+      end
+      return
+    end
+
+    @connection.update!(search_config: filters)
+
+    respond_to do |format|
+      format.json do
+        render json: {
+          configured: @connection.search_configured?,
+          senders: filters[:senders],
+          subjects: filters[:subject_keywords]
+        }
+      end
+      format.html { redirect_to gmail_connection_path, notice: t("gmail_messages.criteria_updated") }
     end
   end
 
@@ -131,7 +175,7 @@ class GmailConnectionsController < ApplicationController
     return sync_already_running if @connection.sync_running?
 
     GmailSetupSyncJob.perform_later(connection_id: @connection.id)
-    destination = money_tracking_simple? ? gmail_connection_path : money_sources_recognition_path
+    destination = money_tracking_simple? ? gmail_connection_path(filters: "1") : money_sources_recognition_path
     redirect_to destination, notice: t("gmail_messages.setup_sync_started")
   end
 
@@ -185,6 +229,10 @@ class GmailConnectionsController < ApplicationController
       domains: split_values(raw[:domains]),
       subject_keywords: split_values(raw[:subject_keywords])
     }
+  end
+
+  def valid_search_criteria?(criteria)
+    criteria.values.any?(&:present?)
   end
 
   def split_values(value)

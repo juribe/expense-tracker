@@ -321,7 +321,8 @@
 
     function nextStepAfter(key) {
       var index = bankKeys.indexOf(key);
-      return bankKeys[index + 1] || "filters";
+      if (bankKeys[index + 1]) return bankKeys[index + 1];
+      return modal.dataset.hasFiltersStep === "false" ? null : "filters";
     }
 
     function finish() {
@@ -376,7 +377,9 @@
         updateFooter();
         updateNavStates();
         updateProgress();
-        showStep(nextStepAfter(savedKey));
+        var nextStep = nextStepAfter(savedKey);
+        if (nextStep) showStep(nextStep);
+        else finish();
       }).catch(function (error) {
         saving = false;
         updateFooter();
@@ -394,7 +397,9 @@
       var skippedKey = current;
       updateNavStates();
       updateProgress();
-      showStep(nextStepAfter(skippedKey));
+      var nextStep = nextStepAfter(skippedKey);
+      if (nextStep) showStep(nextStep);
+      else finish();
     }
 
     function goTo(key) {
