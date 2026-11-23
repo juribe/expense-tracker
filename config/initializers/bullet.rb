@@ -16,5 +16,21 @@ if defined?(Bullet)
     Bullet.rails_logger = true
     Bullet.unused_eager_loading_enable = true
     Bullet.counter_cache_enable = true
+
+    # Expense and Income lists preload money_source even when the simple
+    # tracking mode hides the source column. The eager load is intentional:
+    # keeping it avoids per-row queries when the mode is detailed. N+1
+    # detection stays enabled.
+    %w[Expense Income].each do |class_name|
+      Bullet.add_safelist type: :unused_eager_loading,
+                          class_name: class_name,
+                          association: :money_source
+    end
+
+    # The nested credit_account preload belongs to the same intentional source
+    # load; simple mode hides it, advanced mode uses it for card last-four.
+    Bullet.add_safelist type: :unused_eager_loading,
+                        class_name: "MoneySource",
+                        association: :credit_account
   end
 end
