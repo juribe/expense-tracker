@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1795467181.4131153,
-    "seen": 1795467270.511408,
+    "mtime": 1795469766.1314452,
+    "seen": 1795469878.316703,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -3516,9 +3516,9 @@
     "semantic_hash": ""
   },
   "test/controllers/reports/reports_pages_test.rb": {
-    "mtime": 1794951893.99556,
-    "seen": 1794955977.96259,
-    "ast_hash": "a49787982583d9e50216597f8e97baf1",
+    "mtime": 1795469619.56018,
+    "seen": 1795469878.290576,
+    "ast_hash": "44279fe922474f2180cdad0aa3b4db27",
     "semantic_hash": ""
   },
   "test/services/reports/base_test.rb": {
@@ -4260,9 +4260,9 @@
     "semantic_hash": ""
   },
   "test/controllers/reports/debt_capacity_controller_test.rb": {
-    "mtime": 1794271691.6740139,
-    "seen": 1794271728.925261,
-    "ast_hash": "392a65a1bad4c3191eb02b07f51f5a0e",
+    "mtime": 1795469634.2313821,
+    "seen": 1795469878.2904818,
+    "ast_hash": "b21c9065abb5729029f21a81a88104c7",
     "semantic_hash": ""
   },
   "test/services/debt_capacity/metrics_test.rb": {
@@ -4284,9 +4284,9 @@
     "semantic_hash": ""
   },
   "app/controllers/debt_capacity_controller.rb": {
-    "mtime": 1794756056.1610048,
-    "seen": 1794757149.626606,
-    "ast_hash": "c260a259cb4561edc8d346da54ccdb59",
+    "mtime": 1795469672.9071724,
+    "seen": 1795469878.241763,
+    "ast_hash": "cbd30730e4aeae33fefa249d3c5b5031",
     "semantic_hash": ""
   },
   "app/services/debt_capacity/comparison.rb": {
@@ -10668,9 +10668,9 @@
     "semantic_hash": ""
   },
   "test/controllers/dashboard_money_tracking_test.rb": {
-    "mtime": 1795462394.935656,
-    "seen": 1795462565.6875,
-    "ast_hash": "6355017f122e0201ae092e1ec55308d2",
+    "mtime": 1795469628.7636912,
+    "seen": 1795469878.2881348,
+    "ast_hash": "732ffa57650302ffec9a4b4ae17495a9",
     "semantic_hash": ""
   },
   "test/controllers/expenses_money_tracking_test.rb": {

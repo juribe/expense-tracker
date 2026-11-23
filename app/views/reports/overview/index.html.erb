@@ -219,18 +219,20 @@
 </section>
 
 <div class="row g-3 report-secondary" data-testid="overview-secondary">
-  <div class="col-6 col-lg-3">
-    <div class="card report-secondary-card h-100">
-      <div class="card-body">
-        <span class="report-secondary-icon" aria-hidden="true"><i class="ti ti-arrows-exchange"></i></span>
-        <div>
-          <span class="report-secondary-label"><%= t("reports.overview.total_transfers") %></span>
-          <strong class="report-secondary-value"><%= money_amount(@overview[:transfers][:total]) %></strong>
+  <% if money_tracking_detailed? %>
+    <div class="col-6 col-lg-3">
+      <div class="card report-secondary-card h-100">
+        <div class="card-body">
+          <span class="report-secondary-icon" aria-hidden="true"><i class="ti ti-arrows-exchange"></i></span>
+          <div>
+            <span class="report-secondary-label"><%= t("reports.overview.total_transfers") %></span>
+            <strong class="report-secondary-value"><%= money_amount(@overview[:transfers][:total]) %></strong>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  <div class="col-6 col-lg-3">
+  <% end %>
+  <div class="col-6 <%= money_tracking_detailed? ? "col-lg-3" : "col-lg-4" %>">
     <div class="card report-secondary-card h-100">
       <div class="card-body">
         <span class="report-secondary-icon" aria-hidden="true"><i class="ti ti-receipt-2"></i></span>
@@ -241,7 +243,7 @@
       </div>
     </div>
   </div>
-  <div class="col-6 col-lg-3">
+  <div class="col-6 <%= money_tracking_detailed? ? "col-lg-3" : "col-lg-4" %>">
     <div class="card report-secondary-card h-100">
       <div class="card-body">
         <span class="report-secondary-icon" aria-hidden="true"><i class="ti ti-calculator"></i></span>
@@ -252,7 +254,7 @@
       </div>
     </div>
   </div>
-  <div class="col-6 col-lg-3">
+  <div class="col-6 <%= money_tracking_detailed? ? "col-lg-3" : "col-lg-4" %>">
     <div class="card report-secondary-card h-100">
       <div class="card-body">
         <span class="report-secondary-icon is-debt" aria-hidden="true"><i class="ti ti-coin"></i></span>

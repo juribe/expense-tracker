@@ -44,6 +44,16 @@ class ReportsPagesTest < ActionDispatch::IntegrationTest
     assert_not_includes response.body, "translation_missing"
   end
 
+  test "GET /reports hides the transfers card in simple mode" do
+    @user.update!(money_tracking_mode: "simple", money_tracking_mode_selected_at: Time.current)
+
+    get reports_overview_path
+
+    assert_response :success
+    assert_select "[data-testid=overview-secondary] .report-secondary-card", count: 3
+    assert_select ".report-secondary-label", text: I18n.t("reports.overview.total_transfers"), count: 0
+  end
+
   test "GET /reports renders compact empty states without movements" do
     get reports_overview_path
 

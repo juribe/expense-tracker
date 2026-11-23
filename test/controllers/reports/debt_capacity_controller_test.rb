@@ -91,6 +91,20 @@ class DebtCapacityControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-debt-comparison-form] input[name='mode'][value='reduce_installment'][checked]"
   end
 
+  test "simple users are redirected away from debt capacity" do
+    @user.update!(money_tracking_mode: "simple", money_tracking_mode_selected_at: Time.current)
+    sign_in @user
+
+    get debt_capacity_path
+
+    assert_redirected_to dashboard_path
+    assert_equal I18n.t("money_tracking.advanced_only"), flash[:alert]
+
+    get debt_capacity_comparison_path
+
+    assert_redirected_to dashboard_path
+  end
+
   test "GET /debt_capacity/comparison treats a credit card like a revolving debt" do
     card = @user.money_sources.create!(name: "Tarjeta", kind: "credit_card", starting_balance: -20_000_000)
     card.create_credit_account!(installment_amount: 1_000_000, installment_count: 48,

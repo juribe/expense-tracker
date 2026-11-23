@@ -18,6 +18,7 @@ class DashboardMoneyTrackingTest < ActionDispatch::IntegrationTest
     assert_select "a", text: "Tarjetas de Crédito", count: 0
     assert_select "a", text: "Transferencias", count: 0
     assert_select "a", text: "Día de Balance", count: 0
+    assert_select "a[href=?]", debt_capacity_path, count: 0
     assert_select "a", text: "Seguimiento de dinero"
   end
 
@@ -49,6 +50,7 @@ class DashboardMoneyTrackingTest < ActionDispatch::IntegrationTest
     assert_select "a", text: "Tarjetas de Crédito"
     assert_select "a", text: "Transferencias"
     assert_select "a", text: "Día de Balance"
+    assert_select "a[href=?]", debt_capacity_path
     assert_select "a", text: "Seguimiento de dinero"
   end
 
