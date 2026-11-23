@@ -76275,7 +76275,7 @@
       "file_type": "code",
       "norm_label": ".build_overview()",
       "source_file": "app/controllers/debt_capacity_controller.rb",
-      "source_location": "L19"
+      "source_location": "L23"
     },
     {
       "id": "app_controllers_debt_capacity_controller_debtcapacitycontroller_comparison",
@@ -76287,7 +76287,7 @@
       "file_type": "code",
       "norm_label": ".comparison()",
       "source_file": "app/controllers/debt_capacity_controller.rb",
-      "source_location": "L12"
+      "source_location": "L16"
     },
     {
       "id": "app_controllers_debt_capacity_controller_debtcapacitycontroller_comparison_amount",
@@ -76299,7 +76299,7 @@
       "file_type": "code",
       "norm_label": ".comparison_amount()",
       "source_file": "app/controllers/debt_capacity_controller.rb",
-      "source_location": "L34"
+      "source_location": "L38"
     },
     {
       "id": "app_controllers_debt_capacity_controller_debtcapacitycontroller_comparison_installment_count",
@@ -76311,7 +76311,7 @@
       "file_type": "code",
       "norm_label": ".comparison_installment_count()",
       "source_file": "app/controllers/debt_capacity_controller.rb",
-      "source_location": "L46"
+      "source_location": "L50"
     },
     {
       "id": "app_controllers_debt_capacity_controller_debtcapacitycontroller_comparison_mode",
@@ -76323,7 +76323,7 @@
       "file_type": "code",
       "norm_label": ".comparison_mode()",
       "source_file": "app/controllers/debt_capacity_controller.rb",
-      "source_location": "L42"
+      "source_location": "L46"
     },
     {
       "id": "app_controllers_debt_capacity_controller_debtcapacitycontroller_comparison_options",
@@ -76335,7 +76335,7 @@
       "file_type": "code",
       "norm_label": ".comparison_options()",
       "source_file": "app/controllers/debt_capacity_controller.rb",
-      "source_location": "L29"
+      "source_location": "L33"
     },
     {
       "id": "app_controllers_debt_capacity_controller_debtcapacitycontroller_show",
@@ -76347,7 +76347,7 @@
       "file_type": "code",
       "norm_label": ".show()",
       "source_file": "app/controllers/debt_capacity_controller.rb",
-      "source_location": "L8"
+      "source_location": "L12"
     },
     {
       "id": "app_controllers_debt_capacity_controller_debtcapacitycontroller_threshold_param",
@@ -76359,7 +76359,7 @@
       "file_type": "code",
       "norm_label": ".threshold_param()",
       "source_file": "app/controllers/debt_capacity_controller.rb",
-      "source_location": "L53"
+      "source_location": "L57"
     },
     {
       "id": "app_services_savings_opportunities_window_savingsopportunities_window_comparable_ranges",
@@ -107211,7 +107211,7 @@
       "file_type": "code",
       "norm_label": ".detailed_user()",
       "source_file": "test/controllers/dashboard_money_tracking_test.rb",
-      "source_location": "L166"
+      "source_location": "L168"
     },
     {
       "id": "test_controllers_dashboard_money_tracking_test_dashboardmoneytrackingtest_simple_user",
@@ -107223,7 +107223,7 @@
       "file_type": "code",
       "norm_label": ".simple_user()",
       "source_file": "test/controllers/dashboard_money_tracking_test.rb",
-      "source_location": "L158"
+      "source_location": "L160"
     },
     {
       "id": "test_controllers_dashboard_money_tracking_test_dashboardmoneytrackingtest_with_bullet_raising",
@@ -107235,7 +107235,7 @@
       "file_type": "code",
       "norm_label": ".with_bullet_raising()",
       "source_file": "test/controllers/dashboard_money_tracking_test.rb",
-      "source_location": "L149"
+      "source_location": "L151"
     },
     {
       "id": "app_controllers_reconciliations_controller_reconciliationscontroller_set_actual_balance",
@@ -115443,7 +115443,7 @@
       "file_type": "code",
       "norm_label": "call()",
       "source_file": "test/controllers/reports/reports_pages_test.rb",
-      "source_location": "L634"
+      "source_location": "L644"
     },
     {
       "id": "test_system_monthly_expenses_process_modal_test_monthlyexpensesprocessmodaltest_create_template",
@@ -171663,7 +171663,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/debt_capacity_controller.rb",
-      "source_location": "L20",
+      "source_location": "L24",
       "weight": 1.0
     },
     {
@@ -171675,7 +171675,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/debt_capacity_controller.rb",
-      "source_location": "L23",
+      "source_location": "L27",
       "weight": 1.0
     },
     {
@@ -171687,7 +171687,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/debt_capacity_controller.rb",
-      "source_location": "L37",
+      "source_location": "L41",
       "weight": 1.0
     },
     {
@@ -217479,7 +217479,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "test/controllers/dashboard_money_tracking_test.rb",
-      "source_location": "L167",
+      "source_location": "L169",
       "weight": 1.0
     },
     {
@@ -217491,7 +217491,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "test/controllers/dashboard_money_tracking_test.rb",
-      "source_location": "L159",
+      "source_location": "L161",
       "weight": 1.0
     },
     {
@@ -269135,7 +269135,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "test/controllers/reports/reports_pages_test.rb",
-      "source_location": "L634",
+      "source_location": "L644",
       "weight": 1.0
     },
     {
@@ -290766,7 +290766,7 @@
     },
     {
       "source": "app_controllers_debt_capacity_controller_debtcapacitycontroller",
-      "target": "app_controllers_debt_capacity_controller_debtcapacitycontroller_comparison",
+      "target": "app_controllers_debt_capacity_controller_debtcapacitycontroller_show",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -290777,13 +290777,24 @@
     },
     {
       "source": "app_controllers_debt_capacity_controller_debtcapacitycontroller",
+      "target": "app_controllers_debt_capacity_controller_debtcapacitycontroller_comparison",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/controllers/debt_capacity_controller.rb",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controllers_debt_capacity_controller_debtcapacitycontroller",
       "target": "app_controllers_debt_capacity_controller_debtcapacitycontroller_build_overview",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/debt_capacity_controller.rb",
-      "source_location": "L19",
+      "source_location": "L23",
       "weight": 1.0
     },
     {
@@ -290794,7 +290805,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/debt_capacity_controller.rb",
-      "source_location": "L29",
+      "source_location": "L33",
       "weight": 1.0
     },
     {
@@ -290805,7 +290816,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/debt_capacity_controller.rb",
-      "source_location": "L34",
+      "source_location": "L38",
       "weight": 1.0
     },
     {
@@ -290816,7 +290827,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/debt_capacity_controller.rb",
-      "source_location": "L42",
+      "source_location": "L46",
       "weight": 1.0
     },
     {
@@ -290827,7 +290838,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/debt_capacity_controller.rb",
-      "source_location": "L46",
+      "source_location": "L50",
       "weight": 1.0
     },
     {
@@ -290838,18 +290849,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/debt_capacity_controller.rb",
-      "source_location": "L53",
-      "weight": 1.0
-    },
-    {
-      "source": "app_controllers_debt_capacity_controller_debtcapacitycontroller",
-      "target": "app_controllers_debt_capacity_controller_debtcapacitycontroller_show",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "app/controllers/debt_capacity_controller.rb",
-      "source_location": "L8",
+      "source_location": "L57",
       "weight": 1.0
     },
     {
@@ -342439,7 +342439,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "test/controllers/dashboard_money_tracking_test.rb",
-      "source_location": "L149",
+      "source_location": "L151",
       "weight": 1.0
     },
     {
@@ -342450,7 +342450,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "test/controllers/dashboard_money_tracking_test.rb",
-      "source_location": "L158",
+      "source_location": "L160",
       "weight": 1.0
     },
     {
@@ -342461,7 +342461,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "test/controllers/dashboard_money_tracking_test.rb",
-      "source_location": "L166",
+      "source_location": "L168",
       "weight": 1.0
     },
     {
@@ -352523,7 +352523,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "app/controllers/debt_capacity_controller.rb",
-      "source_location": "L14",
+      "source_location": "L18",
       "weight": 1.0
     },
     {
@@ -359763,5 +359763,5 @@
       "source_file": "public/icon.svg"
     }
   ],
-  "built_at_commit": "877d607d0c9558661213c5e07d8cfed3f10ba66b"
+  "built_at_commit": "158d60bcc93b8a2fc4345d65fa4ccd3b7b9927b2"
 }

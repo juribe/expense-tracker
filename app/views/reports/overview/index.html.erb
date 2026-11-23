@@ -232,7 +232,7 @@
       </div>
     </div>
   <% end %>
-  <div class="col-6 <%= money_tracking_detailed? ? "col-lg-3" : "col-lg-4" %>">
+  <div class="col-6 <%= money_tracking_detailed? ? "col-lg-3" : "col-lg-6" %>">
     <div class="card report-secondary-card h-100">
       <div class="card-body">
         <span class="report-secondary-icon" aria-hidden="true"><i class="ti ti-receipt-2"></i></span>
@@ -243,7 +243,7 @@
       </div>
     </div>
   </div>
-  <div class="col-6 <%= money_tracking_detailed? ? "col-lg-3" : "col-lg-4" %>">
+  <div class="col-6 <%= money_tracking_detailed? ? "col-lg-3" : "col-lg-6" %>">
     <div class="card report-secondary-card h-100">
       <div class="card-body">
         <span class="report-secondary-icon" aria-hidden="true"><i class="ti ti-calculator"></i></span>
@@ -254,17 +254,19 @@
       </div>
     </div>
   </div>
-  <div class="col-6 <%= money_tracking_detailed? ? "col-lg-3" : "col-lg-4" %>">
-    <div class="card report-secondary-card h-100">
-      <div class="card-body">
-        <span class="report-secondary-icon is-debt" aria-hidden="true"><i class="ti ti-coin"></i></span>
-        <div>
-          <span class="report-secondary-label"><%= t("reports.loans.total_debt") %></span>
-          <strong class="report-secondary-value amt-debt">
-            <%= money_amount(loan_summary(current_user.money_sources.active.where(kind: "loan").includes(:credit_account))[:total_balance]) %>
-          </strong>
+  <% if money_tracking_detailed? %>
+    <div class="col-6 col-lg-3">
+      <div class="card report-secondary-card h-100">
+        <div class="card-body">
+          <span class="report-secondary-icon is-debt" aria-hidden="true"><i class="ti ti-coin"></i></span>
+          <div>
+            <span class="report-secondary-label"><%= t("reports.loans.total_debt") %></span>
+            <strong class="report-secondary-value amt-debt">
+              <%= money_amount(loan_summary(current_user.money_sources.active.where(kind: "loan").includes(:credit_account))[:total_balance]) %>
+            </strong>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  <% end %>
 </div>
