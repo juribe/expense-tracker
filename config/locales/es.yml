@@ -2485,14 +2485,22 @@ es:
         search_label: "Buscar"
         search_placeholder: "Buscar descripción..."
         all_categories: "Todas las categorías"
+        from: "Desde"
+        to: "Hasta"
+      errors:
+        valid_from: "Ingresa una fecha Desde válida."
+        valid_to: "Ingresa una fecha Hasta válida."
+        from_after_to: "Desde no puede ser posterior a Hasta."
       summary:
         total: "Total recibido"
         movements: "Movimientos"
         monthly_incomes: "Ingresos mensuales"
         cycle_hint: "En este ciclo financiero · %{label} (%{range})"
         month_hint: "Este mes · %{label}"
+        date_range_hint: "Según el rango de fechas seleccionado"
         movements_cycle_hint: "Ingresos registrados en el ciclo"
         movements_month_hint: "Ingresos registrados este mes"
+        movements_date_hint: "Ingresos registrados en el rango"
         monthly_hint:
           one: "Ingreso recurrente configurado"
           other: "Ingresos recurrentes configurados"
@@ -2506,7 +2514,7 @@ es:
         title: "Aún no hay ingresos"
         body: "Agrega tu primer ingreso para empezar a registrar el dinero que entra."
         filtered_title: "No encontramos ingresos"
-        filtered_body: "Prueba con otra descripción o cambia la categoría."
+        filtered_body: "Prueba con otra descripción, cambia la categoría o ajusta el rango de fechas."
 
   monthly_incomes:
     title: "Ingresos Mensuales"
