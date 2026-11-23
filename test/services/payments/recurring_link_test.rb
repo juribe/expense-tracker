@@ -105,6 +105,35 @@ module Payments
       assert_equal @template.id, template.id
     end
 
+    test "no same-source template: unique sourceless template in the payment category links" do
+      @template.update!(money_source: nil)
+      other_category = Category.create!(user: @user, name: "Transporte")
+      RecurringTemplate.create!(
+        user: @user, category: other_category, kind: "expense", description: "Gasolina",
+        amount: 200_000, frequency: "monthly", source: "manual", payment_day: 10
+      )
+      expense = build_expense
+
+      template = RecurringLink.call(user: @user, expense: expense, money_source: @card)
+
+      assert_equal @template.id, template.id
+      assert_equal @template.id, expense.reload.recurring_template_id
+    end
+
+    test "several sourceless templates in the payment category stay unlinked" do
+      @template.update!(money_source: nil)
+      RecurringTemplate.create!(
+        user: @user, category: @category, kind: "expense", description: "Otra cuota",
+        amount: 1_500_000, frequency: "monthly", source: "manual", payment_day: 10
+      )
+      expense = build_expense
+
+      template = RecurringLink.call(user: @user, expense: expense, money_source: @card)
+
+      assert_nil template
+      assert_nil expense.reload.recurring_template_id
+    end
+
     test "no same-source template: exact amount on a sourceless template links" do
       @template.update!(money_source: nil)
       expense = build_expense
@@ -139,6 +168,36 @@ module Payments
 
       assert_nil template
       assert_nil expense.reload.recurring_template_id
+    end
+
+    test "a payment over an already linked expense completes its debt template" do
+      expense = build_expense(amount: 500_000)
+      expense.update!(money_source: @card, recurring_template_id: @template.id,
+                      recurring_paid_in_full: false)
+
+      result = Apply.call(
+        user: @user, money_source: @card, expense: expense,
+        distribution: { principal_amount: "500000" }
+      )
+
+      assert result.success?
+      assert expense.reload.recurring_paid_in_full?
+      assert_equal :completed, @template.status_for(Date.current.strftime("%Y-%m"))
+    end
+
+    test "a payment to another debt leaves an already linked template untouched" do
+      expense = build_expense(amount: 500_000)
+      expense.update!(money_source: @account, recurring_template_id: @template.id,
+                      recurring_paid_in_full: false)
+
+      result = Apply.call(
+        user: @user, money_source: @loan, expense: expense,
+        distribution: { principal_amount: "500000" }
+      )
+
+      assert result.success?
+      assert_not expense.reload.recurring_paid_in_full?
+      assert_equal :pending, @template.status_for(Date.current.strftime("%Y-%m"))
     end
 
     test "expense already linked to another template stays untouched" do

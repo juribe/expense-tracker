@@ -7,15 +7,19 @@ module Payments
   # recurring payment as pending.
   #
   # Auto-linking is strict and non-destructive:
-  # - only expenses not linked to a template yet,
+  # - unlinked expenses are matched against templates,
   # - templates already covered by another transaction in the expense's month
   #   are never candidates (RecurringAssignment would reject period_taken),
   # - the debt source is the primary signal: when exactly one active expense
   #   template points at the paid source it wins whatever its amount (the
   #   statement payment rarely matches the printed cuota). Several templates on
   #   the same source are resolved by nearest amount within a small tolerance.
-  # - when no template points at the paid source, an exact-amount match on a
-  #   template without a source is accepted, but only when unambiguous.
+  # - an expense already linked to the debt's template is completed for the
+  #   period: the payment confirms that linked cuota is the real one.
+  # - when no template points at the paid source, the payment category is the
+  #   next signal: a single active expense template in that category wins.
+  #   Several templates there stay pending (ambiguous), and only without any
+  #   category match an unambiguous exact amount is accepted.
   # Anything else stays pending and the cuadre offers manual assignment
   # instead of guessing.
   class RecurringLink
@@ -33,6 +37,9 @@ module Payments
     end
 
     def call
+      return nil unless @expense.present? && @expense.expense?
+
+      return complete_linked_template if @expense.recurring_template_id.present?
       return nil unless linkable?
 
       template = match_template
@@ -58,6 +65,29 @@ module Payments
       @expense.present? && @expense.expense? && @expense.recurring_template_id.nil?
     end
 
+    # The expense was already linked (for example from the manual "Pagar"
+    # flow) and the payment now confirms it belongs to this same debt.
+    def complete_linked_template
+      template = @expense.recurring_template
+      return nil unless matching_debt_template?(template)
+      return template unless @assign
+
+      result = Expenses::RecurringAssignment.assign(
+        user: @user,
+        expense_id: @expense.id,
+        recurring_template_id: template.id,
+        allow_debt_target: true
+      )
+      result.success? ? template : nil
+    end
+
+    def matching_debt_template?(template)
+      return false if template.nil? || !template.expense? || !template.active?
+      return false if money_source.nil?
+
+      template.money_source_id == money_source.id
+    end
+
     def match_template
       candidates = usable_templates
       return nil if candidates.empty?
@@ -75,9 +105,20 @@ module Payments
         candidates = candidates.where(money_source_id: nil)
       end
 
-      return nil if candidates.count != 1
+      unique_fallback(candidates)
+    end
 
-      candidates.first
+    # Sourceless templates: the payment category is the strongest signal.
+    # Ambiguity inside the category is left for the manual assign flow, which
+    # now also accepts real debt payments.
+    def unique_fallback(candidates)
+      sourceless = candidates.where(money_source_id: nil)
+      same_category = sourceless.where(category_id: @expense.category_id).to_a
+      return same_category.first if same_category.one?
+      return nil if same_category.any?
+
+      exact_matches = sourceless.select { |template| template.amount.to_d == @expense.amount.to_d.abs }
+      exact_matches.first if exact_matches.one?
     end
 
     def usable_templates

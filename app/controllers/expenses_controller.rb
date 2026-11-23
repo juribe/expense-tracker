@@ -242,17 +242,13 @@ class ExpensesController < ApplicationController
   # plus the ids already paid this period — those render disabled, since an
   # expense must first be unassigned to reopen the period.
   def set_recurring_templates
-    # Debt payments (credit cards / loans) are applied from their money
-    # source page — a single-link assign would skip the real Payment. Their
-    # templates never appear in the assign modal.
-    relation = current_user.recurring_templates.active.expense.includes(:money_source).ordered
-    @recurring_templates = relation.to_a.reject { |template| template.money_source&.debt_payment_target? }
+    # Debt templates stay visible: they are only assignable once the expense
+    # is the real Payment of that debt, and the service rejects the rest.
+    @recurring_templates = current_user.recurring_templates.active.expense.ordered.to_a
 
     # Category names are only rendered by the HTML modal as a fallback name
-    # for templates without a description. Preloading them for described
-    # templates would trigger Bullet's unused-eager-load warning, and the
-    # unfiltered relation would preload categories of debt-payment targets
-    # that never render.
+    # for templates without a description, so they are loaded only when one
+    # is actually going to be used.
     if request.format.html? && @recurring_templates.any? { |template| template.description.blank? }
       ActiveRecord::Associations::Preloader.new(
         records: @recurring_templates, associations: :category

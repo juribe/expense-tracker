@@ -5,6 +5,7 @@ module RecurringTemplateActions
 
   included do
     before_action :set_categories, only: %i[index create update]
+    before_action :set_money_sources, only: %i[index create update]
     before_action :load_index_data, only: [ :index ]
     before_action :set_recurring_template, only: %i[update destroy process_transaction toggle_active]
   end
@@ -106,6 +107,18 @@ module RecurringTemplateActions
     @categories = Category.for_user_and_type(current_user, template_kind)
   end
 
+  # Expense templates may point at any active source: a normal expense at a
+  # payment source and a debt cuota at its loan/card. Income templates only
+  # receive money into payment sources.
+  def set_money_sources
+    @money_sources = if money_tracking_simple?
+      []
+    else
+      sources = current_user.money_sources.active.includes([ :credit_account ]).order(:kind, :name)
+      template_kind == "expense" ? sources : sources.payment_sources
+    end
+  end
+
   def load_index_data
     @sort = params[:sort].presence.in?(SORTABLE_COLUMNS) ? params[:sort] : nil
     @direction = params[:dir] == "desc" ? "desc" : "asc"
@@ -200,13 +213,15 @@ module RecurringTemplateActions
   end
 
   def recurring_template_params
-    params.require(:recurring_template)
-          .permit(:category_id, :kind, :amount, :description, :payment_day, :active)
+    permitted = [ :category_id, :kind, :amount, :description, :payment_day, :active ]
+    permitted << :money_source_id if money_tracking_detailed?
+    params.require(:recurring_template).permit(*permitted)
   end
 
   def update_params
-    params.require(:recurring_template)
-          .permit(:category_id, :amount, :description, :payment_day, :active)
+    permitted = [ :category_id, :amount, :description, :payment_day, :active ]
+    permitted << :money_source_id if money_tracking_detailed?
+    params.require(:recurring_template).permit(*permitted)
   end
 
   def index_path

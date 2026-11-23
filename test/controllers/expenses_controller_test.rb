@@ -655,17 +655,18 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_equal I18n.t("expenses.assign_recurring.debt_target"), flash[:alert]
   end
 
-  test "bulk assign modal template list excludes debt-target templates" do
+  test "bulk assign modal template list includes debt-target templates" do
     loan = MoneySource.create!(user: @user, name: "Crédito carro", kind: "loan")
-    @user.recurring_templates.create!(
+    debt_template = @user.recurring_templates.create!(
       category: @category, kind: "expense", amount: 3_000_000, frequency: "monthly",
-      source: "manual", money_source: loan
+      source: "manual", description: "Cuota carro", money_source: loan
     )
 
     get expenses_path
 
     assert_response :success
-    assert_not @controller.view_assigns["recurring_templates"].any? { |t| t.money_source&.debt_payment_target? }
+    assert_includes @controller.view_assigns["recurring_templates"].map(&:id), debt_template.id
+    assert_select "#bulkRecurringSelect option", text: /Cuota carro/
   end
 
   test "GET /expenses preloads recurring-template categories only for undecorated templates" do
@@ -683,7 +684,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_select "#bulkRecurringSelect option", text: /#{Regexp.escape(@category.name)}/
   end
 
-  test "GET /expenses does not preload categories for debt-target templates" do
+  test "GET /expenses includes debt-target templates without description and preloads their category" do
     @template.destroy!
     loan = MoneySource.create!(user: @user, name: "Crédito carro", kind: "loan")
     debt_category = Category.create!(name: "Deuda", is_default: true, category_type: "expense")
@@ -695,8 +696,8 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_page_has_no_bullet_notifications { get expenses_path }
 
     assert_response :success
-    assert_select "#bulkRecurringSelect option", count: 1
-    assert_select "#bulkRecurringSelect option", text: /Deuda/, count: 0
+    assert_select "#bulkRecurringSelect option", count: 2
+    assert_select "#bulkRecurringSelect option", text: /Deuda/
   end
 
   test "POST /expenses/assign_recurring rejects an inactive template" do

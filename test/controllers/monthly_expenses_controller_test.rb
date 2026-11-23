@@ -85,6 +85,29 @@ class MonthlyExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_equal I18n.t("recurring.invalid_payment_source"), flash[:alert]
   end
 
+  test "POST create persists the loan as the monthly expense source" do
+    assert_difference "RecurringTemplate.count" do
+      post monthly_expenses_path, params: {
+        recurring_template: {
+          category_id: @category.id, amount: "873219", description: "Cuota Rotativo",
+          payment_day: 10, money_source_id: @loan.id
+        }
+      }
+    end
+
+    template = @user.recurring_templates.find_by!(description: "Cuota Rotativo")
+    assert_equal @loan, template.money_source
+  end
+
+  test "index exposes the saved source on the row and in the form" do
+    get monthly_expenses_path
+
+    assert_response :success
+    assert_select "tr[data-testid='recurring-row'][data-id=?][data-money-source-id=?]",
+                  @template.id.to_s, @loan.id.to_s
+    assert_select "#recurring_template_money_source_id option[value=?]", @loan.id.to_s
+  end
+
   test "index sorts by monthly amount when requested" do
     @user.recurring_templates.create!(category: @category, kind: "expense", amount: 10_000,
                                       frequency: "monthly", source: "manual", payment_day: 5,

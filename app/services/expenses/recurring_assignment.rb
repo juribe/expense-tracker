@@ -20,11 +20,12 @@ module Expenses
   # the period's pending row. Re-assigning an
   # expense to the template it is already linked to is a no-op success.
   #
-  # Templates pointing at a debt source (credit card / loan) are NOT
-  # assignable here: a debt payment is a real Payment (distribution +
-  # balance effects), applied from the money source page, which auto-links
-  # with allow_debt_target: true. Netflix-like recurring expenses stay
-  # freely assignable.
+  # Templates pointing at a debt source (credit card / loan) are only
+  # assignable for an expense that is already the real Payment of that same
+  # debt (distribution + balance effects already applied). Other expenses must
+  # be paid from the money source page, which auto-links with
+  # allow_debt_target: true. Netflix-like recurring expenses stay freely
+  # assignable.
   class RecurringAssignment
     def self.assign(user:, expense_id:, recurring_template_id:, period: nil, allow_debt_target: false, completed: true)
       new(user: user).send(:assign, expense_id, recurring_template_id, period, allow_debt_target, completed)
@@ -64,7 +65,9 @@ module Expenses
       return reject("not_found") if expense.nil? || template.nil?
       return reject("not_expense") if template.income?
       return reject("inactive") unless template.active?
-      return reject("debt_target") if template.money_source&.debt_payment_target? && !allow_debt_target
+      if debt_target?(template) && !allow_debt_target && !real_payment_for?(expense, template)
+        return reject("debt_target")
+      end
 
       if period.present? && !PayCycle.key_range(user, period).cover?(expense.date)
         @description = expense_month_label(expense.date)
@@ -109,6 +112,16 @@ module Expenses
     def reject(message_key)
       @message_key = message_key
       self
+    end
+
+    def debt_target?(template)
+      template.money_source&.debt_payment_target? == true
+    end
+
+    # The expense already carries a real Payment applied to this very debt,
+    # so linking it to the debt's template only closes the reminder period.
+    def real_payment_for?(expense, template)
+      expense.payments.exists?(money_source_id: template.money_source_id)
     end
 
     def applied(template, completed: true)

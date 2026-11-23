@@ -2596,6 +2596,7 @@ es:
     configured_amount: "Monto configurado"
     transaction_date: "Fecha de transacción"
     process_money_source: "Fuente de dinero"
+    template_money_source_hint: "Asocia la plantilla a su cuenta, tarjeta o préstamo para reconocer sus pagos."
     process_money_source_default: "Usar la fuente de la plantilla"
     process_money_source_hint: "¿De dónde sale (o a dónde llega) el dinero? Se aplaza a la fuente de la plantilla si no eliges una."
     invalid_payment_source: "La fuente de dinero elegida no es válida."

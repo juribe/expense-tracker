@@ -95,6 +95,48 @@ module Expenses
       assert_nil @expense.reload.recurring_template_id
     end
 
+    test "allows assigning a real debt payment to its own debt template" do
+      loan = MoneySource.create!(user: @user, name: "Crédito carro", kind: "loan")
+      debt_template = @user.recurring_templates.create!(
+        category: @category, kind: "expense", amount: 10_000,
+        description: "Cuota carro", payment_day: 5, source: "manual",
+        money_source: loan
+      )
+      Payment.create!(
+        user: @user, expense: @expense, money_source: loan,
+        amount: @expense.amount.to_d.abs, principal_amount: @expense.amount.to_d.abs
+      )
+
+      result = RecurringAssignment.assign(
+        user: @user, expense_id: @expense.id, recurring_template_id: debt_template.id
+      )
+
+      assert result.success?
+      assert_equal debt_template.id, @expense.reload.recurring_template_id
+    end
+
+    test "rejects a debt payment applied to a different debt" do
+      paid_loan = MoneySource.create!(user: @user, name: "Crédito carro", kind: "loan")
+      other_loan = MoneySource.create!(user: @user, name: "Crédito moto", kind: "loan")
+      other_template = @user.recurring_templates.create!(
+        category: @category, kind: "expense", amount: 10_000,
+        description: "Cuota moto", payment_day: 5, source: "manual",
+        money_source: other_loan
+      )
+      Payment.create!(
+        user: @user, expense: @expense, money_source: paid_loan,
+        amount: @expense.amount.to_d.abs, principal_amount: @expense.amount.to_d.abs
+      )
+
+      result = RecurringAssignment.assign(
+        user: @user, expense_id: @expense.id, recurring_template_id: other_template.id
+      )
+
+      assert result.failure?
+      assert_equal "debt_target", result.message_key
+      assert_nil @expense.reload.recurring_template_id
+    end
+
     test "rejects debt-target templates in the manual assign flows" do
       loan = MoneySource.create!(user: @user, name: "Crédito carro", kind: "loan")
       debt_template = @user.recurring_templates.create!(

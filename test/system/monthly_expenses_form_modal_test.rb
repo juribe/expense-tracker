@@ -61,6 +61,17 @@ class MonthlyExpensesFormModalTest < ApplicationSystemTestCase
     assert_equal "120.000", find("#recurring_template_amount").value
   end
 
+  test "editing a template shows its loan source" do
+    loan = @user.money_sources.create!(name: "Crédito Vehículo", kind: "loan")
+    @first_template.update!(money_source: loan)
+    sign_in @user
+    visit monthly_expenses_path
+
+    open_edit_modal(@first_template)
+
+    assert_equal loan.id.to_s, find("#recurring_template_money_source_id").value
+  end
+
   private
 
   def create_template(description, category)

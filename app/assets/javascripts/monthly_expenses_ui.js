@@ -71,6 +71,11 @@
     $("#recurring_template_payment_day").value =
       row.dataset.paymentDay;
 
+    var formSourceSelect = $("#recurring_template_money_source_id");
+    if (formSourceSelect) {
+      formSourceSelect.value = row.dataset.moneySourceId || "";
+    }
+
     $("#recurring_active_switch").checked =
       row.dataset.active === "true";
 
