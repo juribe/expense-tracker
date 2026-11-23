@@ -8,6 +8,22 @@ module MoneySourceShowContext
 
   private
 
+  # Shared by MoneySource#show, Mi dinero and the statement/extract page.
+  def load_statement_context(paginate: true)
+    @statement = MoneySources::Statement.new(
+      user: current_user,
+      source: @money_source,
+      period: params[:period],
+      start_date: params[:start_date],
+      end_date: params[:end_date],
+      kind: params[:kind],
+      query: params[:q],
+      page: params[:page],
+      per_page: params[:per_page],
+      paginate: paginate
+    ).call
+  end
+
   # Applied payments paginate on the debt show page: a long mortgage history
   # must stay one click away without flooding the card.
   def load_payment_context

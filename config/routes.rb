@@ -142,6 +142,7 @@ Rails.application.routes.draw do
       patch :toggle_active
     end
   end
+  get "mi_dinero", to: "money_sources#my_money", as: :my_money
   get "money_sources/cash",         to: "money_sources#index", as: :money_sources_cash, defaults: { type: "cash" }
   get "money_sources/pockets",      to: "money_sources#index", as: :money_sources_pockets, defaults: { type: "pockets" }
   get "money_sources/credit_cards", to: "money_sources#index", as: :money_sources_credit_cards, defaults: { type: "credit_cards" }

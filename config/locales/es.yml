@@ -1014,6 +1014,14 @@ es:
     results: "Resultados"
 
   money_tracking:
+    my_money: "Mi dinero"
+    my_money_subtitle: "Consulta el saldo y los movimientos que has registrado."
+    balance_registered: "Saldo registrado"
+    negative_balance_message: "Los gastos registrados superan los ingresos registrados."
+    period_income: "Ingresos del período"
+    period_expenses: "Gastos del período"
+    period_balance: "Balance del período"
+    view_movements: "Ver movimientos"
     select_before_continue: "Elige cómo quieres controlar tu dinero para continuar."
     advanced_only: "Esta función pertenece al seguimiento avanzado. Actívalo en Seguimiento de dinero."
     invalid_mode: "La modalidad seleccionada no es válida."

@@ -60,9 +60,9 @@
     "semantic_hash": ""
   },
   "app/controllers/money_sources_controller.rb": {
-    "mtime": 1795385193.7043312,
-    "seen": 1795386037.655615,
-    "ast_hash": "d962f25309c4efbf09db0ec074f4a432",
+    "mtime": 1795394436.565116,
+    "seen": 1795395123.03697,
+    "ast_hash": "660eb95d69588844b75d748ab2d44cf4",
     "semantic_hash": ""
   },
   "app/controllers/monthly_expenses_controller.rb": {
@@ -558,9 +558,9 @@
     "semantic_hash": "a0485cfed7bf98be5b26bd8b06846da7"
   },
   "config/routes.rb": {
-    "mtime": 1795390772.183804,
-    "seen": 1795391966.897408,
-    "ast_hash": "c66eda7e3e63719a6f645490ec882ef2",
+    "mtime": 1795394068.0964534,
+    "seen": 1795395123.1354089,
+    "ast_hash": "eeddf796275d5a36b5a6a68d4da16e51",
     "semantic_hash": ""
   },
   "db/queue_schema.rb": {
@@ -1026,9 +1026,9 @@
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1795391001.0479863,
-    "seen": 1795391966.936604,
-    "ast_hash": "9788e8612fbd5d1dc808c1830554766a",
+    "mtime": 1795394447.5052302,
+    "seen": 1795395123.352585,
+    "ast_hash": "67ef096c3875b49e41a90dfb22ee190c",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1795391576.0156133,
-    "seen": 1795391966.9367821,
+    "mtime": 1795394878.93339,
+    "seen": 1795395123.352763,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -5064,15 +5064,15 @@
     "semantic_hash": ""
   },
   "app/assets/javascripts/money_source_statement.js": {
-    "mtime": 1794868571.9066496,
-    "seen": 1794869852.938344,
-    "ast_hash": "cbd74b58b6d44c34abc1670d3825cb2d",
+    "mtime": 1795394205.575062,
+    "seen": 1795395123.001853,
+    "ast_hash": "a29ed3d2dbce3c46f524edc9f50a0474",
     "semantic_hash": ""
   },
   "app/services/money_sources/statement.rb": {
-    "mtime": 1795004663.356378,
-    "seen": 1795034570.747287,
-    "ast_hash": "9f49244f6110f502860202afdbc98a42",
+    "mtime": 1795394121.6059055,
+    "seen": 1795395123.1196768,
+    "ast_hash": "4314ff6be56480ba6082592ca2a47fd5",
     "semantic_hash": ""
   },
   "test/controllers/money_source_statement_test.rb": {
@@ -5100,15 +5100,15 @@
     "semantic_hash": ""
   },
   "app/controllers/concerns/money_source_show_context.rb": {
-    "mtime": 1794223068.5981724,
-    "seen": 1794223109.922187,
-    "ast_hash": "4f2b40e98089f32fe6b74a31b4cf2beb",
+    "mtime": 1795394104.0988946,
+    "seen": 1795395123.015502,
+    "ast_hash": "274d751f333cd4ba5aef40e52ef5376d",
     "semantic_hash": ""
   },
   "app/controllers/money_source_extracts_controller.rb": {
-    "mtime": 1795385221.5827312,
-    "seen": 1795386037.655613,
-    "ast_hash": "e968ad6088d34cb473ddb41dc259383f",
+    "mtime": 1795394099.7679818,
+    "seen": 1795395123.036968,
+    "ast_hash": "6cf39944fba3a4467945287749475529",
     "semantic_hash": ""
   },
   "playwright/money_source_statement.spec.js": {
@@ -10758,9 +10758,9 @@
     "semantic_hash": ""
   },
   "app/assets/javascripts/goal_contributions.js": {
-    "mtime": 1795390825.6118934,
-    "seen": 1795391966.8644679,
-    "ast_hash": "0d0509f9a8eb9adf37c76fb8068dc8df",
+    "mtime": 1795392555.713213,
+    "seen": 1795395123.001465,
+    "ast_hash": "8b76591daeb066a1f8ed3140c2034024",
     "semantic_hash": ""
   },
   "app/services/goals/complete.rb": {
@@ -10782,9 +10782,9 @@
     "semantic_hash": ""
   },
   "playwright/goals_simple.spec.js": {
-    "mtime": 1795391009.5319674,
-    "seen": 1795391966.908909,
-    "ast_hash": "80f17628eb83d362b1ea1b6e7069da7e",
+    "mtime": 1795392594.4217157,
+    "seen": 1795395123.237428,
+    "ast_hash": "14ee6d69b94858ea794c472031b8b297",
     "semantic_hash": ""
   },
   "test/controllers/goal_allocations_money_tracking_test.rb": {
@@ -10827,6 +10827,24 @@
     "mtime": 1795390948.8700793,
     "seen": 1795391966.926207,
     "ast_hash": "0ecd3acc8265397def08944032b70014",
+    "semantic_hash": ""
+  },
+  "playwright/my_money.spec.js": {
+    "mtime": 1795394483.392862,
+    "seen": 1795395123.2401412,
+    "ast_hash": "b277b450dda2528c482e739775f9d914",
+    "semantic_hash": ""
+  },
+  "test/controllers/my_money_test.rb": {
+    "mtime": 1795394771.852879,
+    "seen": 1795395123.2705212,
+    "ast_hash": "cde1c0a8fb995d96aabd1b2762296ef2",
+    "semantic_hash": ""
+  },
+  "test/services/money_sources/statement_money_tracking_test.rb": {
+    "mtime": 1795394534.3833275,
+    "seen": 1795395123.327049,
+    "ast_hash": "115c1bf6f72bc9f3672eed551f41337a",
     "semantic_hash": ""
   }
 }

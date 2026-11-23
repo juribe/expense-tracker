@@ -1,5 +1,6 @@
 <% s = statement %>
 <% debt = source.debt? %>
+<% simple_general = s.simple_general? %>
 <% entries_label = s.entries_label %>
 <% exits_label = s.exits_label %>
 <% selected_period = params[:period].presence || "current" %>
@@ -94,7 +95,11 @@
         </span>
       </div>
       <small class="text-muted d-block mt-1">
-        <%= debt ? "Pagos menos #{exits_label.downcase}. Tu deuda" : "Entradas menos salidas. Tu saldo" %>
+        <% if simple_general %>
+          Ingresos menos gastos. Tu saldo registrado
+        <% else %>
+          <%= debt ? "Pagos menos #{exits_label.downcase}. Tu deuda" : "Entradas menos salidas. Tu saldo" %>
+        <% end %>
         <%= net_change >= 0 ? (debt ? "disminuyó" : "aumentó") : (debt ? "aumentó" : "disminuyó") %>
         durante este período.
       </small>
@@ -193,7 +198,11 @@
                       </span>
                     <% else %>
                       <span class="badge <%= m.direction == "in" ? "text-bg-success" : "text-bg-danger" %>">
-                        <%= m.direction == "in" ? "Entrada" : "Salida" %>
+                        <%= if simple_general
+                              m.direction == "in" ? "Ingreso" : "Gasto"
+                            else
+                              m.direction == "in" ? "Entrada" : "Salida"
+                            end %>
                       </span>
                     <% end %>
                   </td>
@@ -256,7 +265,11 @@
                   </span>
                 <% else %>
                   <span class="badge <%= m.direction == "in" ? "text-bg-success" : "text-bg-danger" %> mt-1">
-                    <%= m.direction == "in" ? "Entrada" : "Salida" %>
+                    <%= if simple_general
+                          m.direction == "in" ? "Ingreso" : "Gasto"
+                        else
+                          m.direction == "in" ? "Entrada" : "Salida"
+                        end %>
                   </span>
                 <% end %>
               </div>
@@ -303,8 +316,10 @@
             <dd class="col-sm-8" id="detailType"></dd>
             <dt class="col-sm-4">Categoría</dt>
             <dd class="col-sm-8" id="detailCategory"></dd>
-            <dt class="col-sm-4">Fuente relacionada</dt>
-            <dd class="col-sm-8" id="detailRelated"></dd>
+            <% unless simple_general %>
+              <dt class="col-sm-4">Fuente relacionada</dt>
+              <dd class="col-sm-8" id="detailRelated"></dd>
+            <% end %>
           </dl>
         </div>
       </div>

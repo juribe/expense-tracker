@@ -4,8 +4,8 @@ class MoneySourceExtractsController < ApplicationController
   include MoneySourceShowContext
 
   before_action :authenticate_user!
-  before_action :require_detailed_money_tracking
   before_action :set_money_source
+  before_action :authorize_statement_access
 
   rescue_from ActiveRecord::RecordNotFound, with: :not_found
 
@@ -21,6 +21,7 @@ class MoneySourceExtractsController < ApplicationController
         load_pocket_context if @money_source.pocket?
         load_statement_context
         @active_tab = "movimientos"
+        @simple_money_view = money_tracking_simple? && @money_source.general?
         render "money_sources/show"
       end
       format.csv do
@@ -48,19 +49,14 @@ class MoneySourceExtractsController < ApplicationController
     @money_source = current_user.money_sources.find(params[:id])
   end
 
-  def load_statement_context(paginate: true)
-    @statement = MoneySources::Statement.new(
-      user: current_user,
-      source: @money_source,
-      period: params[:period],
-      start_date: params[:start_date],
-      end_date: params[:end_date],
-      kind: params[:kind],
-      query: params[:q],
-      page: params[:page],
-      per_page: params[:per_page],
-      paginate: paginate
-    ).call
+  # Simple mode only exposes the statement of General. Any other source id is
+  # rejected before rendering or exporting, so hiding the links is not the
+  # only protection.
+  def authorize_statement_access
+    return if money_tracking_detailed?
+    return if money_tracking_simple? && @money_source.general?
+
+    redirect_to dashboard_path, alert: t("money_tracking.advanced_only")
   end
 
   def send_statement_export(exporter, content_type)

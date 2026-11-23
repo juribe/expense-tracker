@@ -1,42 +1,50 @@
 <div class="money-source-detail">
+<% simple_money_view = @simple_money_view && @money_source.general? %>
 <% source_actions = capture do %>
-    <div class="money-source-actions">
-      <% if @money_source.payment_source? %>
-        <%= render "money_sources/quick_transfer_actions", source: @money_source, with_text: true %>
-      <% end %>
-      <% if @money_source.pocket? %>
-        <%= render "money_sources/quick_assign_action", source: @money_source,
-              button_class: "btn btn-primary", text: t("goals.assign_money", default: "Asignar dinero") %>
-      <% end %>
-      <% if @money_source.debt? %>
-        <%= link_to money_source_credits_path(@money_source), class: "btn btn-primary" do %>
-          <i class="ti ti-pig-money me-1"></i><%= t("credits.index_button") %>
+    <% unless simple_money_view %>
+      <div class="money-source-actions">
+        <% if @money_source.payment_source? %>
+          <%= render "money_sources/quick_transfer_actions", source: @money_source, with_text: true %>
         <% end %>
-      <% end %>
-      <%= link_to edit_money_source_path(@money_source), class: "btn btn-outline-primary" do %>
-        <i class="ti ti-pencil me-1"></i><%= t("common.edit") %>
-      <% end %>
-      <%= link_to money_sources_section_path(@money_source), class: "btn btn-outline-secondary money-source-back" do %>
-        <i class="ti ti-arrow-left me-1"></i><%= t("common.back") %>
-      <% end %>
-    </div>
+        <% if @money_source.pocket? %>
+          <%= render "money_sources/quick_assign_action", source: @money_source,
+                button_class: "btn btn-primary", text: t("goals.assign_money", default: "Asignar dinero") %>
+        <% end %>
+        <% if @money_source.debt? %>
+          <%= link_to money_source_credits_path(@money_source), class: "btn btn-primary" do %>
+            <i class="ti ti-pig-money me-1"></i><%= t("credits.index_button") %>
+          <% end %>
+        <% end %>
+        <%= link_to edit_money_source_path(@money_source), class: "btn btn-outline-primary" do %>
+          <i class="ti ti-pencil me-1"></i><%= t("common.edit") %>
+        <% end %>
+        <%= link_to money_sources_section_path(@money_source), class: "btn btn-outline-secondary money-source-back" do %>
+          <i class="ti ti-arrow-left me-1"></i><%= t("common.back") %>
+        <% end %>
+      </div>
+    <% end %>
 <% end %>
-<% header_options = { title: (@money_source.name.presence || @money_source.display_name), actions: source_actions, class: "money-source-header" } %>
+<% header_options = { title: simple_money_view ? t("money_tracking.my_money", default: "Mi dinero") : (@money_source.name.presence || @money_source.display_name), actions: source_actions, class: "money-source-header" } %>
 <% header_options[:subtitle] = t("money_sources.show.pocket_subtitle") if @money_source.pocket? %>
+<% header_options[:subtitle] = t("money_tracking.my_money_subtitle", default: "Consulta el saldo y los movimientos que has registrado.") if simple_money_view %>
 
 <%# Phone header: icon, kind, name and the bank / loan-type badges. The shared
     page header keeps the title on desktop and only renders its actions here. %>
 <% source_badges = [ @money_source.institution_name.presence,
                      (@money_source.sub_kind.present? ? source_sub_kind_label(@money_source.sub_kind) : nil) ].compact %>
 <div class="ms-detail-head d-md-none">
-  <span class="ms-detail-icon icon-chip" aria-hidden="true"><i class="ti ti-<%= source_kind_icon(@money_source.kind) %>"></i></span>
+  <span class="ms-detail-icon icon-chip" aria-hidden="true"><i class="ti ti-wallet"></i></span>
   <div class="ms-detail-copy">
-    <span class="ms-detail-kind"><%= source_kind_label(@money_source.kind) %></span>
-    <h1 class="ms-detail-name"><%= @money_source.name.presence || @money_source.display_name %></h1>
-    <% if @money_source.pocket? %>
+    <% unless simple_money_view %>
+      <span class="ms-detail-kind"><%= source_kind_label(@money_source.kind) %></span>
+    <% end %>
+    <h1 class="ms-detail-name"><%= simple_money_view ? t("money_tracking.my_money", default: "Mi dinero") : (@money_source.name.presence || @money_source.display_name) %></h1>
+    <% if simple_money_view %>
+      <p class="ms-detail-subtitle"><%= t("money_tracking.my_money_subtitle", default: "Consulta el saldo y los movimientos que has registrado.") %></p>
+    <% elsif @money_source.pocket? %>
       <p class="ms-detail-subtitle"><%= t("money_sources.show.pocket_subtitle") %></p>
     <% end %>
-    <% if source_badges.any? %>
+    <% if !simple_money_view && source_badges.any? %>
       <div class="ms-detail-badges">
         <% source_badges.each do |badge| %>
           <span class="badge"><%= badge %></span>
@@ -67,7 +75,7 @@
       <% tabs.each do |tab| %>
         <li class="nav-item" role="presentation" data-source-tabs-item>
           <% if tab[:slug] == "movimientos" %>
-            <%= link_to extractos_money_source_path(@money_source),
+            <%= link_to extractos_money_source_path(@money_source, request.query_parameters.except("tab")),
                         class: "nav-link#{' active' if @active_tab == 'movimientos'}",
                         id: "source-tab-movimientos-btn",
                         data: { tab_slug: "movimientos" },
@@ -120,9 +128,11 @@
               </div>
             <% end %>
           </div>
-          <div class="col-lg-5">
-            <%= render "money_sources/details" %>
-          </div>
+          <% unless simple_money_view %>
+            <div class="col-lg-5">
+              <%= render "money_sources/details" %>
+            </div>
+          <% end %>
         </div>
       </div>
 
@@ -184,7 +194,7 @@
         </button>
       </li>
       <li class="nav-item" role="presentation">
-        <%= link_to extractos_money_source_path(@money_source),
+        <%= link_to extractos_money_source_path(@money_source, request.query_parameters.except("tab")),
                     class: "nav-link#{' active' if @active_tab == 'movimientos'}",
                     id: "source-tab-movimientos-btn",
                     data: { tab_slug: "movimientos" },
@@ -214,16 +224,44 @@
                   <span class="money-source-balance-art d-md-none" aria-hidden="true">
                     <i class="ti ti-coin"></i><i class="ti ti-coin"></i>
                   </span>
-                  <h5 class="card-title"><%= t("money_sources.show.current_balance") %></h5>
-                  <div class="stat-value text-success mb-2"><%= @money_source.balance_label %></div>
+                  <h5 class="card-title"><%= simple_money_view ? t("money_tracking.balance_registered", default: "Saldo registrado") : t("money_sources.show.current_balance") %></h5>
+                  <div class="stat-value <%= simple_money_view && @money_source.balance.negative? ? "text-danger" : "text-success" %> mb-2"><%= @money_source.balance_label %></div>
                   <% if @money_source.negative_balance_warning? %>
                     <span class="badge text-bg-warning mt-2" data-testid="negative-balance-warning">
-                      <i class="ti ti-alert-triangle me-1"></i><%= t("money_sources.negative_balance_warning") %>
+                      <i class="ti ti-alert-triangle me-1"></i><%= simple_money_view ? t("money_tracking.negative_balance_message", default: "Los gastos registrados superan los ingresos registrados.") : t("money_sources.negative_balance_warning") %>
                     </span>
                   <% end %>
                 </div>
               </div>
-              <% if @money_source.payment_source? %>
+              <% if simple_money_view && @statement.present? %>
+                <div class="card mt-3" data-testid="my-money-period-summary">
+                  <div class="card-body">
+                    <div class="row g-3">
+                      <div class="col-4">
+                        <div class="text-muted small"><%= t("money_tracking.period_income", default: "Ingresos del período") %></div>
+                        <div class="fs-5 fw-bold text-success">+<%= number_to_currency(@statement.entries_total) %></div>
+                      </div>
+                      <div class="col-4">
+                        <div class="text-muted small"><%= t("money_tracking.period_expenses", default: "Gastos del período") %></div>
+                        <div class="fs-5 fw-bold text-danger">−<%= number_to_currency(@statement.exits_total) %></div>
+                      </div>
+                      <div class="col-4">
+                        <div class="text-muted small"><%= t("money_tracking.period_balance", default: "Balance del período") %></div>
+                        <div class="fs-5 fw-bold <%= @statement.closing_balance.negative? ? "text-danger" : "text-success" %>">
+                          <%= number_to_currency(@statement.closing_balance) %>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="mt-3">
+                      <%= link_to extractos_money_source_path(@money_source, request.query_parameters.except("tab")),
+                                  class: "btn btn-sm btn-outline-primary" do %>
+                        <i class="ti ti-list me-1" aria-hidden="true"></i><%= t("money_tracking.view_movements", default: "Ver movimientos") %>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+              <% if @money_source.payment_source? && !simple_money_view %>
                 <div class="card mt-3">
                   <div class="card-body">
                     <h5 class="card-title"><%= t("money_sources.show.recognition") %></h5>
@@ -309,4 +347,6 @@
 
 </div>
 
-<%= render "money_sources/quick_transfer_modal" %>
+<% unless simple_money_view %>
+  <%= render "money_sources/quick_transfer_modal" %>
+<% end %>

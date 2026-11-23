@@ -9,16 +9,24 @@ module MoneySources
     Result = Struct.new(:source, :range, :period_label, :opening_balance,
                         :entries_total, :exits_total, :closing_balance,
                         :movements, :total_count, :page, :per_page,
+                        :simple_general,
                         keyword_init: true) do
       def debt?
         source.debt?
       end
 
+      def simple_general?
+        simple_general
+      end
+
       def entries_label
+        return "Ingresos" if simple_general?
+
         debt? ? "Pagos" : "Entradas"
       end
 
       def exits_label
+        return "Gastos" if simple_general?
         return "Salidas" unless debt?
         return "Compras" if source.credit_card?
         return "Usos y transferencias" if source.revolving?
@@ -62,7 +70,8 @@ module MoneySources
         movements: visible,
         total_count: filtered.size,
         page: @page,
-        per_page: @per_page
+        per_page: @per_page,
+        simple_general: simple_general_view?
       ).tap do |result|
         result.closing_balance = result.opening_balance + result.entries_total - result.exits_total
       end
@@ -113,12 +122,21 @@ module MoneySources
       "#{I18n.l(range.begin)} – #{I18n.l(range.end)}"
     end
 
+    # Mi dinero only exposes the recorded income/expense movements. Historical
+    # advanced operations remain in the database but are not rendered in the
+    # simple experience.
+    def simple_general_view?
+      user.money_tracking_simple? && source.general?
+    end
+
     def build_movements(range)
       movements = []
       movements.concat(transaction_movements(range))
-      movements.concat(transfer_movements(range))
-      movements.concat(payment_movements(range))
-      movements.concat(adjustment_movements(range))
+      unless simple_general_view?
+        movements.concat(transfer_movements(range))
+        movements.concat(payment_movements(range))
+        movements.concat(adjustment_movements(range))
+      end
       movements.sort_by { |m| [ m.date, m.created_at || Time.at(0) ] }.reverse
     end
 

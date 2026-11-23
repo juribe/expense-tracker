@@ -41,6 +41,16 @@
                 <span class="hide-menu"><%= t("nav.dashboard") %></span>
               <% end %>
             </li>
+            <% if money_tracking_simple? %>
+              <li class="sidebar-item">
+                <%= link_to my_money_path,
+                            class: "sidebar-link #{'active' if controller_name == 'money_sources' && action_name == 'my_money'}",
+                            data: { testid: "nav-my-money" } do %>
+                  <span class="aside-icon p-2 bg-info-subtle rounded-1"><i class="ti ti-wallet fs-5"></i></span>
+                  <span class="hide-menu"><%= t("money_tracking.my_money", default: "Mi dinero") %></span>
+                <% end %>
+              </li>
+            <% end %>
             <li class="sidebar-item">
               <%= link_to expense_candidates_path, class: "sidebar-link #{active_class('expense_candidates')}" do %>
                 <span class="aside-icon p-2 bg-warning-subtle rounded-1"><i class="ti ti-inbox fs-5"></i></span>

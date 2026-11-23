@@ -23,7 +23,8 @@
         amountEl.className = "col-sm-8 " + (row.dataset.direction === "in" ? "text-success fw-bold" : "text-danger fw-bold");
         document.getElementById("detailType").textContent = row.dataset.type || "";
         document.getElementById("detailCategory").textContent = row.dataset.category || "—";
-        document.getElementById("detailRelated").textContent = row.dataset.related || "—";
+        var related = document.getElementById("detailRelated");
+        if (related) related.textContent = row.dataset.related || "—";
         var modal = getModal();
         if (modal) modal.show();
       });

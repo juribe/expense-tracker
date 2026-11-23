@@ -3,7 +3,8 @@
 class MoneySourcesController < ApplicationController
   include MoneySourceShowContext
 
-  before_action :require_detailed_money_tracking
+  before_action :require_detailed_money_tracking, except: :my_money
+  before_action :require_simple_money_tracking, only: :my_money
 
   # Source recognition belongs to the premium Automatización section, but the
   # rest of this controller serves the free money and debt pages.
@@ -70,6 +71,19 @@ class MoneySourcesController < ApplicationController
     # Index cards pass tab=resumen so entering a source from a list always
     # starts on its detail tab instead of restoring the last visited tab.
     @force_tab = params[:tab].presence_in(%w[resumen movimientos pagos abonos reconocimiento])
+  end
+
+  # GET /mi_dinero
+  # Simple-mode entry point. It deliberately ignores any source id parameter
+  # and always resolves the user's General source through the idempotent
+  # resolver, then renders the existing MoneySource#show.
+  def my_money
+    @money_source = current_user.general_money_source
+    @simple_money_view = true
+    @active_tab = "resumen"
+    @force_tab = "resumen"
+    load_statement_context
+    render :show
   end
 
   # GET /money_sources/recognition
@@ -493,6 +507,12 @@ class MoneySourcesController < ApplicationController
   # like "From: ..." (header) — delegated to SourceRecognition::ValueClassifier.
   def classify_subjects(list)
     SourceRecognition::ValueClassifier.subjects(list)
+  end
+
+  def require_simple_money_tracking
+    return if money_tracking_simple?
+
+    redirect_to dashboard_path
   end
 
   def set_money_source
