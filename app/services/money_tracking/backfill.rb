@@ -29,7 +29,9 @@ module MoneyTracking
         mode = user.money_sources.exists? ? "detailed" : "simple"
         user.money_tracking_mode = mode
         user.update_columns(money_tracking_mode: mode, money_tracking_mode_selected_at: Time.current)
-        MoneySources::General.ensure_for(user)
+        # Only the simple flow needs General. Advanced users keep their own
+        # sources and should not receive an empty conversion account.
+        MoneySources::General.ensure_for(user) if mode == "simple"
         counts[mode.to_sym] += 1
       end
 

@@ -19,7 +19,7 @@ module MoneyTracking
       assert_equal "simple", without_sources.money_tracking_mode
       assert with_sources.money_tracking_mode_selected?
       assert without_sources.money_tracking_mode_selected?
-      assert_equal "account", with_sources.general_money_source.kind
+      refute with_sources.money_sources.exists?(general: true)
       assert_equal "general", without_sources.general_money_source.kind
       assert MoneySource.exists?(source.id)
       assert_equal 100_000.to_d, source.reload.balance

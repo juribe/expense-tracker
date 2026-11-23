@@ -91,6 +91,20 @@ class MoneySource < ApplicationRecord
   scope :funding_sources, -> { by_kind("loan").where(sub_kind: "revolving") }
   scope :debt_payment_targets, -> { where(kind: %w[credit_card loan]) }
 
+  # The General source survives the simple -> advanced conversion so its
+  # history keeps working. An empty shell left behind for accounts that never
+  # used simple mode (mode backfills, same-mode switches) is not a real
+  # account and stays out of the advanced accounts list.
+  scope :excluding_unused_general, lambda { |default_source_id: nil|
+    where(
+      "money_sources.general = FALSE " \
+      "OR money_sources.id = :default_id " \
+      "OR EXISTS (SELECT 1 FROM transactions WHERE transactions.money_source_id = money_sources.id) " \
+      "OR EXISTS (SELECT 1 FROM money_sources children WHERE children.parent_id = money_sources.id)",
+      default_id: default_source_id
+    )
+  }
+
   # Sources that can originate a payment, with credit data loaded for
   # display_name. Loans never pay an expense directly — their money lives in
   # the account they were disbursed to (see #payment_source?).

@@ -46,6 +46,19 @@ module MoneySources
       assert_equal "account", user.general_money_source.kind
     end
 
+    test "switching an advanced user to advanced does not create a General source" do
+      user = User.create!(name: "Advanced Only", email: "advanced_only_#{SecureRandom.hex(4)}@example.com",
+                          password: "password123")
+      user.money_sources.create!(name: "Cuenta propia", kind: "account")
+
+      assert_no_difference "MoneySource.count" do
+        assert ModeSwitch.new(user: user, mode: "detailed").call.success?
+      end
+
+      refute user.reload.money_sources.exists?(general: true)
+      assert_nil user.default_money_source_id
+    end
+
     test "switching back to simple keeps sources and movements and uses General again" do
       user = simple_user_with_movements
       other = user.money_sources.create!(name: "Cuenta aparte", kind: "account")

@@ -34,13 +34,15 @@ module MoneySources
     private
 
     def switch_to_detailed
-      general = General.ensure_for(@user)
-      general.update!(kind: "account") unless general.kind == "account"
+      # Only an existing General becomes the conversion account. Advanced
+      # users who never used the simple flow must not receive an empty one.
+      general = @user.money_sources.find_by(general: true)
+      general.update!(kind: "account") if general && general.kind != "account"
 
       @user.update!(
         money_tracking_mode: "detailed",
         money_tracking_mode_selected_at: Time.current,
-        default_money_source_id: @user.default_money_source_id || general.id
+        default_money_source_id: @user.default_money_source_id || general&.id
       )
     end
 

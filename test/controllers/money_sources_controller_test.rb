@@ -231,6 +231,29 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_match(/500\.000/, response.body)
   end
 
+  test "GET /money_sources/cash hides an unused General shell left in advanced mode" do
+    general = @user.money_sources.create!(name: "General", kind: "account", general: true, starting_balance: 0)
+    create_source(name: "Checking", kind: "account")
+
+    get money_sources_cash_path
+
+    assert_response :success
+    assert_select "[data-testid='account-card']", count: 1
+    assert_select "a[href=?]", money_source_path(general, tab: "resumen"), count: 0
+    assert_select "a[href=?]", money_source_path(@user.money_sources.find_by(name: "Checking"), tab: "resumen")
+  end
+
+  test "GET /money_sources/cash lists a General account that carries simple history" do
+    general = @user.money_sources.create!(name: "General", kind: "account", general: true,
+                                          starting_balance: 100_000)
+    @user.expenses.create!(amount: 10_000, date: Date.current, description: "Café", money_source: general)
+
+    get money_sources_cash_path
+
+    assert_response :success
+    assert_select "a[href=?]", money_source_path(general, tab: "resumen"), text: /General/
+  end
+
   test "GET /money_sources/cash links each account card to the summary tab" do
     account = create_source(name: "Checking", kind: "account")
 
