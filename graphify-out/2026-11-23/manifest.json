@@ -1026,9 +1026,9 @@
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1795444999.9820688,
-    "seen": 1795445389.126166,
-    "ast_hash": "f05150834e2161e102b1735d5257f410",
+    "mtime": 1795447511.6263556,
+    "seen": 1795447767.492533,
+    "ast_hash": "ab02ed8ea3da7b0f2a03d2326a5311fd",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1795445258.8211756,
-    "seen": 1795445389.126327,
+    "mtime": 1795447680.631284,
+    "seen": 1795447767.492696,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -10872,21 +10872,21 @@
     "semantic_hash": ""
   },
   "app/assets/javascripts/forwarding_rule.js": {
-    "mtime": 1795444981.9296753,
-    "seen": 1795445389.05338,
-    "ast_hash": "c8a150685444d8a4801d039c19a10275",
+    "mtime": 1795447496.8538303,
+    "seen": 1795447767.417473,
+    "ast_hash": "6e06f773161c25e7cdc85565843594cd",
     "semantic_hash": ""
   },
   "playwright/email_forwarding_rule.spec.js": {
-    "mtime": 1795445014.925397,
-    "seen": 1795445389.097842,
-    "ast_hash": "db08fc43ccc27925b2f6a5c8c9f954b7",
+    "mtime": 1795447546.1489005,
+    "seen": 1795447767.462798,
+    "ast_hash": "5d39b16b08f358969ced60da8feb71d6",
     "semantic_hash": ""
   },
   "test/controllers/email_sources_forwarding_rule_test.rb": {
-    "mtime": 1795445007.5691419,
-    "seen": 1795445389.101058,
-    "ast_hash": "472b973bb16810b4ba78c6171fd55334",
+    "mtime": 1795447532.963225,
+    "seen": 1795447767.466215,
+    "ast_hash": "28dfd7a89c513381434d19253f6ab76f",
     "semantic_hash": ""
   }
 }
