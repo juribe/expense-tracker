@@ -193,6 +193,60 @@ class MyMoneyTest < ActionDispatch::IntegrationTest
     assert_equal general.id, user.incomes.order(:created_at).last.money_source_id
   end
 
+  test "Mi dinero includes transactions from historical sources after switching to simple" do
+    user = detailed_user
+    historical = user.money_sources.create!(name: "Cuenta histórica", kind: "account", starting_balance: 100_000)
+    user.expenses.create!(amount: 25_000, date: Date.current, description: "Gasto histórico",
+                          category: @category, source: "manual", money_source: historical)
+    user.incomes.create!(amount: 80_000, date: Date.current, description: "Ingreso histórico",
+                         category: @income_category, source: "manual", money_source: historical)
+    MoneySources::ModeSwitch.new(user: user, mode: "simple").call
+    sign_in user
+
+    get my_money_path
+
+    assert_response :success
+    assert_select "body", text: /Gasto histórico/
+    assert_select "body", text: /Ingreso histórico/
+    assert_select "body", text: /Cuenta histórica/, count: 0
+    assert_select ".stat-value", text: /55[.,]000/
+  end
+
+  test "Mi dinero keeps an opening balance from historical movements" do
+    user = detailed_user
+    historical = user.money_sources.create!(name: "Cuenta saldo previo", kind: "account")
+    user.incomes.create!(amount: 100_000, date: Date.current - 40.days, description: "Ingreso previo",
+                         category: @income_category, source: "manual", money_source: historical)
+    user.expenses.create!(amount: 40_000, date: Date.current, description: "Gasto actual",
+                          category: @category, source: "ai", money_source: historical)
+    MoneySources::ModeSwitch.new(user: user, mode: "simple").call
+    sign_in user
+
+    get my_money_path
+
+    assert_response :success
+    assert_select "body", text: /100[.,]000/
+    assert_select "body", text: /60[.,]000/
+    assert_select ".stat-value", text: /60[.,]000/
+    assert_select "[data-testid=my-money-period-balance]", text: /40[.,]000/
+    assert_select "[data-testid=my-money-period-balance]", text: /60[.,]000/, count: 0
+  end
+
+  test "Mi dinero points to Gastos when the period has no movements" do
+    user = detailed_user
+    historical = user.money_sources.create!(name: "Cuenta sin ciclo", kind: "account")
+    user.expenses.create!(amount: 10_000, date: Date.current - 60.days, description: "Gasto antiguo",
+                          category: @category, source: "ai", money_source: historical)
+    MoneySources::ModeSwitch.new(user: user, mode: "simple").call
+    sign_in user
+
+    get my_money_path
+
+    assert_response :success
+    assert_select "body", text: /No hay movimientos en este período/
+    assert_select "a[href=?]", expenses_path, text: /Ver historial en Gastos/
+  end
+
   test "Mi dinero keeps the statement filters and labels" do
     user = simple_user
     general = user.general_money_source

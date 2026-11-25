@@ -23,7 +23,7 @@ module MoneySources
         parent = source.parent
         targets = source.debit_card? && parent && parent.user_id == source.user_id ? [ parent ] : [ source ]
 
-        MoneySource.where(id: targets.map(&:id))
+        MoneySource.with_deleted.where(id: targets.map(&:id))
                    .update_all([ "cached_balance = cached_balance + ?", delta ])
       end
 

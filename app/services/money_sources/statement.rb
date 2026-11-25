@@ -122,9 +122,10 @@ module MoneySources
       "#{I18n.l(range.begin)} – #{I18n.l(range.end)}"
     end
 
-    # Mi dinero only exposes the recorded income/expense movements. Historical
-    # advanced operations remain in the database but are not rendered in the
-    # simple experience.
+    # Mi dinero only exposes the recorded income/expense movements. When the
+    # account was converted from advanced tracking, the historical movements
+    # still live on their original sources; the simple view aggregates every
+    # transaction so the history stays visible without reassigning records.
     def simple_general_view?
       user.money_tracking_simple? && source.general?
     end
@@ -141,10 +142,11 @@ module MoneySources
     end
 
     def transaction_movements(range)
-      Transaction.where(user_id: user.id, money_source_id: source.id)
-                 .where(date: range)
-                 .includes(:category)
-                 .map do |transaction|
+      scope = Transaction.where(user_id: user.id)
+      scope = scope.where(money_source_id: source.id) unless simple_general_view?
+      scope.where(date: range)
+           .includes(:category)
+           .map do |transaction|
         Movement.new(
           date: transaction.date,
           created_at: transaction.created_at,
@@ -352,6 +354,7 @@ module MoneySources
     end
 
     def opening_balance(range)
+      return opening_balance_for_simple(range) if simple_general_view?
       return opening_balance_for_loan(range) if source.loan?
 
       total = source.starting_balance.to_d
@@ -388,6 +391,12 @@ module MoneySources
     # current outstanding is the anchor: reversing every operation from the
     # period start onwards yields the opening debt, including any initial
     # outstanding entered on the loan form and historical adjustments.
+    # Aggregated simple view: the opening balance is the net of every recorded
+    # income/expense before the period, regardless of the source that held it.
+    def opening_balance_for_simple(range)
+      Transaction.where(user_id: user.id).where("date < ?", range.begin).sum(:amount).to_d
+    end
+
     def opening_balance_for_loan(range)
       -(source.outstanding_balance.to_d - loan_debt_change_since(range.begin))
     end

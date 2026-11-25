@@ -4,10 +4,15 @@ module Gmail
   # Builds the Gmail search query used to find candidate transaction emails
   # from configurable criteria (senders, sender domains, subject keywords).
   #
+  # Senders/domains are the primary criterion: when any is configured, every
+  # email from them is fetched regardless of its subject. Subject keywords are
+  # only used when no sender or domain is configured (including the defaults
+  # below).
+  #
   #   Gmail::QueryBuilder.build(config: { senders: ["notifications@bank.com"],
   #                                       subject_keywords: ["compra", "pago"] },
   #                             last_synced_at: connection.last_synced_at)
-  #   => 'from:(notifications@bank.com) subject:(compra OR pago) newer_than:9d -category:promotions'
+  #   => 'from:(notifications@bank.com) newer_than:9d -category:promotions'
   class QueryBuilder
     DEFAULT_SUBJECT_KEYWORDS = %w[
       compra compró transacción transaccion pago cobro cargo débito debito
@@ -33,8 +38,11 @@ module Gmail
 
     def build
       parts = []
-      parts << from_clause if from_values.any?
-      parts << subject_clause
+      if from_values.any?
+        parts << from_clause
+      else
+        parts << subject_clause
+      end
       parts << "newer_than:#{lookback_days}d"
       parts.concat(EXCLUSIONS)
       parts.join(" ")

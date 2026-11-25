@@ -58,8 +58,50 @@ class MoneyTrackingControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "[data-testid=money-tracking-settings]"
-    assert_select "[data-testid=money-tracking-current-mode]", text: /Avanzado/
+    assert_select "[data-testid=money-tracking-current-mode]", text: /Completo/
+    assert_select "[data-testid=money-tracking-current-tag]", text: /Todas tus cuentas y movimientos/
+    assert_select ".mt-option[data-mode=detailed].is-selected"
+    assert_select ".mt-option[data-mode=simple]:not(.is-selected)"
+    assert_select "[data-testid=money-tracking-option-simple]", text: /Registrar ingresos y gastos/
+    assert_select "[data-testid=money-tracking-option-detailed]", text: /Conciliación y cuadre de saldos/
+    assert_select "button[data-testid=money-tracking-submit][disabled]"
     assert_select "h1", text: "Seguimiento de dinero"
+  end
+
+  test "changing from simple to advanced asks for confirmation first" do
+    @user.update_columns(money_tracking_mode: "simple", money_tracking_mode_selected_at: Time.current)
+    general = MoneySources::General.ensure_for(@user)
+
+    patch money_tracking_path, params: { money_tracking_mode: "detailed" }
+
+    assert_response :success
+    assert_select "[data-testid=money-tracking-confirm]"
+    assert_select "h1", text: /Estás por activar el seguimiento completo/
+    assert_select ".mt-confirm-intro", text: /Tendrás una visión más detallada/
+    assert_select ".mt-confirm-change", count: 4
+    assert_select ".mt-confirm-change", text: /Se activarán cuentas bancarias, tarjetas de crédito, préstamos y transferencias/
+    assert_select ".mt-confirm-change", text: /Pasará a mostrarse como una cuenta más dentro de tus fuentes de dinero/
+    assert_select ".mt-confirm-change", text: /Los movimientos existentes mantienen su historial/
+    assert_select ".mt-confirm-change", text: /Podrás seleccionar desde qué cuenta registrar tus nuevos movimientos/
+    assert_select ".mt-confirm-preserve", text: /Puedes volver a Seguimiento simple/
+    assert_select ".mt-confirm-note", text: /Este cambio modifica las herramientas disponibles, no tu plan ni tu suscripción/
+    assert_select "[data-testid=money-tracking-confirm-submit]", text: /Sí, activar seguimiento completo/
+    assert_select "a[data-testid=money-tracking-confirm-cancel]", text: /Cancelar/
+    @user.reload
+    assert_equal "simple", @user.money_tracking_mode
+    assert_equal "general", general.reload.kind
+  end
+
+  test "confirmed change from simple to advanced activates the advanced mode" do
+    @user.update_columns(money_tracking_mode: "simple", money_tracking_mode_selected_at: Time.current)
+    general = MoneySources::General.ensure_for(@user)
+
+    patch money_tracking_path, params: { money_tracking_mode: "detailed", confirmed: "1" }
+
+    assert_redirected_to money_tracking_path
+    @user.reload
+    assert_equal "detailed", @user.money_tracking_mode
+    assert_equal "account", general.reload.kind
   end
 
   test "changing from advanced to simple asks for confirmation first" do
@@ -72,8 +114,18 @@ class MoneyTrackingControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "[data-testid=money-tracking-confirm]"
-    assert_select "body", text: /Los movimientos no serán eliminados/
-    assert_select "body", text: /Las fuentes individuales permanecerán almacenadas/
+    assert_select "h1", text: /Volverás al seguimiento simple/
+    assert_select ".mt-confirm-intro", text: /Simplificarás tu experiencia/
+    assert_select ".mt-confirm-change", count: 4
+    assert_select ".mt-confirm-change", text: /Cuentas y tarjetas ocultas/
+    assert_select ".mt-confirm-change", text: /Tu información se conserva/
+    assert_select ".mt-confirm-change", text: /General vuelve a ser tu fuente principal/
+    assert_select ".mt-confirm-change", text: /Funciones avanzadas ocultas/
+    assert_select ".mt-confirm-preserve", text: /No perderás tu información/
+    assert_select ".mt-confirm-preserve", text: /tus fuentes individuales seguirán almacenadas/
+    assert_select ".mt-confirm-note", text: /Este cambio modifica las herramientas disponibles, no tu plan ni tu suscripción/
+    assert_select "[data-testid=money-tracking-confirm-submit]", text: /Sí, volver a seguimiento simple/
+    assert_select "a[data-testid=money-tracking-confirm-cancel]", text: /Cancelar/
     @user.reload
     assert_equal "detailed", @user.money_tracking_mode
     assert_equal "account", general.reload.kind
@@ -121,6 +173,11 @@ class MoneyTrackingControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "[data-testid=money-tracking-default-source]", count: 0
+    assert_select "[data-testid=money-tracking-current-mode]", text: /Simple/
+    assert_select "[data-testid=money-tracking-current-tag]", text: /Ingresos, gastos y presupuestos/
+    assert_select ".mt-option[data-mode=simple].is-selected"
+    assert_select ".mt-option[data-mode=detailed]:not(.is-selected)"
+    assert_select "button[data-testid=money-tracking-submit][disabled]"
   end
 
   test "changing the tracking mode does not touch the membership" do

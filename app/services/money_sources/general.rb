@@ -27,6 +27,28 @@ module MoneySources
         create_for(user)
       end
 
+      # Switching back to simple reuses the latest archived General when no
+      # active one exists. Other archived sources stay archived; only General
+      # is restored because simple tracking depends on it.
+      def ensure_for_simple(user)
+        return if user.nil? || !user.persisted?
+
+        active = user.money_sources.find_by(general: true)
+        return active if active
+
+        archived = MoneySource.with_deleted
+                              .where(user_id: user.id, general: true)
+                              .where.not(deleted_at: nil)
+                              .order(deleted_at: :desc, created_at: :desc)
+                              .first
+        if archived
+          archived.update!(deleted_at: nil, active: true)
+          return archived
+        end
+
+        create_for(user, kind: "general")
+      end
+
       def create_for(user, kind: nil)
         kind ||= user.money_tracking_simple? ? "general" : "account"
         source = user.money_sources.create!(name: NAME, kind: kind, general: true)

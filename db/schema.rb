@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_22_200000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_24_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -759,12 +759,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_22_200000) do
     t.string "institution_cached_name"
     t.boolean "gmf_exempt", default: false, null: false
     t.boolean "general", default: false, null: false
+    t.datetime "deleted_at"
+    t.index ["deleted_at"], name: "index_money_sources_on_deleted_at"
     t.index ["institution_type", "institution_id"], name: "index_money_sources_on_institution"
     t.index ["kind", "sub_kind"], name: "index_money_sources_on_kind_and_sub_kind"
     t.index ["parent_id"], name: "index_money_sources_on_parent_id"
     t.index ["user_id", "identifier"], name: "index_money_sources_on_user_id_and_identifier", unique: true
     t.index ["user_id", "kind"], name: "index_money_sources_on_user_id_and_kind"
-    t.index ["user_id"], name: "index_money_sources_general_per_user", unique: true, where: "(general = true)"
+    t.index ["user_id"], name: "index_money_sources_general_per_user", unique: true, where: "((general = true) AND (deleted_at IS NULL))"
     t.index ["user_id"], name: "index_money_sources_gmf_exempt_per_user", unique: true, where: "(gmf_exempt = true)"
     t.index ["user_id"], name: "index_money_sources_on_user_id"
   end
@@ -1336,7 +1338,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_22_200000) do
     t.index ["user_id", "gmf_origin_type", "gmf_origin_id"], name: "index_transactions_gmf_origin"
     t.index ["user_id", "kind", "date"], name: "index_transactions_on_user_id_and_kind_and_date"
     t.index ["user_id"], name: "index_transactions_on_user_id"
-    t.check_constraint "(kind::text <> ALL (ARRAY['expense'::character varying, 'income'::character varying]::text[])) OR money_source_id IS NOT NULL", name: "transactions_money_source_presence"
+    t.check_constraint "(kind::text <> ALL (ARRAY['expense'::character varying::text, 'income'::character varying::text])) OR money_source_id IS NOT NULL", name: "transactions_money_source_presence"
   end
 
   create_table "transfers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|

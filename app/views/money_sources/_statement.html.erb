@@ -148,6 +148,9 @@
                 <td colspan="5" class="text-center text-muted py-5">
                   <% if params[:q].present? || params[:kind].present? %>
                     No hay movimientos que coincidan con estos filtros.
+                  <% elsif simple_general %>
+                    No hay movimientos en este período.
+                    <%= link_to "Ver historial en Gastos", expenses_path, class: "fw-semibold ms-1" %>
                   <% else %>
                     No hay movimientos en este período.
                   <% end %>
@@ -222,6 +225,9 @@
           <div class="statement-mobile-empty text-center text-muted">
             <% if params[:q].present? || params[:kind].present? %>
               No hay movimientos que coincidan con estos filtros.
+            <% elsif simple_general %>
+              <div>No hay movimientos en este período.</div>
+              <%= link_to "Ver historial en Gastos", expenses_path, class: "fw-semibold" %>
             <% else %>
               No hay movimientos en este período.
             <% end %>

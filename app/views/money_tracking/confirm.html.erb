@@ -1,33 +1,228 @@
-<% content_for :title, "Volver al seguimiento simple" %>
+<% changing_to_simple = @selected_mode == "simple" %>
+<% content_for :title, changing_to_simple ? "Volver al seguimiento simple" : "Activar el seguimiento completo" %>
 
-<div class="container py-4" data-testid="money-tracking-confirm">
-  <div class="mx-auto et-maxw-720">
-    <section class="card">
-      <div class="card-body">
-        <span class="icon-chip icon-chip-amber mb-3" aria-hidden="true"><i class="ti ti-alert-triangle"></i></span>
-        <h1 class="h4 mb-2">Volver al seguimiento simple</h1>
-        <p class="text-muted">
-          Antes de continuar, revisa qué cambia. No se eliminará ninguna información.
+<% if changing_to_simple %>
+  <div class="money-tracking-confirm" data-testid="money-tracking-confirm">
+    <section class="mt-confirm-panel mt-confirm-simple">
+      <header class="mt-confirm-hero">
+        <span class="mt-confirm-hero-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3.5 21 20H3L12 3.5Z"/>
+            <path d="M12 9v5M12 17h.01"/>
+          </svg>
+        </span>
+        <span class="mt-confirm-eyebrow">CAMBIO DE MODALIDAD</span>
+        <h1>Volverás al seguimiento simple</h1>
+        <p class="mt-confirm-intro">
+          Simplificarás tu experiencia. Tus datos y movimientos seguirán guardados en Yogasto.
         </p>
+      </header>
 
-        <ul class="mb-4">
-          <li class="mb-2">Las cuentas y tarjetas dejarán de mostrarse en tu navegación.</li>
-          <li class="mb-2">Los movimientos no serán eliminados.</li>
-          <li class="mb-2">Las fuentes individuales permanecerán almacenadas.</li>
-          <li class="mb-2">General volverá a ser la fuente utilizada para nuevos movimientos.</li>
-          <li>Las funcionalidades avanzadas quedarán ocultas y podrás activarlas de nuevo cuando quieras.</li>
-        </ul>
+      <h2 class="mt-confirm-section-title">¿Qué cambiará en tu aplicación?</h2>
+      <div class="mt-confirm-changes">
+        <article class="mt-confirm-change">
+          <span class="mt-confirm-change-icon is-amber" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="5" width="18" height="14" rx="2"/>
+              <path d="M3 10h18M7 15h4"/>
+            </svg>
+          </span>
+          <div>
+            <h3>Cuentas y tarjetas ocultas</h3>
+            <p>Dejarán de mostrarse en tu navegación mientras uses seguimiento simple.</p>
+          </div>
+        </article>
 
-        <div class="d-flex flex-column flex-sm-row gap-2">
-          <%= button_to "Sí, volver a simple",
-                        money_tracking_path,
-                        method: :patch,
-                        params: { money_tracking_mode: "simple", confirmed: "1" },
-                        class: "btn btn-primary",
-                        data: { testid: "money-tracking-confirm-submit" } %>
-          <%= link_to "Cancelar", money_tracking_path, class: "btn btn-outline-secondary" %>
+        <article class="mt-confirm-change">
+          <span class="mt-confirm-change-icon is-green" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/>
+              <path d="m9 12 2 2 4-4"/>
+            </svg>
+          </span>
+          <div>
+            <h3>Tu información se conserva</h3>
+            <p>Tus movimientos y fuentes individuales permanecerán almacenados. No se elimina ningún dato.</p>
+          </div>
+        </article>
+
+        <article class="mt-confirm-change">
+          <span class="mt-confirm-change-icon is-blue" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="5" width="18" height="14" rx="2"/>
+              <path d="M3 10h18M7 15h4"/>
+            </svg>
+          </span>
+          <div>
+            <h3>General vuelve a ser tu fuente principal</h3>
+            <p>Los nuevos movimientos utilizarán la cuenta General como fuente predeterminada.</p>
+          </div>
+        </article>
+
+        <article class="mt-confirm-change">
+          <span class="mt-confirm-change-icon is-blue" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="8" height="8" rx="1"/>
+              <rect x="13" y="3" width="8" height="8" rx="1"/>
+              <rect x="3" y="13" width="8" height="8" rx="1"/>
+              <path d="M16 17h5M18.5 14.5v5"/>
+            </svg>
+          </span>
+          <div>
+            <h3>Funciones avanzadas ocultas</h3>
+            <p>Las funcionalidades de seguimiento completo dejarán de estar disponibles en la navegación. Podrás volver a activarlas cuando quieras.</p>
+          </div>
+        </article>
+      </div>
+
+      <div class="mt-confirm-preserve">
+        <span class="mt-confirm-preserve-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m5 12 4 4L19 6"/>
+          </svg>
+        </span>
+        <div>
+          <h3>No perderás tu información</h3>
+          <p>Si más adelante vuelves al seguimiento completo, tus fuentes individuales seguirán almacenadas.</p>
         </div>
       </div>
+
+      <p class="mt-confirm-note">
+        <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+          <circle cx="10" cy="10" r="7.5"/>
+          <path d="M10 9v5M10 6.5h.01"/>
+        </svg>
+        Este cambio modifica las herramientas disponibles, no tu plan ni tu suscripción.
+      </p>
+
+      <div class="mt-confirm-divider"></div>
+
+      <footer class="mt-confirm-footer">
+        <p class="mt-confirm-footer-copy">
+          Revisa los cambios antes de continuar. Tus datos actuales se conservarán.
+        </p>
+        <div class="mt-confirm-actions">
+          <%= button_to "Sí, volver a seguimiento simple",
+                        money_tracking_path,
+                        method: :patch,
+                        params: { money_tracking_mode: @selected_mode, confirmed: "1" },
+                        class: "mt-confirm-primary",
+                        form: { class: "mt-confirm-action-form" },
+                        data: { testid: "money-tracking-confirm-submit" } %>
+          <%= link_to "Cancelar", money_tracking_path, class: "mt-confirm-secondary",
+                      data: { testid: "money-tracking-confirm-cancel" } %>
+        </div>
+      </footer>
     </section>
   </div>
-</div>
+<% else %>
+  <div class="money-tracking-confirm" data-testid="money-tracking-confirm">
+    <section class="mt-confirm-panel">
+      <header class="mt-confirm-hero">
+        <span class="mt-confirm-hero-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 8h14l-3-3M20 16H6l3 3"/>
+          </svg>
+        </span>
+        <span class="mt-confirm-eyebrow">
+          <i class="ti ti-check" aria-hidden="true"></i>CAMBIO DE MODALIDAD
+        </span>
+        <h1>Estás por activar el seguimiento completo</h1>
+        <p class="mt-confirm-intro">
+          Tendrás una visión más detallada de todo tu dinero, tus cuentas y tus deudas.
+        </p>
+      </header>
+
+      <h2 class="mt-confirm-section-title">¿Qué cambiará en tu aplicación?</h2>
+      <div class="mt-confirm-changes">
+        <article class="mt-confirm-change">
+          <span class="mt-confirm-change-icon is-green" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 7h16M4 12h16M4 17h10m1-2 2 2 4-4"/>
+            </svg>
+          </span>
+          <div>
+            <h3>Nuevas funcionalidades</h3>
+            <p>Se activarán cuentas bancarias, tarjetas de crédito, préstamos y transferencias.</p>
+          </div>
+        </article>
+
+        <article class="mt-confirm-change">
+          <span class="mt-confirm-change-icon is-blue" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 7h18M5 7v12h14V7M8 11h8M8 15h5"/>
+            </svg>
+          </span>
+          <div>
+            <h3>Tu cuenta General</h3>
+            <p>Pasará a mostrarse como una cuenta más dentro de tus fuentes de dinero.</p>
+          </div>
+        </article>
+
+        <article class="mt-confirm-change">
+          <span class="mt-confirm-change-icon is-green" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 5h16v15H4zM8 3v4M16 3v4M8 12h8M8 16h5"/>
+            </svg>
+          </span>
+          <div>
+            <h3>Tus movimientos se conservan</h3>
+            <p>Los movimientos existentes mantienen su historial, junto con tus categorías y presupuestos.</p>
+          </div>
+        </article>
+
+        <article class="mt-confirm-change">
+          <span class="mt-confirm-change-icon is-blue" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19 13.5a7 7 0 0 0 0-3l2-1.5-2-3-2.3 1a7 7 0 0 0-2.5-1.4L14 3h-4l-.2 2.6A7 7 0 0 0 7.3 7L5 6 3 9l2 1.5a7 7 0 0 0 0 3L3 15l2 3 2.3-1a7 7 0 0 0 2.5 1.4L10 21h4l.2-2.6a7 7 0 0 0 2.5-1.4l2.3 1 2-3z"/>
+            </svg>
+          </span>
+          <div>
+            <h3>Elige tu fuente predeterminada</h3>
+            <p>Podrás seleccionar desde qué cuenta registrar tus nuevos movimientos.</p>
+          </div>
+        </article>
+      </div>
+
+      <div class="mt-confirm-preserve">
+        <span class="mt-confirm-preserve-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+            <path d="m5 12 4 4L19 6"/>
+          </svg>
+        </span>
+        <div>
+          <h3>Puedes volver a Seguimiento simple</h3>
+          <p>Este cambio no es definitivo. Podrás cambiar de modalidad cuando quieras.</p>
+        </div>
+      </div>
+
+      <p class="mt-confirm-note">
+        <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+          <circle cx="10" cy="10" r="7.5"/>
+          <path d="M10 9v5M10 6.5h.01"/>
+        </svg>
+        Este cambio modifica las herramientas disponibles, no tu plan ni tu suscripción.
+      </p>
+
+      <div class="mt-confirm-divider"></div>
+
+      <footer class="mt-confirm-footer">
+        <p class="mt-confirm-footer-copy">
+          Revisa los cambios antes de continuar. Tus datos actuales se conservarán.
+        </p>
+        <div class="mt-confirm-actions">
+          <%= button_to "Sí, activar seguimiento completo",
+                        money_tracking_path,
+                        method: :patch,
+                        params: { money_tracking_mode: @selected_mode, confirmed: "1" },
+                        class: "mt-confirm-primary",
+                        form: { class: "mt-confirm-action-form" },
+                        data: { testid: "money-tracking-confirm-submit" } %>
+          <%= link_to "Cancelar", money_tracking_path, class: "mt-confirm-secondary",
+                      data: { testid: "money-tracking-confirm-cancel" } %>
+        </div>
+      </footer>
+    </section>
+  </div>
+<% end %>

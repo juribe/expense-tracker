@@ -47,7 +47,7 @@ module MoneySources
     end
 
     def switch_to_simple
-      general = General.ensure_for(@user)
+      general = General.ensure_for_simple(@user)
       general = reusable_general(general)
 
       @user.update!(

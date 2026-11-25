@@ -22,6 +22,12 @@ module MoneySourceShowContext
       per_page: params[:per_page],
       paginate: paginate
     ).call
+
+    # Simple Mi dinero aggregates every recorded movement, including the ones
+    # that still live on sources used before switching from advanced mode.
+    if current_user.money_tracking_simple? && @money_source.general?
+      @simple_recorded_balance = Transaction.where(user_id: current_user.id).sum(:amount).to_d
+    end
   end
 
   # Applied payments paginate on the debt show page: a long mortgage history

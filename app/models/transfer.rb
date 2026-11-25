@@ -4,8 +4,8 @@ class Transfer < ApplicationRecord
   include Reconciliation::Invalidatable
 
   belongs_to :user
-  belongs_to :from_source, class_name: "MoneySource"
-  belongs_to :to_source, class_name: "MoneySource"
+  belongs_to :from_source, -> { unscope(where: :deleted_at) }, class_name: "MoneySource"
+  belongs_to :to_source, -> { unscope(where: :deleted_at) }, class_name: "MoneySource"
 
   validates :amount, presence: true, numericality: { greater_than: 0 }
   validates :date, presence: true

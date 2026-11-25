@@ -11,10 +11,10 @@ module Ai
     # context: { today: Date }
     # data:    { transactions:, should_ignore:, reason: } (see Ai::TransactionExtractor)
     class TransactionExtraction < Base
-      def messages(input, _context)
+      def messages(input, context)
         [
           { role: "system", content: Ai::TransactionExtractor.system_prompt(categories: Array(input[:categories])) },
-          { role: "user", content: email_content(input) }
+          { role: "user", content: email_content(input, context) }
         ]
       end
 
@@ -28,8 +28,10 @@ module Ai
 
       private
 
-      def email_content(input)
+      def email_content(input, context)
+        today = (context[:today] || Date.current).to_date.iso8601
         <<~CONTENT
+          Today's date: #{today}. If the email does not state a transaction date, use today's date.
           Email subject: #{input[:subject].to_s[0, 200]}
           Email body:
           #{input[:body].to_s[0, 6000]}

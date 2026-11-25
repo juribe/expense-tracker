@@ -1699,6 +1699,7 @@ es:
       updated: "La fuente de dinero se actualizó correctamente."
       deleted: "La fuente de dinero se eliminó correctamente."
       delete_blocked: "No se pudo eliminar la fuente de dinero porque tiene registros asociados. Elimina o mueve esos registros primero."
+      recurring_blocked: "No se pudo eliminar la fuente de dinero porque tiene plantillas recurrentes asociadas. Elimina o reasigna esas plantillas primero."
       adjustment_reset: "Ajuste manual revertido. El saldo vuelve a lo que explican sus movimientos."
 
   budgets:
@@ -3338,14 +3339,14 @@ es:
     connect_help: "Conecta tu cuenta de Gmail para importar automáticamente las notificaciones de transacciones bancarias."
     connect: "Conectar cuenta de Gmail"
     criteria: "Criterios de identificación"
-    criteria_help: "Define qué correos debe reconocer Yogasto como notificaciones de gastos. Puedes ajustar estos criterios cuando quieras."
+    criteria_help: "Define qué correos debe reconocer Yogasto como notificaciones de gastos. Los remitentes y dominios tienen prioridad; las palabras clave del asunto se usan cuando no configuras remitentes ni dominios."
     criteria_required: "Agrega al menos un remitente, dominio o palabra clave para filtrar los correos de tus bancos."
     senders: "Direcciones de remitentes"
     senders_help: "Una por línea o separadas por coma."
     domains: "Dominios de remitentes"
     domains_help: "Ej. banco.com"
     subject_keywords: "Palabras clave del asunto"
-    subject_keywords_help: "Palabras o frases clave."
+    subject_keywords_help: "Se usan solo cuando no hay remitentes ni dominios configurados."
     save_criteria: "Guardar criterios"
     pending_review: "Pendientes de revisión"
     pending_help: "Las transacciones con baja confianza necesitan tu confirmación antes de crear gastos."
@@ -3384,7 +3385,7 @@ es:
     configure_bank_emails: "Configurar correos de bancos"
     filter_wizard:
       title: "Revisa los correos de tus bancos"
-      subtitle: "Confirma los remitentes y asuntos que Yogasto debe usar para buscar notificaciones bancarias en tu correo."
+      subtitle: "Confirma los remitentes y dominios de tus bancos. Yogasto importará todos sus correos; las palabras clave del asunto se usan solo si no agregas remitentes ni dominios."
       step_label: "Correos de bancos"
     setup:
       rescan: "Volver a escanear"

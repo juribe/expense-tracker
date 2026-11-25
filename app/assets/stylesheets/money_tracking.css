@@ -1,0 +1,706 @@
+/* Money tracking settings — visual parity with the approved prototype. */
+.money-tracking-page {
+  --mt-blue: #087fe5;
+  --mt-blue-dark: #066bc4;
+  --mt-blue-soft: #eff7ff;
+  --mt-ink: #172438;
+  --mt-muted: #7c8999;
+  --mt-line: #e5ebf2;
+  --mt-green: #19bf70;
+  --mt-surface: #fff;
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto 2.5rem;
+  color: var(--mt-ink);
+}
+
+.money-tracking-page * { box-sizing: border-box; }
+
+.money-tracking-page .mt-page-heading {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin: 0.5rem 0 26px;
+}
+
+.money-tracking-page .mt-heading-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  color: var(--mt-blue);
+  background: #e8f2ff;
+  flex: none;
+}
+
+.money-tracking-page h1 {
+  margin: 0 0 5px;
+  font-size: 29px;
+  font-weight: 700;
+  letter-spacing: -0.8px;
+  line-height: 1.15;
+  color: inherit;
+}
+
+.money-tracking-page .mt-subtitle {
+  margin: 0;
+  color: var(--mt-muted);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.money-tracking-page .mt-card {
+  background: var(--mt-surface);
+  border: 1px solid var(--mt-line);
+  border-radius: 18px;
+  box-shadow: 0 3px 12px rgba(20, 45, 80, 0.025);
+}
+
+.money-tracking-page .mt-current-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px 22px;
+  margin-bottom: 24px;
+}
+
+.money-tracking-page .mt-current-left { display: flex; align-items: center; gap: 15px; }
+
+.money-tracking-page .mt-current-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: #edf4ff;
+  color: var(--mt-blue);
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+
+.money-tracking-page .mt-eyebrow { color: #98a3b0; font-size: 14px; margin-bottom: 3px; }
+
+.money-tracking-page .mt-current-name {
+  font-size: 21px;
+  font-weight: 750;
+  letter-spacing: -0.4px;
+  line-height: 1.2;
+}
+
+.money-tracking-page .mt-current-tag {
+  color: #0875d2;
+  background: #edf6ff;
+  border: 1px solid #e1efff;
+  border-radius: 9px;
+  padding: 7px 12px;
+  font-size: 14px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.money-tracking-page .mt-chooser { padding: 26px 24px 22px; }
+
+.money-tracking-page .mt-section-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 25px;
+}
+
+.money-tracking-page .mt-section-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  background: #edf5ff;
+  color: var(--mt-blue);
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+
+.money-tracking-page h2 {
+  margin: 0 0 5px;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.45px;
+  line-height: 1.25;
+  color: inherit;
+}
+
+.money-tracking-page .mt-section-copy { color: var(--mt-muted); font-size: 15px; line-height: 1.5; margin: 0; }
+
+.money-tracking-page .mt-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.money-tracking-page .mt-option {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  text-align: left;
+  border: 1.5px solid var(--mt-line);
+  border-radius: 16px;
+  padding: 23px 22px 20px;
+  background: #fff;
+  color: inherit;
+  cursor: pointer;
+  transition: 0.18s ease;
+  font: inherit;
+  margin: 0;
+}
+
+.money-tracking-page .mt-option:hover {
+  border-color: #a8cdf5;
+  box-shadow: 0 5px 18px rgba(22, 95, 170, 0.07);
+  transform: translateY(-1px);
+}
+
+.money-tracking-page .mt-option.is-selected {
+  border: 2px solid var(--mt-blue);
+  padding: 22.5px 21.5px 19.5px;
+  background: linear-gradient(145deg, #f4f9ff 0%, #fff 76%);
+  box-shadow: 0 5px 20px rgba(8, 127, 229, 0.09);
+}
+
+.money-tracking-page .mt-option-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.money-tracking-page .mt-option:has(.mt-option-input:focus-visible) {
+  outline: 2px solid rgba(8, 127, 229, 0.55);
+  outline-offset: 3px;
+}
+
+.money-tracking-page .mt-radio {
+  position: absolute;
+  top: 22px;
+  right: 22px;
+  width: 21px;
+  height: 21px;
+  border: 1.7px solid #c4cfdb;
+  border-radius: 50%;
+  background: #fff;
+  display: grid;
+  place-items: center;
+}
+
+.money-tracking-page .mt-option.is-selected .mt-radio { border: 6px solid var(--mt-blue); }
+
+.money-tracking-page .mt-option-top {
+  display: grid;
+  grid-template-columns: 104px 1fr;
+  gap: 17px;
+  align-items: center;
+  padding-right: 26px;
+}
+
+.money-tracking-page .mt-illustration {
+  width: 104px;
+  height: 104px;
+  border-radius: 25px;
+  display: grid;
+  place-items: center;
+  background: #eaf3ff;
+  color: #087fe5;
+  flex: none;
+}
+
+.money-tracking-page .mt-option-all .mt-illustration { background: #eaf7f0; color: #168b5a; }
+
+.money-tracking-page .mt-illustration svg { width: 76px; height: 76px; }
+
+.money-tracking-page .mt-option-title-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 9px;
+}
+
+.money-tracking-page h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.45px;
+  color: inherit;
+}
+
+.money-tracking-page .mt-recommended {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #0caa61;
+  background: #e5fbf0;
+  border-radius: 7px;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.money-tracking-page .mt-description {
+  margin: 0;
+  color: #83909f;
+  font-size: 14.5px;
+  line-height: 1.55;
+}
+
+.money-tracking-page .mt-option-divider { height: 1px; background: var(--mt-line); margin: 20px 0 17px; }
+
+.money-tracking-page .mt-features {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 15px;
+  row-gap: 11px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.money-tracking-page .mt-feature {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  color: #344256;
+  font-size: 13.5px;
+  line-height: 1.4;
+}
+
+.money-tracking-page .mt-check { color: var(--mt-green); flex: none; margin-top: 1px; }
+
+.money-tracking-page .mt-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 15px;
+  margin-top: 25px;
+}
+
+.money-tracking-page .mt-status { color: #7f8b99; font-size: 13px; margin-right: auto; }
+
+.money-tracking-page .mt-button {
+  border: 0;
+  border-radius: 10px;
+  padding: 13px 22px;
+  background: var(--mt-blue);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(8, 127, 229, 0.18);
+  transition: 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+
+.money-tracking-page .mt-button:hover { background: var(--mt-blue-dark); transform: translateY(-1px); color: #fff; }
+.money-tracking-page .mt-button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
+.money-tracking-page .mt-button svg { flex: none; }
+
+.money-tracking-page .mt-default-source { margin-top: 24px; padding: 26px 24px 22px; }
+
+.money-tracking-page .mt-default-source h2 { margin-bottom: 5px; }
+
+.money-tracking-page .mt-default-source .form-label { font-weight: 650; }
+
+[data-bs-theme="dark"] .money-tracking-page {
+  --mt-ink: #e7edf5;
+  --mt-muted: #9aa7b7;
+  --mt-line: #2c3644;
+  --mt-surface: #1c2430;
+  --mt-blue-soft: #16283a;
+}
+
+[data-bs-theme="dark"] .money-tracking-page .mt-heading-icon,
+[data-bs-theme="dark"] .money-tracking-page .mt-current-icon,
+[data-bs-theme="dark"] .money-tracking-page .mt-section-icon { background: #16283a; }
+
+[data-bs-theme="dark"] .money-tracking-page .mt-option { background: #1c2430; }
+[data-bs-theme="dark"] .money-tracking-page .mt-option.is-selected {
+  background: linear-gradient(145deg, #152a3f 0%, #1c2430 76%);
+}
+[data-bs-theme="dark"] .money-tracking-page .mt-option:hover { border-color: #356a9e; }
+[data-bs-theme="dark"] .money-tracking-page .mt-illustration { background: #16283a; }
+[data-bs-theme="dark"] .money-tracking-page .mt-option-all .mt-illustration { background: #15291f; }
+[data-bs-theme="dark"] .money-tracking-page .mt-description { color: #9aa7b7; }
+[data-bs-theme="dark"] .money-tracking-page .mt-feature { color: #c8d2de; }
+[data-bs-theme="dark"] .money-tracking-page .mt-radio { background: #1c2430; border-color: #4b5a6b; }
+[data-bs-theme="dark"] .money-tracking-page .mt-eyebrow { color: #8c99a8; }
+[data-bs-theme="dark"] .money-tracking-page .mt-status { color: #9aa7b7; }
+[data-bs-theme="dark"] .money-tracking-page .mt-current-tag {
+  color: #7cc0ff;
+  background: #16283a;
+  border-color: #1e3a55;
+}
+[data-bs-theme="dark"] .money-tracking-page .mt-recommended { background: #123324; color: #4ade80; }
+
+@media (max-width: 850px) {
+  .money-tracking-page { max-width: 650px; }
+  .money-tracking-page .mt-options { grid-template-columns: 1fr; }
+  .money-tracking-page .mt-option-top { grid-template-columns: 88px 1fr; }
+  .money-tracking-page .mt-illustration { width: 88px; height: 88px; }
+  .money-tracking-page .mt-illustration svg { width: 66px; height: 66px; }
+}
+
+@media (max-width: 520px) {
+  .money-tracking-page { margin-top: 0; }
+  .money-tracking-page .mt-page-heading { gap: 12px; }
+  .money-tracking-page .mt-heading-icon { width: 46px; height: 46px; }
+  .money-tracking-page h1 { font-size: 23px; }
+  .money-tracking-page .mt-subtitle { font-size: 14px; }
+  .money-tracking-page .mt-current-card { align-items: flex-start; padding: 15px; flex-direction: column; gap: 12px; }
+  .money-tracking-page .mt-current-tag { margin-left: 63px; }
+  .money-tracking-page .mt-chooser { padding: 19px 14px 16px; }
+  .money-tracking-page .mt-section-heading { gap: 10px; margin-bottom: 18px; }
+  .money-tracking-page h2 { font-size: 19px; }
+  .money-tracking-page .mt-section-copy { font-size: 13px; }
+  .money-tracking-page .mt-option,
+  .money-tracking-page .mt-option.is-selected { padding: 17px 14px; }
+  .money-tracking-page .mt-radio { top: 16px; right: 15px; }
+  .money-tracking-page .mt-option-top { grid-template-columns: 65px 1fr; gap: 12px; padding-right: 22px; }
+  .money-tracking-page .mt-illustration { width: 65px; height: 65px; border-radius: 18px; }
+  .money-tracking-page .mt-illustration svg { width: 51px; height: 51px; }
+  .money-tracking-page h3 { font-size: 17px; }
+  .money-tracking-page .mt-description { font-size: 13px; }
+  .money-tracking-page .mt-features { grid-template-columns: 1fr; row-gap: 9px; }
+  .money-tracking-page .mt-option-divider { margin: 16px 0 14px; }
+  .money-tracking-page .mt-actions { flex-direction: column-reverse; align-items: stretch; }
+  .money-tracking-page .mt-status { margin: 0; text-align: center; }
+  .money-tracking-page .mt-button { width: 100%; }
+  .money-tracking-page .mt-default-source { padding: 19px 14px 16px; }
+}
+
+/* Confirmation · simple -> complete (approved prototype). */
+.money-tracking-confirm {
+  --mtc-blue: #0785df;
+  --mtc-blue-dark: #0673c5;
+  --mtc-ink: #172438;
+  --mtc-muted: #8491a0;
+  --mtc-line: #e6ebf2;
+  --mtc-green: #18a968;
+  display: flex;
+  justify-content: center;
+  padding: 0.75rem 0 2.5rem;
+  color: var(--mtc-ink);
+}
+
+.money-tracking-confirm .mt-confirm-panel {
+  width: min(790px, 100%);
+  background: #fff;
+  border: 1px solid var(--mtc-line);
+  border-radius: 20px;
+  padding: 32px 36px 28px;
+  box-shadow: 0 12px 36px rgba(24, 48, 78, 0.055);
+}
+
+.money-tracking-confirm .mt-confirm-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.money-tracking-confirm .mt-confirm-hero-icon {
+  width: 62px;
+  height: 62px;
+  border-radius: 19px;
+  background: #edf6ff;
+  color: var(--mtc-blue);
+  display: grid;
+  place-items: center;
+  margin-bottom: 15px;
+}
+
+.money-tracking-confirm .mt-confirm-hero-icon svg { width: 30px; height: 30px; }
+
+.money-tracking-confirm .mt-confirm-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #0878ce;
+  background: #eff7ff;
+  border: 1px solid #e1f0ff;
+  border-radius: 100px;
+  padding: 6px 11px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.075em;
+  margin-bottom: 13px;
+}
+
+.money-tracking-confirm .mt-confirm-eyebrow .ti { font-size: 12px; }
+
+.money-tracking-confirm h1 {
+  margin: 0;
+  font-size: 29px;
+  line-height: 1.2;
+  letter-spacing: -0.8px;
+  font-weight: 760;
+  color: inherit;
+}
+
+.money-tracking-confirm .mt-confirm-intro {
+  margin: 11px auto 0;
+  max-width: 610px;
+  color: var(--mtc-muted);
+  font-size: 15.5px;
+  line-height: 1.6;
+}
+
+.money-tracking-confirm .mt-confirm-section-title {
+  margin: 28px 0 13px;
+  font-size: 14px;
+  font-weight: 750;
+  color: #344257;
+  line-height: 1.3;
+}
+
+.money-tracking-confirm .mt-confirm-changes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 11px;
+}
+
+.money-tracking-confirm .mt-confirm-change {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 15px 14px;
+  border: 1px solid var(--mtc-line);
+  border-radius: 13px;
+  min-height: 105px;
+}
+
+.money-tracking-confirm .mt-confirm-change-icon {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  display: grid;
+  place-items: center;
+}
+
+.money-tracking-confirm .mt-confirm-change-icon.is-green { background: #eaf8f0; color: var(--mtc-green); }
+.money-tracking-confirm .mt-confirm-change-icon.is-blue { background: #edf6ff; color: var(--mtc-blue); }
+.money-tracking-confirm .mt-confirm-change-icon.is-amber { background: #fff3e4; color: #c47b19; }
+
+.money-tracking-confirm .mt-confirm-change-icon svg { width: 18px; height: 18px; }
+
+.money-tracking-confirm .mt-confirm-change h3,
+.money-tracking-confirm .mt-confirm-preserve h3 {
+  margin: 1px 0 5px;
+  font-size: 13.5px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: inherit;
+}
+
+.money-tracking-confirm .mt-confirm-change p,
+.money-tracking-confirm .mt-confirm-preserve p {
+  margin: 0;
+  color: #7f8b99;
+  font-size: 12.5px;
+  line-height: 1.48;
+}
+
+.money-tracking-confirm .mt-confirm-preserve {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-top: 14px;
+  padding: 15px 16px;
+  border: 1px solid #dcefe4;
+  border-radius: 13px;
+  background: #f4fbf7;
+}
+
+.money-tracking-confirm .mt-confirm-preserve-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: #e1f5e9;
+  color: #15985d;
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+
+.money-tracking-confirm .mt-confirm-preserve-icon svg { width: 19px; height: 19px; }
+
+.money-tracking-confirm .mt-confirm-preserve p { color: #718477; }
+
+.money-tracking-confirm .mt-confirm-note {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 15px 1px 0;
+  color: #7e8a98;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.money-tracking-confirm .mt-confirm-note svg { color: #1684d6; flex: none; }
+
+.money-tracking-confirm .mt-confirm-divider {
+  height: 1px;
+  background: var(--mtc-line);
+  margin: 23px 0 19px;
+}
+
+.money-tracking-confirm .mt-confirm-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.money-tracking-confirm .mt-confirm-footer-copy {
+  margin: 0;
+  color: #8994a1;
+  font-size: 12px;
+  line-height: 1.45;
+  max-width: 270px;
+}
+
+.money-tracking-confirm .mt-confirm-actions { display: flex; gap: 10px; }
+.money-tracking-confirm .mt-confirm-action-form { margin: 0; display: flex; }
+
+.money-tracking-confirm .mt-confirm-primary,
+.money-tracking-confirm .mt-confirm-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  padding: 12px 18px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: 0.16s ease;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.money-tracking-confirm .mt-confirm-primary {
+  border: 1px solid var(--mtc-blue);
+  background: var(--mtc-blue);
+  color: #fff;
+  box-shadow: 0 3px 8px rgba(7, 133, 223, 0.17);
+}
+
+.money-tracking-confirm .mt-confirm-primary:hover {
+  background: var(--mtc-blue-dark);
+  border-color: var(--mtc-blue-dark);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.money-tracking-confirm .mt-confirm-secondary {
+  border: 1px solid #dce4ed;
+  background: #fff;
+  color: #536174;
+}
+
+.money-tracking-confirm .mt-confirm-secondary:hover {
+  background: #f7f9fc;
+  border-color: #c8d3df;
+  color: #536174;
+}
+
+[data-bs-theme="dark"] .money-tracking-confirm {
+  --mtc-ink: #e7edf5;
+  --mtc-muted: #9aa7b7;
+  --mtc-line: #2c3644;
+}
+
+[data-bs-theme="dark"] .money-tracking-confirm .mt-confirm-panel { background: #1c2430; }
+[data-bs-theme="dark"] .money-tracking-confirm .mt-confirm-hero-icon { background: #16283a; }
+[data-bs-theme="dark"] .money-tracking-confirm .mt-confirm-simple .mt-confirm-hero-icon {
+  background: #2b2114;
+  color: #e0a04a;
+}
+[data-bs-theme="dark"] .money-tracking-confirm .mt-confirm-simple .mt-confirm-eyebrow {
+  background: #2b2216;
+  border-color: #4a3a22;
+  color: #e3b06b;
+}
+[data-bs-theme="dark"] .money-tracking-confirm .mt-confirm-eyebrow {
+  color: #7cc0ff;
+  background: #16283a;
+  border-color: #1e3a55;
+}
+[data-bs-theme="dark"] .money-tracking-confirm .mt-confirm-change { background: #1c2430; }
+[data-bs-theme="dark"] .money-tracking-confirm .mt-confirm-change-icon.is-green { background: #15291f; color: #4ade80; }
+[data-bs-theme="dark"] .money-tracking-confirm .mt-confirm-change-icon.is-blue { background: #16283a; color: #60a5fa; }
+[data-bs-theme="dark"] .money-tracking-confirm .mt-confirm-change-icon.is-amber { background: #2b2114; color: #d99a45; }
+[data-bs-theme="dark"] .money-tracking-confirm .mt-confirm-change p { color: #9aa7b7; }
+[data-bs-theme="dark"] .money-tracking-confirm .mt-confirm-section-title { color: #c8d2de; }
+[data-bs-theme="dark"] .money-tracking-confirm .mt-confirm-preserve {
+  background: #14251c;
+  border-color: #214333;
+}
+[data-bs-theme="dark"] .money-tracking-confirm .mt-confirm-preserve-icon { background: #183527; }
+[data-bs-theme="dark"] .money-tracking-confirm .mt-confirm-preserve p { color: #9cb3a4; }
+[data-bs-theme="dark"] .money-tracking-confirm .mt-confirm-note,
+[data-bs-theme="dark"] .money-tracking-confirm .mt-confirm-footer-copy { color: #9aa7b7; }
+[data-bs-theme="dark"] .money-tracking-confirm .mt-confirm-secondary {
+  background: #1c2430;
+  border-color: #3a4656;
+  color: #c8d2de;
+}
+[data-bs-theme="dark"] .money-tracking-confirm .mt-confirm-secondary:hover {
+  background: #232d3a;
+  border-color: #4a586a;
+}
+
+@media (max-width: 650px) {
+  .money-tracking-confirm { padding: 0 0 1.5rem; }
+  .money-tracking-confirm .mt-confirm-panel { padding: 23px 16px 18px; border-radius: 16px; }
+  .money-tracking-confirm .mt-confirm-hero-icon { width: 54px; height: 54px; }
+  .money-tracking-confirm h1 { font-size: 23px; letter-spacing: -0.5px; }
+  .money-tracking-confirm .mt-confirm-intro { font-size: 14px; }
+  .money-tracking-confirm .mt-confirm-section-title { margin-top: 23px; }
+  .money-tracking-confirm .mt-confirm-changes { grid-template-columns: 1fr; gap: 9px; }
+  .money-tracking-confirm .mt-confirm-change { min-height: 0; padding: 13px; }
+  .money-tracking-confirm .mt-confirm-footer { flex-direction: column-reverse; align-items: stretch; }
+  .money-tracking-confirm .mt-confirm-actions { flex-direction: column; }
+  .money-tracking-confirm .mt-confirm-action-form { display: block; }
+  .money-tracking-confirm .mt-confirm-primary,
+  .money-tracking-confirm .mt-confirm-secondary { width: 100%; padding: 13px; }
+  .money-tracking-confirm .mt-confirm-footer-copy { max-width: none; text-align: center; }
+}
+
+
+.money-tracking-confirm .mt-confirm-simple .mt-confirm-hero-icon {
+  background: #fff3e4;
+  color: #c47b19;
+}
+
+.money-tracking-confirm .mt-confirm-simple .mt-confirm-eyebrow {
+  color: #a76512;
+  background: #fff6e9;
+  border-color: #f6e6cf;
+}
+
+.money-tracking-confirm .mt-confirm-simple .mt-confirm-intro { max-width: 680px; }

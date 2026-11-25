@@ -341,10 +341,15 @@ class MoneySourcesController < ApplicationController
 
   # DELETE /money_sources/1
   def destroy
-    if @money_source.destroy
-      redirect_to kind_index_path(@money_source), notice: t("money_sources.flashes.deleted")
+    if @money_source.pocket? && @money_source.goals.exists?
+      redirect_to kind_index_path(@money_source),
+                  alert: t("money_sources.flashes.delete_blocked")
+    elsif @money_source.recurring_templates.exists?
+      redirect_to kind_index_path(@money_source),
+                  alert: t("money_sources.flashes.recurring_blocked")
     else
-      redirect_to kind_index_path(@money_source), alert: t("money_sources.flashes.delete_blocked")
+      @money_source.soft_delete!
+      redirect_to kind_index_path(@money_source), notice: t("money_sources.flashes.deleted")
     end
   end
 
