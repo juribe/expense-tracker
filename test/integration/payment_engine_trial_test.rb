@@ -15,6 +15,17 @@ class PaymentEngineTrialTest < ActionDispatch::IntegrationTest
     assert_nil m.purchase_id
     assert_nil m.subscription_id
   end
+  test "trial expires exactly the configured number of days after it starts" do
+    PaymentEngine::Setting.current.update!(free_trial_duration_days: 30)
+
+    post start_trial_plans_path
+
+    membership = PaymentEngine::Membership.where(owner: @user, source: "trial").last
+    assert membership.present?
+    assert_equal 30, ((membership.expires_at - membership.starts_at) / 1.day).round(6)
+    assert_in_delta 30.days.to_i, (membership.expires_at - membership.starts_at).to_i, 1
+  end
+
   test "cannot start second trial" do
     PaymentEngine::Memberships::StartFreeTrial.call(owner: @user)
     post start_trial_plans_path
