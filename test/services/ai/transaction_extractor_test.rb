@@ -12,6 +12,17 @@ module Ai
       assert_equal %i[cheap strong], Ai::Tasks::TransactionExtraction.new.tiers
     end
 
+    test "tells the model today's date and how to use it when the email has no date" do
+      today = Date.new(2026, 11, 24)
+      messages = Ai::Tasks::TransactionExtraction.new.messages(
+        { subject: "Compra", body: "hiciste una compra", categories: [] },
+        { today: today }
+      )
+
+      assert_match(/use today's\s+date/, messages.first[:content])
+      assert_includes messages.last[:content], "Today's date: 2026-11-24"
+    end
+
     def parse(raw, today = Date.current)
       Ai::TransactionExtractor.parse(raw, today: today)
     end

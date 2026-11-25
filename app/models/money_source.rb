@@ -15,6 +15,11 @@
 #
 # Example: source.used_credit
 class MoneySource < ApplicationRecord
+  # Removed sources are archived instead of hard-deleted when they own
+  # financial history. Every list/selector uses non-archived sources by
+  # default; `with_deleted` reaches the preserved record when needed.
+  default_scope { where(deleted_at: nil) }
+
   KINDS = %w[account debit_card credit_card cash wallet pocket loan general].freeze
 
   include Reconciliation::Invalidatable
@@ -75,12 +80,13 @@ class MoneySource < ApplicationRecord
   validates :starting_balance, numericality: true
   validates :gmf_exempt, inclusion: { in: [ true, false ] }
   validates :general, inclusion: { in: [ true, false ] }
-  validates :general, uniqueness: { scope: :user_id }, if: :general?
+  validates :general, uniqueness: { scope: :user_id, conditions: -> { where(deleted_at: nil) } }, if: :general?
   validate :institution_belongs_to_owner, if: :institution?
   validate :parent_belongs_to_user
   validate :parent_must_not_be_self
   validate :gmf_exempt_only_for_eligible_accounts
 
+  scope :with_deleted, -> { unscope(where: :deleted_at) }
   scope :active, -> { where(active: true) }
   scope :by_kind, ->(kind) { where(kind: kind) }
   scope :pockets, -> { by_kind("pocket") }
@@ -90,6 +96,20 @@ class MoneySource < ApplicationRecord
   scope :payment_sources, -> { where(kind: PAYMENT_KINDS) }
   scope :funding_sources, -> { by_kind("loan").where(sub_kind: "revolving") }
   scope :debt_payment_targets, -> { where(kind: %w[credit_card loan]) }
+
+  # The General source survives the simple -> advanced conversion so its
+  # history keeps working. An empty shell left behind for accounts that never
+  # used simple mode (mode backfills, same-mode switches) is not a real
+  # account and stays out of the advanced accounts list.
+  scope :excluding_unused_general, lambda { |default_source_id: nil|
+    where(
+      "money_sources.general = FALSE " \
+      "OR money_sources.id = :default_id " \
+      "OR EXISTS (SELECT 1 FROM transactions WHERE transactions.money_source_id = money_sources.id) " \
+      "OR EXISTS (SELECT 1 FROM money_sources children WHERE children.parent_id = money_sources.id)",
+      default_id: default_source_id
+    )
+  }
 
   # Sources that can originate a payment, with credit data loaded for
   # display_name. Loans never pay an expense directly — their money lives in
@@ -155,6 +175,17 @@ class MoneySource < ApplicationRecord
 
   def general?
     general.present?
+  end
+
+  def soft_deleted?
+    deleted_at.present?
+  end
+
+  # Hides the source while keeping its movements and history. The `general`
+  # flag is preserved: the partial unique index only considers active rows, so
+  # switching back to simple can reuse the archived General.
+  def soft_delete!
+    update!(deleted_at: Time.current, active: false)
   end
 
   # A converted General account may return to the basic kind only when it has

@@ -19,13 +19,16 @@ class Expense < Transaction
   # an explicit span (pay-cycle callers pass the cycle's range). `count` is
   # the period's whole expense count — the recent list caps at 5 for display,
   # so cards that show "how many" must use count.
-  def self.dashboard_summary(user:, month: Time.zone.today, range: nil)
+  def self.dashboard_summary(user:, month: Time.zone.today, range: nil, include_money_source: true)
     expenses = range ? for_user(user).where(date: range) : for_user(user).in_month(month)
     total_amount = expenses.sum(:amount)
     by_category = expenses.joins(:category).group("categories.name").sum(Arel.sql("ABS(amount)"))
     # The dashboard table renders MoneySource#display_name, which reads
     # credit_account; without the nested preload it is one query per row.
-    recent_expenses = expenses.recent(5).includes(:category, money_source: :credit_account)
+    # Simple tracking hides the source column, so callers there skip the
+    # preload instead of eager loading an association the view never reads.
+    recent_expenses = expenses.recent(5).includes(:category)
+    recent_expenses = recent_expenses.includes(money_source: :credit_account) if include_money_source
     {
       count: expenses.count,
       total_amount: total_amount,

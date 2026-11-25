@@ -1,0 +1,85 @@
+<%# Prototype-matched mode cards. Values stay `simple`/`detailed` (backend). %>
+<% selected_mode = local_assigns.fetch(:selected_mode, "simple") %>
+<% simple_selected = selected_mode == "simple" %>
+<% detailed_selected = selected_mode == "detailed" %>
+
+<label class="mt-option<%= " is-selected" if simple_selected %>" data-mode="simple"
+       data-testid="money-tracking-option-simple">
+  <%= radio_button_tag :money_tracking_mode, "simple", simple_selected,
+                       class: "mt-option-input", id: "money_tracking_mode_simple" %>
+  <span class="mt-radio" aria-hidden="true"></span>
+
+  <div class="mt-option-top">
+    <div class="mt-illustration" aria-hidden="true">
+      <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="17" y="12" width="53" height="72" rx="5" fill="#fff" stroke="#243b55"/>
+        <path d="M27 29h34M27 42h34M27 55h24" stroke="#0798d6" stroke-width="3"/>
+        <path d="M27 68h19" stroke="#0798d6" stroke-width="3"/>
+        <path d="M70 48a23 23 0 1 1-16 6" fill="#d9f7e7" stroke="#159b62"/>
+        <path d="M70 48v23H47" fill="#20bf75" stroke="#159b62"/>
+        <path d="M70 48a23 23 0 0 1 23 23H70z" fill="#a5edc7" stroke="#159b62"/>
+      </svg>
+    </div>
+    <div>
+      <div class="mt-option-title-row">
+        <h3>Quiero controlar mis gastos</h3>
+        <span class="mt-recommended">★ Recomendado</span>
+      </div>
+      <p class="mt-description">
+        Lo importante para mí es saber cuánto gasto, en qué categorías y cómo organizar mi presupuesto.
+      </p>
+    </div>
+  </div>
+
+  <div class="mt-option-divider"></div>
+
+  <ul class="mt-features">
+    <li class="mt-feature"><span class="mt-check" aria-hidden="true">✓</span>Registrar ingresos y gastos</li>
+    <li class="mt-feature"><span class="mt-check" aria-hidden="true">✓</span>Reportes</li>
+    <li class="mt-feature"><span class="mt-check" aria-hidden="true">✓</span>Categorías</li>
+    <li class="mt-feature"><span class="mt-check" aria-hidden="true">✓</span>Análisis de gastos</li>
+    <li class="mt-feature"><span class="mt-check" aria-hidden="true">✓</span>Presupuestos</li>
+    <li class="mt-feature"><span class="mt-check" aria-hidden="true">✓</span>Automatizaciones e IA según el plan contratado</li>
+    <li class="mt-feature"><span class="mt-check" aria-hidden="true">✓</span>Gastos mensuales</li>
+  </ul>
+</label>
+
+<label class="mt-option mt-option-all<%= " is-selected" if detailed_selected %>" data-mode="detailed"
+       data-testid="money-tracking-option-detailed">
+  <%= radio_button_tag :money_tracking_mode, "detailed", detailed_selected,
+                       class: "mt-option-input", id: "money_tracking_mode_detailed" %>
+  <span class="mt-radio" aria-hidden="true"></span>
+
+  <div class="mt-option-top">
+    <div class="mt-illustration" aria-hidden="true">
+      <svg viewBox="0 0 100 100" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M47 18 17 32h60L47 18Z" fill="#bce8d0" stroke="#28734f" stroke-width="2.5"/>
+        <path d="M22 36h50M26 39v27M38 39v27M55 39v27M67 39v27M20 68h54M16 74h62" stroke="#28734f" stroke-width="2.5"/>
+        <rect x="5" y="53" width="54" height="29" rx="5" transform="rotate(-8 5 53)" fill="#168be5" stroke="#155a91" stroke-width="2.5"/>
+        <path d="m13 62 15-2M15 72l20-3" stroke="#fff" stroke-width="3"/>
+        <path d="M47 26h1" stroke="#28734f" stroke-width="3"/>
+      </svg>
+    </div>
+    <div>
+      <div class="mt-option-title-row">
+        <h3>Quiero administrar todas mis cuentas</h3>
+      </div>
+      <p class="mt-description">
+        Quiero saber cuánto tengo en cada cuenta, cuánto debo en mis tarjetas y cómo se mueve mi dinero.
+      </p>
+    </div>
+  </div>
+
+  <div class="mt-option-divider"></div>
+
+  <ul class="mt-features">
+    <li class="mt-feature"><span class="mt-check" aria-hidden="true">✓</span>Todo lo incluido en seguimiento simple</li>
+    <li class="mt-feature"><span class="mt-check" aria-hidden="true">✓</span>Préstamos</li>
+    <li class="mt-feature"><span class="mt-check" aria-hidden="true">✓</span>Cuentas bancarias</li>
+    <li class="mt-feature"><span class="mt-check" aria-hidden="true">✓</span>Transferencias</li>
+    <li class="mt-feature"><span class="mt-check" aria-hidden="true">✓</span>Tarjetas de crédito</li>
+    <li class="mt-feature"><span class="mt-check" aria-hidden="true">✓</span>Saldos individuales</li>
+    <li class="mt-feature"><span class="mt-check" aria-hidden="true">✓</span>Efectivo y billeteras</li>
+    <li class="mt-feature"><span class="mt-check" aria-hidden="true">✓</span>Conciliación y cuadre de saldos</li>
+  </ul>
+</label>

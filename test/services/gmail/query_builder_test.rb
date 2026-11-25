@@ -19,6 +19,21 @@ module Gmail
       assert_includes query, "from:(notifications@bank.com OR cards.bank.com)"
     end
 
+    test "ignores subject keywords when senders or domains are configured" do
+      query = build({ senders: [ "jse.uribe@gmail.com" ], domains: [ "bank.com" ],
+                      subject_keywords: [ "DAVIbank en Linea" ] })
+
+      assert_includes query, "from:(jse.uribe@gmail.com OR bank.com)"
+      refute_includes query, "subject:"
+    end
+
+    test "uses subject keywords when no senders or domains are configured" do
+      query = build({ subject_keywords: [ "compra", "pago" ] })
+
+      assert_includes query, 'subject:("compra" OR "pago")'
+      refute_includes query, "from:"
+    end
+
     test "omits from clause when no senders configured" do
       refute build({}).include?("from:")
     end
@@ -52,5 +67,5 @@ module Gmail
 
     assert_includes query, 'subject:("weird")'
   end
-end
+  end
 end

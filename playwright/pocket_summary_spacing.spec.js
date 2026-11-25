@@ -12,8 +12,9 @@ test.describe('Pocket summary spacing', () => {
     await createMoneySource(page, name, 'pocket', { startingBalance: '100000' });
 
     const card = page.locator('[data-testid="pocket-card"]', { hasText: name }).first();
-    await card.locator('[data-testid="card-actions-toggle"]').click();
-    await card.getByRole('link', { name: 'Ver detalle' }).click();
+    // The footer's primary action is always visible; opening the dropdown menu
+    // to reach the same destination is prone to Bootstrap timing races.
+    await card.getByRole('link', { name: 'Ver bolsillo' }).click();
 
     const balanceCard = page.locator('[data-testid="pocket-summary"]');
     const goalsCard = page.locator('#pocket-goals');

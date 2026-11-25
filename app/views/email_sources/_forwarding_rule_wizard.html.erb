@@ -47,13 +47,13 @@
             </span>
           </button>
 
-          <button type="button" class="bank-wizard-nav-item bank-wizard-nav-item-important"
+          <button type="button" class="bank-wizard-nav-item"
                   data-forwarding-go="rule" data-forwarding-nav-item
                   data-testid="forwarding-wizard-nav-rule">
-            <span class="bank-wizard-nav-num" aria-hidden="true"><i class="ti ti-flag"></i></span>
+            <span class="bank-wizard-nav-num">2</span>
             <span class="bank-wizard-nav-copy">
-              <span class="bank-wizard-nav-label"><%= t("email_sources.forwarding_rule.wizard.nav_rule", default: "Crea tu regla") %></span>
-              <span class="bank-wizard-nav-state"><%= t("email_sources.forwarding_rule.wizard.nav_rule_state", default: "Paso importante") %></span>
+              <span class="bank-wizard-nav-label"><%= t("email_sources.forwarding_rule.wizard.nav_rule", default: "Configura el reenvío") %></span>
+              <span class="bank-wizard-nav-state"><%= t("email_sources.forwarding_rule.wizard.nav_rule_state", default: "Configuración") %></span>
             </span>
           </button>
         </nav>
@@ -109,11 +109,11 @@
               <div class="bank-wizard-bank-identity">
                 <span class="bank-wizard-bank-logo is-important" aria-hidden="true"><i class="ti ti-filter"></i></span>
                 <div class="min-w-0">
-                  <h3 class="bank-wizard-bank-title"><%= t("email_sources.forwarding_rule.wizard.rule_title", default: "Crea tu regla de reenvío") %></h3>
+                  <h3 class="bank-wizard-bank-title"><%= t("email_sources.forwarding_rule.wizard.rule_title", default: "Configura el reenvío") %></h3>
                   <p class="bank-wizard-bank-desc"><%= t("email_sources.forwarding_rule.wizard.rule_subtitle", default: "Elige tu proveedor y copia la regla en su configuración.") %></p>
                 </div>
               </div>
-              <span class="bank-wizard-counter"><%= t("email_sources.forwarding_rule.wizard.nav_rule_state", default: "Paso importante") %></span>
+              <span class="bank-wizard-counter"><%= t("email_sources.forwarding_rule.wizard.nav_rule_state", default: "Configuración") %></span>
             </header>
 
             <div class="bank-wizard-filter-card">
@@ -144,7 +144,7 @@
                 <label for="forwarding_rule_senders" class="form-label">
                   <%= t("email_sources.forwarding_rule.senders", default: "Remitentes o dominios de bancos") %>
                 </label>
-                <textarea id="forwarding_rule_senders" class="form-control" rows="3"
+                <textarea id="forwarding_rule_senders" class="form-control" rows="2"
                           placeholder="notifications@bank.com, bank.com"></textarea>
                 <div class="form-text">
                   <%= t("email_sources.forwarding_rule.senders_help", default: "Uno por línea o separados por coma.") %>

@@ -90,7 +90,8 @@ module Ai
           in the email; never the customer's identification number.
         - Amounts must be positive numbers in the smallest published unit shown by the bank
           ("$48.500" COP means 48500).
-        - Use ISO datetimes for occurred_at.
+        - Use ISO datetimes for occurred_at. When the email does not state a date, use today's
+          date from the user message instead of inventing one.
         - Category rules:
           - When no label matches literally, infer the category from the merchant: a recognizable
             merchant selling food, snacks or bakery items (e.g. "PANQUESUDO VILLA CAROL") maps to

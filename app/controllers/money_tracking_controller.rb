@@ -41,7 +41,7 @@ class MoneyTrackingController < ApplicationController
       return
     end
 
-    if requires_simple_confirmation?(mode)
+    if requires_mode_confirmation?(mode)
       @selected_mode = mode
       render :confirm
       return
@@ -60,7 +60,13 @@ class MoneyTrackingController < ApplicationController
 
   private
 
-  def requires_simple_confirmation?(mode)
-    mode == "simple" && current_user.money_tracking_detailed? && params[:confirmed].to_s != "1"
+  # Every mode change from the settings screen asks for confirmation. The
+  # first selection during onboarding does not, so new accounts still reach
+  # the app in a single step.
+  def requires_mode_confirmation?(mode)
+    return false unless current_user.money_tracking_mode_selected?
+    return false if params[:confirmed].to_s == "1"
+
+    current_user.money_tracking_mode != mode
   end
 end

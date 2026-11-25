@@ -225,8 +225,11 @@
                     <i class="ti ti-coin"></i><i class="ti ti-coin"></i>
                   </span>
                   <h5 class="card-title"><%= simple_money_view ? t("money_tracking.balance_registered", default: "Saldo registrado") : t("money_sources.show.current_balance") %></h5>
-                  <div class="stat-value <%= simple_money_view && @money_source.balance.negative? ? "text-danger" : "text-success" %> mb-2"><%= @money_source.balance_label %></div>
-                  <% if @money_source.negative_balance_warning? %>
+                  <% simple_balance = simple_money_view ? (@simple_recorded_balance || 0.to_d) : @money_source.balance %>
+                  <div class="stat-value <%= simple_money_view && simple_balance.negative? ? "text-danger" : "text-success" %> mb-2">
+                    <%= simple_money_view ? MoneyFormat.currency(simple_balance) : @money_source.balance_label %>
+                  </div>
+                  <% if simple_money_view ? simple_balance.negative? : @money_source.negative_balance_warning? %>
                     <span class="badge text-bg-warning mt-2" data-testid="negative-balance-warning">
                       <i class="ti ti-alert-triangle me-1"></i><%= simple_money_view ? t("money_tracking.negative_balance_message", default: "Los gastos registrados superan los ingresos registrados.") : t("money_sources.negative_balance_warning") %>
                     </span>
@@ -245,10 +248,12 @@
                         <div class="text-muted small"><%= t("money_tracking.period_expenses", default: "Gastos del período") %></div>
                         <div class="fs-5 fw-bold text-danger">−<%= number_to_currency(@statement.exits_total) %></div>
                       </div>
+                      <% period_balance = @statement.entries_total - @statement.exits_total %>
                       <div class="col-4">
                         <div class="text-muted small"><%= t("money_tracking.period_balance", default: "Balance del período") %></div>
-                        <div class="fs-5 fw-bold <%= @statement.closing_balance.negative? ? "text-danger" : "text-success" %>">
-                          <%= number_to_currency(@statement.closing_balance) %>
+                        <div class="fs-5 fw-bold <%= period_balance.negative? ? "text-danger" : "text-success" %>"
+                             data-testid="my-money-period-balance">
+                          <%= number_to_currency(period_balance) %>
                         </div>
                       </div>
                     </div>

@@ -144,6 +144,65 @@ class IncomesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-testid=summary-monthly]", text: "1"
   end
 
+  test "GET /incomes lists only incomes from the selected financial cycle" do
+    @user.update!(financial_cycle_start_day: 20)
+    cycle = PayCycle.current(@user)
+    category = income_category("Salario ciclo lista")
+    source = @user.money_sources.create!(name: "Cuenta ciclo lista", kind: "account")
+    current_income = @user.incomes.create!(amount: 800_000, description: "Salario actual", date: cycle.starts,
+                                           category: category, money_source: source)
+    previous_income = @user.incomes.create!(amount: 900_000, description: "Salario anterior",
+                                            date: cycle.starts - 1.day,
+                                            category: category, money_source: source)
+
+    get incomes_path
+
+    assert_response :success
+    assert_select "[data-testid=row][data-id='#{current_income.id}']"
+    assert_select "[data-testid=row][data-id='#{previous_income.id}']", count: 0
+    assert_select "[data-testid=row]", count: 1
+  end
+
+  test "GET /incomes searches a date range outside the current cycle" do
+    @user.update!(financial_cycle_start_day: 20)
+    cycle = PayCycle.current(@user)
+    previous_cycle = PayCycle.previous(@user, anchor: cycle.starts)
+    category = income_category("Salario rango")
+    source = @user.money_sources.create!(name: "Cuenta rango", kind: "account")
+    previous_income = @user.incomes.create!(amount: 700_000, description: "Salario ciclo pasado",
+                                            date: previous_cycle.starts,
+                                            category: category, money_source: source)
+    current_income = @user.incomes.create!(amount: 800_000, description: "Salario ciclo actual",
+                                           date: cycle.starts,
+                                           category: category, money_source: source)
+
+    get incomes_path(start_date: previous_cycle.starts.to_s, end_date: previous_cycle.ends.to_s)
+
+    assert_response :success
+    assert_select "[data-testid=cycle-badge]", count: 0
+    assert_select "[data-testid=row][data-id='#{previous_income.id}']"
+    assert_select "[data-testid=row][data-id='#{current_income.id}']", count: 0
+    assert_select "[data-testid=summary-count]", text: "1"
+    summary_total = css_select("[data-testid=summary-total]").first.text
+    assert_includes summary_total, "700.000"
+  end
+
+  test "GET /incomes rejects an invalid date filter" do
+    get incomes_path(start_date: "no-es-fecha")
+
+    assert_response :success
+    assert_select "[data-testid=row]", count: 0
+    assert_select ".invalid-feedback", text: /fecha/i
+  end
+
+  test "GET /incomes rejects a date range where Desde is after Hasta" do
+    get incomes_path(start_date: Date.current.to_s, end_date: (Date.current - 5.days).to_s)
+
+    assert_response :success
+    assert_select "[data-testid=row]", count: 0
+    assert_select ".invalid-feedback", text: /posterior/
+  end
+
   test "GET /incomes summarizes the calendar month when no cycle is configured" do
     @user.update!(financial_cycle_start_day: 1)
     category = income_category("Salario mes")

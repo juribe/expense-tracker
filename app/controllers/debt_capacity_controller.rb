@@ -3,6 +3,10 @@
 # DebtCapacityController
 # GET /debt_capacity — independent debt and borrowing-capacity overview.
 class DebtCapacityController < ApplicationController
+  # Debt capacity belongs to advanced tracking: simple accounts have no debts
+  # to simulate. The mode guard runs before the premium gate so a simple user
+  # is sent back to the dashboard instead of seeing the premium lock page.
+  before_action :require_detailed_money_tracking
   require_premium
 
   def show

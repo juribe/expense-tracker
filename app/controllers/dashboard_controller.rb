@@ -18,7 +18,9 @@ class DashboardController < ApplicationController
 
   def load_dashboard
     resolve_period
-    @expense_summary = Expense.dashboard_summary(user: current_user, range: @span)
+    @expense_summary = Expense.dashboard_summary(
+      user: current_user, range: @span, include_money_source: money_tracking_detailed?
+    )
     @cycle_summary = Dashboard::CycleSummary.new(user: current_user, span: @span, previous_span: previous_span).call
     @budgets = current_user.budgets.includes(:category)
     @spending_by_category_id = @budgets.any? ? Expense.spending_by_category_id(user: current_user, range: @span) : {}

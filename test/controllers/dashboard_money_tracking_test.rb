@@ -18,7 +18,24 @@ class DashboardMoneyTrackingTest < ActionDispatch::IntegrationTest
     assert_select "a", text: "Tarjetas de Crédito", count: 0
     assert_select "a", text: "Transferencias", count: 0
     assert_select "a", text: "Día de Balance", count: 0
+    assert_select "a[href=?]", debt_capacity_path, count: 0
     assert_select "a", text: "Seguimiento de dinero"
+  end
+
+  test "simple dashboard does not preload money sources for hidden source columns" do
+    user = simple_user
+    category = Category.create!(name: "Comida simple", is_default: true, category_type: "expense")
+    user.expenses.create!(amount: 18_500, date: Date.current, category: category,
+                          description: "Café", money_source: user.general_money_source)
+    sign_in user
+
+    with_bullet_raising do
+      get dashboard_path
+    end
+
+    assert_response :success
+    assert_select "[data-testid=dashboard-recent-expenses]", text: /Café/
+    assert_select "th", text: "Fuente de dinero", count: 0
   end
 
   test "advanced mode keeps account metrics and advanced navigation" do
@@ -33,6 +50,7 @@ class DashboardMoneyTrackingTest < ActionDispatch::IntegrationTest
     assert_select "a", text: "Tarjetas de Crédito"
     assert_select "a", text: "Transferencias"
     assert_select "a", text: "Día de Balance"
+    assert_select "a[href=?]", debt_capacity_path
     assert_select "a", text: "Seguimiento de dinero"
   end
 
@@ -109,7 +127,35 @@ class DashboardMoneyTrackingTest < ActionDispatch::IntegrationTest
     assert_select "a", text: /Bolsillo/, count: 0
   end
 
+  test "advanced dashboard keeps the source preload used by the source column" do
+    user = detailed_user
+    category = Category.create!(name: "Comida avanzada", is_default: true, category_type: "expense")
+    source = user.money_sources.create!(name: "Cuenta avanzada", kind: "account", starting_balance: 100_000)
+    user.expenses.create!(amount: 9_000, date: Date.current, category: category,
+                          description: "Almuerzo", money_source: source)
+    sign_in user
+
+    with_bullet_raising do
+      get dashboard_path
+    end
+
+    assert_response :success
+    assert_select "[data-testid=dashboard-recent-expenses]", text: /Cuenta avanzada/
+    assert_select "th", text: "Fuente de dinero"
+  end
+
   private
+
+  # Runs the request with Bullet raising so an unused preload fails the test
+  # instead of only logging a warning in development.
+  def with_bullet_raising
+    Bullet.enable = true
+    Bullet.raise = true
+    yield
+  ensure
+    Bullet.enable = false
+    Bullet.raise = false
+  end
 
   def simple_user
     user = User.create!(name: "Simple Dashboard", email: "simple_dashboard_#{SecureRandom.hex(4)}@example.com",

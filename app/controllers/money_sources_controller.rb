@@ -48,11 +48,20 @@ class MoneySourcesController < ApplicationController
     end
 
     scope = scope.where(kind: FILTERS[@filter])
+    # Advanced accounts only list a General source that came from the simple
+    # flow with history; empty conversion shells stay hidden.
+    if @filter == "cash"
+      scope = scope.excluding_unused_general(default_source_id: current_user.default_money_source_id)
+    end
 
     @money_sources = scope.order(:kind, :name)
     load_pocket_list_context if @filter == "pockets"
     @counts = FILTERS.each_with_object({}) do |(key, kinds), out|
-      out[key] = current_user.money_sources.where(kind: kinds).count
+      count_scope = current_user.money_sources.where(kind: kinds)
+      if key == "cash"
+        count_scope = count_scope.excluding_unused_general(default_source_id: current_user.default_money_source_id)
+      end
+      out[key] = count_scope.count
     end
     @setup = current_user.financial_setups
                          .where(status: %w[in_progress dismissed])
@@ -332,10 +341,15 @@ class MoneySourcesController < ApplicationController
 
   # DELETE /money_sources/1
   def destroy
-    if @money_source.destroy
-      redirect_to kind_index_path(@money_source), notice: t("money_sources.flashes.deleted")
+    if @money_source.pocket? && @money_source.goals.exists?
+      redirect_to kind_index_path(@money_source),
+                  alert: t("money_sources.flashes.delete_blocked")
+    elsif @money_source.recurring_templates.exists?
+      redirect_to kind_index_path(@money_source),
+                  alert: t("money_sources.flashes.recurring_blocked")
     else
-      redirect_to kind_index_path(@money_source), alert: t("money_sources.flashes.delete_blocked")
+      @money_source.soft_delete!
+      redirect_to kind_index_path(@money_source), notice: t("money_sources.flashes.deleted")
     end
   end
 

@@ -43,6 +43,40 @@ class MoneySourceGeneralTest < ActiveSupport::TestCase
     assert general.payment_source?
   end
 
+  test "soft deleting General hides it but keeps its movements and frees the slot" do
+    general = MoneySources::General.ensure_for(@user)
+    category = Category.create!(name: "General archivada", is_default: true, category_type: "expense")
+    expense = @user.expenses.create!(amount: 10_000, date: Date.current, description: "Gasto archivado",
+                                     category: category, source: "ai", money_source: general)
+
+    general.soft_delete!
+
+    archived = MoneySource.with_deleted.find(general.id)
+    assert archived.soft_deleted?
+    refute archived.active?
+    assert archived.general?
+    refute_includes @user.money_sources.reload.map(&:id), general.id
+    assert_equal general.id, expense.reload.money_source_id
+    assert_equal general.id, expense.money_source.id
+    assert Expense.exists?(expense.id)
+
+    restored = MoneySources::General.ensure_for_simple(@user)
+    assert_equal general.id, restored.id
+    refute restored.soft_deleted?
+    assert restored.general?
+  end
+
+  test "an archived General does not block creating a new active one" do
+    archived = MoneySources::General.ensure_for(@user)
+    archived.soft_delete!
+
+    fresh = MoneySources::General.ensure_for(@user)
+
+    refute_equal archived.id, fresh.id
+    assert fresh.general?
+    assert fresh.persisted?
+  end
+
   test "only one General source may exist per user" do
     first = MoneySources::General.ensure_for(@user)
 

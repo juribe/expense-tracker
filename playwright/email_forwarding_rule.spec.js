@@ -17,10 +17,12 @@ test.describe('simple email forwarding wizard', () => {
     await expect(explainStep).toBeVisible();
     await expect(explainStep).toContainText('regla de reenvío');
     await expect(ruleStep).toBeHidden();
+    await expect(page.getByTestId('forwarding-wizard-nav-rule')).toContainText('Configura el reenvío');
 
     await page.getByTestId('forwarding-wizard-next').click();
 
     await expect(ruleStep).toBeVisible();
+    await expect(ruleStep).toContainText('Configura el reenvío');
     await expect(explainStep).toBeHidden();
 
     await page.locator('#forwarding_rule_senders').fill('notifications@bank.com\nbank.com');

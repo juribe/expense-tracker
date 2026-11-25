@@ -231,6 +231,29 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_match(/500\.000/, response.body)
   end
 
+  test "GET /money_sources/cash hides an unused General shell left in advanced mode" do
+    general = @user.money_sources.create!(name: "General", kind: "account", general: true, starting_balance: 0)
+    create_source(name: "Checking", kind: "account")
+
+    get money_sources_cash_path
+
+    assert_response :success
+    assert_select "[data-testid='account-card']", count: 1
+    assert_select "a[href=?]", money_source_path(general, tab: "resumen"), count: 0
+    assert_select "a[href=?]", money_source_path(@user.money_sources.find_by(name: "Checking"), tab: "resumen")
+  end
+
+  test "GET /money_sources/cash lists a General account that carries simple history" do
+    general = @user.money_sources.create!(name: "General", kind: "account", general: true,
+                                          starting_balance: 100_000)
+    @user.expenses.create!(amount: 10_000, date: Date.current, description: "Café", money_source: general)
+
+    get money_sources_cash_path
+
+    assert_response :success
+    assert_select "a[href=?]", money_source_path(general, tab: "resumen"), text: /General/
+  end
+
   test "GET /money_sources/cash links each account card to the summary tab" do
     account = create_source(name: "Checking", kind: "account")
 
@@ -1296,12 +1319,63 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "vehicle", loan.reload.sub_kind
   end
 
-  test "DELETE /money_sources/:id destroys the money source" do
+  test "DELETE /money_sources/:id soft deletes General and keeps its movements" do
+    general = @user.money_sources.create!(name: "General", kind: "account", general: true)
+    category = Category.create!(name: "General archivada ctrl", is_default: true, category_type: "expense")
+    expense = @user.expenses.create!(amount: 12_000, date: Date.current, description: "Gasto archivado",
+                                     category: category, source: "ai", money_source: general)
+
+    assert_no_difference "Expense.count" do
+      delete money_source_path(general)
+    end
+
+    assert_redirected_to money_sources_cash_path
+    assert_equal I18n.t("money_sources.flashes.deleted"), flash[:notice]
+    archived = MoneySource.with_deleted.find(general.id)
+    assert archived.soft_deleted?
+    assert archived.general?
+    assert_equal general.id, expense.reload.money_source_id
+
+    get money_sources_cash_path
+    assert_select "a[href=?]", money_source_path(general, tab: "resumen"), count: 0
+  end
+
+  test "DELETE /money_sources/:id soft deletes the money source" do
     source = create_source
-    assert_difference "MoneySource.count", -1 do
+
+    assert_no_difference "MoneySource.with_deleted.count" do
       delete money_source_path(source)
     end
+
     assert_redirected_to money_sources_cash_path
+    assert_equal I18n.t("money_sources.flashes.deleted"), flash[:notice]
+    assert MoneySource.with_deleted.find(source.id).soft_deleted?
+    refute @user.money_sources.exists?(source.id)
+  end
+
+  test "DELETE /money_sources/:id blocks a source with recurring templates" do
+    source = create_source
+    category = Category.create!(name: "Recurrente ctrl", is_default: true, category_type: "expense")
+    @user.recurring_templates.create!(kind: "expense", amount: 10_000, category: category,
+                                      money_source: source, frequency: "monthly",
+                                      payment_day: 1, source: "manual", active: true)
+
+    delete money_source_path(source)
+
+    assert_redirected_to money_sources_cash_path
+    assert_equal I18n.t("money_sources.flashes.recurring_blocked"), flash[:alert]
+    refute MoneySource.with_deleted.find(source.id).soft_deleted?
+  end
+
+  test "DELETE /money_sources/:id allows soft deleting a debt source" do
+    card = create_source(name: "Visa con deuda", kind: "credit_card", starting_balance: -500_000)
+
+    delete money_source_path(card)
+
+    assert_redirected_to money_sources_credit_cards_path
+    archived = MoneySource.with_deleted.find(card.id)
+    assert archived.soft_deleted?
+    refute @user.money_sources.exists?(card.id)
   end
 
   test "user cannot access other user's money source" do
