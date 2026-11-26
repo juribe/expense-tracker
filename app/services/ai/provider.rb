@@ -18,8 +18,13 @@ module Ai
 
     class Error < StandardError; end
 
-    # Growing waits for transient 429 throttles: 2s, 5s, 10s.
+    # Growing waits for transient 429 throttles without a provider hint: 2s, 5s, 10s.
     RETRY_BACKOFF_SECONDS = [ 2, 5, 10 ].freeze
+    # Upstream 429s (OpenRouter "Provider returned error") carry a ~60s
+    # Retry-After hint; retrying inside that window fails every time.
+    MAX_RETRY_AFTER_SECONDS = 60
+    # Bounds the total sleep per call so one resolution cannot stall a job.
+    MAX_TOTAL_RETRY_WAIT_SECONDS = 90
 
     attr_reader :name, :model
 
@@ -54,7 +59,7 @@ module Ai
       )
     rescue JSON::ParserError, TypeError, KeyError => e
       raise Error, "invalid AI response (#{e.message})"
-    rescue Net::OpenTimeout, Net::ReadTimeout, SocketError, Errno::ECONNREFUSED => e
+    rescue Net::OpenTimeout, Net::ReadTimeout, SocketError, Errno::ECONNREFUSED, Errno::ECONNRESET, EOFError => e
       raise Error, "AI request failed (#{e.message})"
     end
 
@@ -106,7 +111,7 @@ module Ai
       end
 
       Response.new(content: content, model: model || @model, input_tokens: 0, output_tokens: 0)
-    rescue Net::OpenTimeout, Net::ReadTimeout, SocketError, Errno::ECONNREFUSED => e
+    rescue Net::OpenTimeout, Net::ReadTimeout, SocketError, Errno::ECONNREFUSED, Errno::ECONNRESET, EOFError => e
       raise Error, "AI request failed (#{e.message})"
     end
 
@@ -162,26 +167,65 @@ module Ai
       retry_with_backoff { http.request(request) }
     end
 
-    # Retries transient rate limits (HTTP 429) with a growing backoff
-    # (2s, 5s, 10s): free-tier providers answer in per-minute bursts, so the
-    # short 1s/2s waits still landed inside the throttled window. A 429
-    # reporting an exhausted budget or quota is not transient: fail fast so
-    # the router can fall back to the strong tier immediately.
+    # Retries transient rate limits (HTTP 429), honoring the provider's
+    # Retry-After hint when present and falling back to a growing backoff
+    # (2s, 5s, 10s): free-tier providers answer in per-minute bursts, so a
+    # wait shorter than their hint still lands inside the throttled window.
+    # A 429 reporting an exhausted budget or quota is not transient: fail fast
+    # so the router can fall back to the strong tier immediately.
     def retry_with_backoff
       attempts = 0
+      waited = 0
       loop do
         response = yield
         return response if response.code.to_i == 200
 
-        if response.code.to_i == 429 && attempts < 3 && retryable_throttle?(response)
-          attempts += 1
-          sleep(RETRY_BACKOFF_SECONDS[attempts - 1])
-          next
-        end
+        wait = retry_wait(response, attempts, waited)
+        raise_http_error(response) if wait.nil?
 
-        detail = api_error_message(response)
-        raise Error, "AI HTTP #{response.code}#{detail ? " (#{detail})" : ""}"
+        attempts += 1
+        waited += wait
+        sleep(wait)
       end
+    end
+
+    # Seconds to wait before the next attempt, or nil when this response must
+    # not be retried (non-429, retries exhausted, permanent throttle, or a
+    # wait that would exceed the total budget).
+    def retry_wait(response, attempts, waited)
+      return nil unless response.code.to_i == 429
+      return nil if attempts >= RETRY_BACKOFF_SECONDS.size
+      return nil unless retryable_throttle?(response)
+
+      wait = retry_after_seconds(response) || RETRY_BACKOFF_SECONDS[attempts]
+      wait if waited + wait <= MAX_TOTAL_RETRY_WAIT_SECONDS
+    end
+
+    # Provider hint, capped so a single wait cannot stall the caller for long.
+    def retry_after_seconds(response)
+      seconds = header_retry_after(response) || body_retry_after(response)
+      seconds&.clamp(1, MAX_RETRY_AFTER_SECONDS)
+    end
+
+    def header_retry_after(response)
+      value = response["Retry-After"].to_s.strip
+      value.to_i if value.match?(/\A\d+\z/)
+    end
+
+    # OpenRouter repeats the hint in the error body when the header is absent.
+    def body_retry_after(response)
+      metadata = JSON.parse(response.body.to_s).dig("error", "metadata")
+      return nil unless metadata.is_a?(Hash)
+
+      value = metadata["retry_after_seconds"] || metadata.dig("headers", "Retry-After")
+      value.to_i if value.to_s.match?(/\A\d+\z/)
+    rescue JSON::ParserError, TypeError
+      nil
+    end
+
+    def raise_http_error(response)
+      detail = api_error_message(response)
+      raise Error, "AI HTTP #{response.code}#{detail ? " (#{detail})" : ""}"
     end
 
     # HTTP errors carry a vendor body ({ "message": ... } for Mistral, etc.);

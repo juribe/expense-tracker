@@ -4,7 +4,19 @@ require "test_helper"
 
 module Ai
   class ProviderTest < ActiveSupport::TestCase
-    FakeResponse = Struct.new(:code, :body)
+    class FakeResponse
+      attr_reader :code, :body
+
+      def initialize(code, body = nil, headers = {})
+        @code = code
+        @body = body
+        @headers = headers
+      end
+
+      def [](name)
+        @headers[name]
+      end
+    end
 
     class FakeHttp
       attr_reader :request_count
@@ -94,6 +106,74 @@ module Ai
       assert_equal 4, fake_http.request_count
     end
 
+    test "honors the Retry-After hint on rate-limited responses" do
+      p = provider
+      responses = [
+        FakeResponse.new("429", nil, { "Retry-After" => "60" }),
+        FakeResponse.new("200", "{}")
+      ]
+      fake_http = FakeHttp.new(responses)
+      slept = []
+      p.define_singleton_method(:sleep) { |seconds| slept << seconds }
+
+      response = p.send(:perform_request, [ fake_http, nil ])
+
+      assert_equal "200", response.code
+      assert_equal [ 60 ], slept
+      assert_equal 2, fake_http.request_count
+    end
+
+    test "caps the Retry-After hint to keep the wait bounded" do
+      p = provider
+      responses = [
+        FakeResponse.new("429", nil, { "Retry-After" => "300" }),
+        FakeResponse.new("200", "{}")
+      ]
+      fake_http = FakeHttp.new(responses)
+      slept = []
+      p.define_singleton_method(:sleep) { |seconds| slept << seconds }
+
+      p.send(:perform_request, [ fake_http, nil ])
+
+      assert_equal [ 60 ], slept
+    end
+
+    test "reads the retry hint from the OpenRouter error body when the header is absent" do
+      p = provider
+      body = {
+        error: {
+          message: "Provider returned error",
+          code: 429,
+          metadata: { retry_after_seconds: 45 }
+        }
+      }.to_json
+      responses = [ FakeResponse.new("429", body), FakeResponse.new("200", "{}") ]
+      fake_http = FakeHttp.new(responses)
+      slept = []
+      p.define_singleton_method(:sleep) { |seconds| slept << seconds }
+
+      p.send(:perform_request, [ fake_http, nil ])
+
+      assert_equal [ 45 ], slept
+    end
+
+    test "gives up when the next wait would exceed the total wait budget" do
+      p = provider
+      responses = [
+        FakeResponse.new("429", nil, { "Retry-After" => "60" }),
+        FakeResponse.new("429", nil, { "Retry-After" => "60" })
+      ]
+      fake_http = FakeHttp.new(responses)
+      slept = []
+      p.define_singleton_method(:sleep) { |seconds| slept << seconds }
+
+      error = assert_raises(Ai::Provider::Error) { p.send(:perform_request, [ fake_http, nil ]) }
+
+      assert_equal "AI HTTP 429", error.message
+      assert_equal [ 60 ], slept
+      assert_equal 2, fake_http.request_count
+    end
+
     test "gives up after three 429 retries and reports the rate limit" do
       p = provider
       responses = [ FakeResponse.new("429"), FakeResponse.new("429"), FakeResponse.new("429"), FakeResponse.new("429") ]
@@ -178,6 +258,19 @@ module Ai
 
       assert_equal [ "ok" ], deltas
       assert_equal "ok", response.content
+    end
+
+    test "chat_stream reports a reset connection as a provider error" do
+      p = provider
+      fake_http = FakeStreamingHttp.new(code: "200", chunks: [])
+      fake_http.define_singleton_method(:request) { |_request| raise Errno::ECONNRESET }
+      p.define_singleton_method(:build_request) { |*_args| [ fake_http, Net::HTTP::Post.new("/") ] }
+
+      error = assert_raises(Ai::Provider::Error) do
+        p.chat_stream(messages: [ { role: "user", content: "hi" } ])
+      end
+
+      assert_match(/Connection reset/, error.message)
     end
 
     test "chat_stream raises when the provider is not configured" do
