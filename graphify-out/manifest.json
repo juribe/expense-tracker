@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1795565648.6429892,
-    "seen": 1795565723.458115,
+    "mtime": 1795732023.3649013,
+    "seen": 1795732073.918035,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -1710,9 +1710,9 @@
     "semantic_hash": ""
   },
   "app/services/ai/provider.rb": {
-    "mtime": 1790891497.846204,
-    "seen": 1793490696.634666,
-    "ast_hash": "8ab1a269e6ad0fcfe8b5c3b3c65c5885",
+    "mtime": 1795731911.468587,
+    "seen": 1795732073.8576481,
+    "ast_hash": "a5929858731cf0c71413cb60671f91d5",
     "semantic_hash": ""
   },
   "app/services/ai/providers.rb": {
@@ -1782,9 +1782,9 @@
     "semantic_hash": ""
   },
   "test/services/ai/provider_test.rb": {
-    "mtime": 1790891497.9176617,
-    "seen": 1793490696.6353762,
-    "ast_hash": "85019b29d1f7526ee84d076d7858bd1b",
+    "mtime": 1795731914.1202757,
+    "seen": 1795732073.903303,
+    "ast_hash": "827ef9a92e33bff5e12fe4cc3c8d9216",
     "semantic_hash": ""
   },
   "test/services/ai/router_test.rb": {
