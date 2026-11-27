@@ -396,9 +396,9 @@
     "semantic_hash": "57fbab964703cce5d30fa4dd77057388"
   },
   "app/services/source_recognition/matcher.rb": {
-    "mtime": 1792631657.3095484,
-    "seen": 1793490696.634955,
-    "ast_hash": "7bf6e36d9b2b79e5fcf31abe0d374361",
+    "mtime": 1795786933.578784,
+    "seen": 1795787097.2231958,
+    "ast_hash": "78144f79bd0257727c7e3f00daef5a80",
     "semantic_hash": ""
   },
   "app/services/source_recognition/suggestion_engine.rb": {
@@ -954,9 +954,9 @@
     "semantic_hash": "9eda3e3594c5be50b51c1bacf109da7e"
   },
   "test/services/source_recognition/matcher_test.rb": {
-    "mtime": 1792631364.5911644,
-    "seen": 1793490696.635558,
-    "ast_hash": "f71ac46ff2b0095ea61a9bcc07562fd6",
+    "mtime": 1795786790.3934183,
+    "seen": 1795787097.25975,
+    "ast_hash": "30e65146488f14b9e620c68cead3af03",
     "semantic_hash": ""
   },
   "test/services/source_recognition/suggestion_engine_test.rb": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1795732023.3649013,
-    "seen": 1795732073.918035,
+    "mtime": 1795787028.5079882,
+    "seen": 1795787097.265573,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
