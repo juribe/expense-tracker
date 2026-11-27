@@ -28,6 +28,12 @@ module SourceRecognition
   # seed's sender/domain cannot keep the email away from the card that
   # provably paid.
   #
+  # A keyword that merely spells the bank's name ("davibank", "banco davibank")
+  # is institution evidence too: every member of the group can be named by it.
+  # It still validates a source on its own, but it stops scoring as soon as
+  # another member of the group matches a genuine product keyword; otherwise
+  # the bank's own name would tie (or outscore) the product that actually paid.
+  #
   #   Matcher.call(user: user, message: gmail_message_hash)
   #     => MoneySource            when exactly one source wins
   #     => [MoneySource, ...]     when the top score is tied (ambiguous)
@@ -43,6 +49,8 @@ module SourceRecognition
     INSTITUTION_KINDS = %w[sender domain subject header].freeze
     MASK_PREFIX = /[*•#]+\s*/.freeze
     TERMINATION_PHRASE = /terminad[ao]s?\s+en|termina(?:n|do)?\s+en\s+los?\s+d[ií]gitos|termina\s+en|ending\s+in/.freeze
+    # Conventional bank words that add nothing to the institution's name.
+    BANK_PREFIX_WORDS = %w[banco bank].freeze
 
     class << self
       def call(user:, message:)
@@ -124,22 +132,24 @@ module SourceRecognition
     # exactly one SEED (its earliest member): the source whose recognition
     # record holds the bank-level configuration the whole group shares.
     def bank_groups
-      key_by_id = {}
-      buckets = Hash.new { |hash, key| hash[key] = { key: key, members: [] } }
-      @user.money_sources.payment_sources
-          .includes({ recognition: :recognition_identifiers })
-          .each do |source|
-            key = bank_group_key(source)
-            key_by_id[source.id] = key
-            buckets[key][:members] << source
-          end
+      @bank_groups ||= begin
+        key_by_id = {}
+        buckets = Hash.new { |hash, key| hash[key] = { key: key, members: [] } }
+        @user.money_sources.payment_sources
+            .includes({ recognition: :recognition_identifiers })
+            .each do |source|
+              key = bank_group_key(source)
+              key_by_id[source.id] = key
+              buckets[key][:members] << source
+            end
 
-      buckets.values.each do |group|
-        group[:seed] = group[:members].min_by { |member| [ member.created_at, member.id ] }
-        group[:configured] = group[:members].any?(&:recognition_configured?)
+        buckets.values.each do |group|
+          group[:seed] = group[:members].min_by { |member| [ member.created_at, member.id ] }
+          group[:configured] = group[:members].any?(&:recognition_configured?)
+        end
+
+        buckets
       end
-
-      buckets
     end
 
     def bank_group_key(source)
@@ -279,8 +289,65 @@ module SourceRecognition
       if value.match?(/\A\d{4}\z/) && value == source.last_four
         return anchored_last_four?(value) ? LAST_FOUR_WEIGHT : 0
       end
+      return 0 if bank_alias_keyword?(source, value) && product_evidence_in_group?(source)
 
       body_contains_word?(value) ? WEIGHTS["keyword"] : 0
+    end
+
+    # Keywords that only spell the bank's name ("davibank", "banco davibank")
+    # name the INSTITUTION: every member of the group can match them, so they
+    # need no anchor and prove nothing about which product paid.
+    def bank_alias_keyword?(source, value)
+      words = fold(value).split
+      return false if words.empty?
+
+      identity = bank_identity_words(source)
+      identity.any? && words.all? { |word| identity.include?(word) || BANK_PREFIX_WORDS.include?(word) }
+    end
+
+    def bank_identity_words(source)
+      @bank_identity_words ||= {}
+      @bank_identity_words[source.id] ||= [ source.institution_name, source.bank, source.institution_token ]
+                                          .compact
+                                          .flat_map { |name| fold(name).split }
+                                          .reject { |word| BANK_PREFIX_WORDS.include?(word) }
+                                          .to_set
+    end
+
+    # True when some configured member of the source's bank group matches a
+    # genuine product keyword in this message: only then does the bank's own
+    # name stop counting as evidence.
+    def product_evidence_in_group?(source)
+      @product_evidence_by_source_id ||= {}
+      @product_evidence_by_source_id.fetch(source.id) do
+        @product_evidence_by_source_id[source.id] = bank_group_members(source).any? do |member|
+          member.recognition_configured? && genuine_product_match?(member)
+        end
+      end
+    end
+
+    def bank_group_members(source)
+      group = bank_group_for(source)
+      group ? group[:members] : [ source ]
+    end
+
+    # Product evidence computed WITHOUT keyword_score, which depends on the
+    # alias discount this feeds.
+    def genuine_product_match?(source)
+      source.recognition_identifiers.any? do |id|
+        active_identifier?(id) && id.kind == "keyword" &&
+          !bank_alias_keyword?(source, id.value) &&
+          keyword_evidence?(id, source)
+      end
+    end
+
+    def keyword_evidence?(id, source)
+      value = id.value.to_s
+      if value.match?(/\A\d{4}\z/) && value == source.last_four
+        return anchored_last_four?(value)
+      end
+
+      body_contains_word?(value)
     end
 
     # --- per-kind matchers ----------------------------------------------------

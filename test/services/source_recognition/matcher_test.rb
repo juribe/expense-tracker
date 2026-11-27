@@ -192,6 +192,58 @@ module SourceRecognition
       assert_not_equal cuenta, result
     end
 
+    # Real DAVIbank configuration: the card identifies by product wording, the
+    # savings account by the bank's own name (and its "banco ..." variant).
+    def davibank_card_and_account
+      cuenta = create_configured_source(
+        name: "Cuenta de Ahorros",
+        keywords: [ "davibank", "banco davibank", "tarjeta clasica", "7273" ],
+        senders: [ "davibankinforma@davibank.com" ], domains: [ "davibank.com" ],
+        subjects: [ "DAVIbank en Linea" ]
+      )
+      card = create_configured_source(
+        name: "Tarjeta de Crédito Lifemiles", kind: "credit_card", identifier: "5194",
+        keywords: [ "5194", "lifemiles", "tarjeta platinum", "tarjeta Visa Platinum" ]
+      )
+      [ cuenta, card ]
+    end
+
+    test "a purchase email that only names the product goes to the card, not the account matching the bank name" do
+      @clasica.destroy
+      cuenta, lifemiles = davibank_card_and_account
+
+      # Real DAVIbank notification: it names the PRODUCT ("tarjeta Visa
+      # Platinum") and never the last four. The savings account only matches
+      # through the bank's name, which cannot prove which product paid.
+      result = match(
+        from: "DAVIbank <notificaciones@davibank.com>",
+        subject: "DAVIbank en Linea",
+        body: "Apreciado(a) Cliente:\n\nDAVIbank te notifica que el día de hoy realizaste con tu " \
+              "tarjeta Visa Platinum la siguiente transacción:\n\nComercio\tSAO 094 VILLA CAROLINA\n" \
+              "Monto\t6,200\nFecha\t2026/11/27\nHora\t7:22:05\nSi requieres más información,\n" \
+              "contáctanos en nuestros canales de atención."
+      )
+
+      assert_equal lifemiles, result
+      assert_not_equal cuenta, result
+    end
+
+    test "bank name variants never outscore the product evidence" do
+      @clasica.destroy
+      cuenta, lifemiles = davibank_card_and_account
+
+      # Two bank-name keywords would score 2 against the card's single product
+      # keyword; the bank's name carries no product information either way.
+      result = match(
+        from: "DAVIbank <notificaciones@davibank.com>",
+        body: "Banco DAVIbank te notifica que realizaste con tu tarjeta Visa Platinum " \
+              "una transacción por 6,200 en SAO 094 VILLA CAROLINA"
+      )
+
+      assert_equal lifemiles, result
+      assert_not_equal cuenta, result
+    end
+
     test "a debit email still picks the account through its product keywords" do
       @clasica.destroy
       cuenta = create_configured_source(
